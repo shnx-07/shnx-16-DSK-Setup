@@ -1,0 +1,6 @@
+module qs.core
+
+singleton ServiceRegistry 1.0 ServiceRegistry.qml
+singleton PanelController 1.0 PanelController.qml
+
+ShellRoot 1.0 ShellRoot.qml

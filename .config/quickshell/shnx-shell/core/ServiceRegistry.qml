@@ -9,6 +9,18 @@ QtObject {
     readonly property Services.HyprlandService hyprland:
         Services.HyprlandService {}
 
+    readonly property Services.ProfileService profile:
+      Services.ProfileService {}
+
+    readonly property Services.SearchService search:
+      Services.SearchService {}
+
+    readonly property Services.AudioService audio:
+        Services.AudioService {}
+
+    readonly property Services.BrightnessService brightness:
+        Services.BrightnessService {}
+
     readonly property Services.BatteryService battery:
         Services.BatteryService {}
 

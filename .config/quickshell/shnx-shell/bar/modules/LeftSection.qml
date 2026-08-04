@@ -1,4 +1,5 @@
 import QtQuick
+import qs.core as Core
 
 Item {
     id: root
@@ -13,8 +14,12 @@ Item {
         spacing: 8
 
         ArchButton {
+            id: archButton
+
             onClicked: {
-                console.log("Arch button clicked")
+                Core.PanelController.toggleProfileHub(
+                    archButton
+                )
             }
         }
 

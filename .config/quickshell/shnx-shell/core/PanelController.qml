@@ -9,6 +9,10 @@ QtObject {
     property string selectedSection: ""
     property var anchorItem: null
 
+
+    readonly property bool profileHubOpen:
+      openPanel === "profileHub"
+
     readonly property bool quickSettingsOpen:
         openPanel === "quickSettings"
 
@@ -30,6 +34,29 @@ QtObject {
     readonly property bool overviewPanelOpen:
         quickSettingsOpen
         && selectedSection === "overview"
+    
+    function toggleProfileHub(item) {
+        const samePanel =
+            openPanel === "profileHub"
+
+        const sameAnchor =
+            anchorItem === item
+
+        if (samePanel && sameAnchor) {
+            close()
+            return
+        }
+
+        anchorItem = item
+        selectedSection = ""
+        openPanel = "profileHub"
+    }
+
+    function openProfileHub(item) {
+        anchorItem = item
+        selectedSection = ""
+        openPanel = "profileHub"
+    }
 
     function toggleQuickSettings(section, item) {
         const requestedSection =
@@ -75,6 +102,32 @@ QtObject {
 
     function toggleBluetooth(item) {
         toggleQuickSettings("bluetooth", item)
+      }
+
+    readonly property bool appLauncherOpen:
+    openPanel === "appLauncher"
+
+    function openAppLauncher(item) {
+        if (item !== undefined && item !== null)
+            anchorItem = item
+
+        selectedSection = ""
+        openPanel = "appLauncher"
+    }
+
+    function toggleAppLauncher(item) {
+        const samePanel =
+            openPanel === "appLauncher"
+
+        const sameAnchor =
+            anchorItem === item
+
+        if (samePanel && sameAnchor) {
+            close()
+            return
+        }
+
+        openAppLauncher(item)
     }
 
     function toggleNotifications(item) {

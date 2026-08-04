@@ -12,6 +12,9 @@ QtObject {
     readonly property bool quickSettingsOpen:
         openPanel === "quickSettings"
 
+    readonly property bool notificationsOpen:
+        openPanel === "notifications"
+
     readonly property bool batteryPanelOpen:
         quickSettingsOpen
         && selectedSection === "battery"
@@ -72,6 +75,56 @@ QtObject {
 
     function toggleBluetooth(item) {
         toggleQuickSettings("bluetooth", item)
+    }
+
+    function toggleNotifications(item) {
+        const samePanel =
+            openPanel === "notifications"
+
+        const sameAnchor =
+            anchorItem === item
+
+        if (samePanel && sameAnchor) {
+            close()
+            return
+        }
+
+        anchorItem = item
+        selectedSection = ""
+        openPanel = "notifications"
+    }
+
+    function openNotifications(item) {
+        anchorItem = item
+        selectedSection = ""
+        openPanel = "notifications"
+    }
+
+    readonly property bool powerPanelOpen:
+    openPanel === "power"
+
+
+    function togglePower(item) {
+        const samePanel =
+            openPanel === "power"
+
+        const sameAnchor =
+            anchorItem === item
+
+        if (samePanel && sameAnchor) {
+            close()
+            return
+        }
+
+        anchorItem = item
+        selectedSection = ""
+        openPanel = "power"
+    }
+
+    function openPower(item) {
+        anchorItem = item
+        selectedSection = ""
+        openPanel = "power"
     }
 
     function close() {

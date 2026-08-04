@@ -1,0 +1,45 @@
+{
+  "protocol_version": 1,
+  "commands": {
+    "hello": {
+      "description": "Validates QML/backend protocol compatibility.",
+      "payload": {},
+      "response": {
+        "backend": "string",
+        "backend_version": "string",
+        "protocol_version": "integer"
+      }
+    },
+    "ping": {
+      "description": "Checks whether the backend is responsive.",
+      "payload": {},
+      "response": {
+        "reply": "pong"
+      }
+    },
+    "weather.get": {
+      "description": "Returns fresh or cached weather for a location.",
+      "payload": {
+        "location": "string",
+        "force_refresh": "boolean"
+      },
+      "response": {
+        "provider": "string",
+        "query": "string",
+        "location": "string",
+        "condition": "string",
+        "condition_icon": "string",
+        "temperature": "number",
+        "apparent_temperature": "number",
+        "high": "number",
+        "low": "number",
+        "precipitation_probability": "integer",
+        "humidity": "integer",
+        "wind_speed": "number",
+        "updated_at": "integer",
+        "cached": "boolean",
+        "stale": "boolean"
+      }
+    }
+  }
+}

@@ -20,4 +20,15 @@ QtObject {
 
     readonly property Services.NotificationService notifications:
         Services.NotificationService {}
+
+    readonly property Services.WeatherService weather:
+        Services.WeatherService {}
+
+    readonly property Services.SystemService system:
+        Services.SystemService {}
+
+    readonly property Services.BackendService backend:
+        Services.BackendService {
+            id: backendService
+        }
 }

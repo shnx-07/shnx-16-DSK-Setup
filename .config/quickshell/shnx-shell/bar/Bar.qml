@@ -29,7 +29,7 @@ Scope {
 
                 aboveWindows: true
                 focusable: false
-                color: "#111318"
+                color: "transparent"
 
                 Item {
                     anchors.fill: parent

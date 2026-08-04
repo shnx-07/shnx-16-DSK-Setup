@@ -1,17 +1,24 @@
 import QtQuick
 import qs.core as Core
 
-Item {
+Rectangle {
     id: root
 
-    implicitWidth: workspaceRow.implicitWidth
+    implicitWidth: workspaceRow.implicitWidth + 8
     implicitHeight: 32
+
+    radius: 10
+
+    color: "#252932"
+
+    border.width: 1
+    border.color: "#3b414d"
 
     Row {
         id: workspaceRow
 
-        anchors.fill: parent
-        spacing: 5
+        anchors.centerIn: parent
+        spacing: 2
 
         Repeater {
             model: Core.ServiceRegistry.hyprland.workspaces
@@ -35,10 +42,10 @@ Item {
 
                 visible: validWorkspace
 
-                width: visible ? 32 : 0
-                height: 32
+                width: visible ? 30 : 0
+                height: 26
 
-                radius: 9
+                radius: 8
 
                 color: {
                     if (urgent)
@@ -47,16 +54,16 @@ Item {
                     if (selected)
                         return "#596273"
 
-                    if (active)
-                        return "#3b414d"
-
                     if (workspaceMouse.containsMouse)
-                        return "#2d323c"
+                        return "#343a45"
 
-                    return "#252932"
+                    return "transparent"
                 }
 
-                border.width: 1
+                border.width:
+                    selected || urgent
+                        ? 1
+                        : 0
 
                 border.color: {
                     if (urgent)
@@ -65,13 +72,16 @@ Item {
                     if (selected)
                         return "#aeb8ca"
 
-                    if (workspaceMouse.containsMouse)
-                        return "#596273"
-
-                    return "#3b414d"
+                    return "transparent"
                 }
 
                 Behavior on color {
+                    ColorAnimation {
+                        duration: 120
+                    }
+                }
+
+                Behavior on border.color {
                     ColorAnimation {
                         duration: 120
                     }
@@ -84,12 +94,16 @@ Item {
                         ? workspaceButton.modelData.name
                         : ""
 
-                    color: "#f2f3f5"
+                    color: workspaceButton.selected
+                        ? "#ffffff"
+                        : "#c8cdd5"
 
                     font.pixelSize: 12
-                    font.weight: workspaceButton.selected
-                        ? Font.Bold
-                        : Font.DemiBold
+
+                    font.weight:
+                        workspaceButton.selected
+                            ? Font.Bold
+                            : Font.DemiBold
                 }
 
                 MouseArea {
@@ -101,9 +115,10 @@ Item {
                     cursorShape: Qt.PointingHandCursor
 
                     onClicked: {
-                        Core.ServiceRegistry.hyprland.activateWorkspace(
-                            workspaceButton.modelData
-                        )
+                        Core.ServiceRegistry.hyprland
+                            .activateWorkspace(
+                                workspaceButton.modelData
+                            )
                     }
                 }
             }

@@ -43,20 +43,24 @@ Item {
             }
         }
 
-        QuickSettingsButton {
-            id: quickSettingsButton
+        NotificationButton {
+            id: notificationButton
 
             onClicked: {
-                Core.PanelController.toggleQuickSettings(
-                    "overview",
-                    quickSettingsButton
+                Core.PanelController.toggleNotifications(
+                    notificationButton
                 )
             }
         }
 
         PowerButton {
-            onClicked:
-                console.log("Power menu later")
-        }
+          id: powerButton
+
+          onClicked: {
+              Core.PanelController.togglePower(
+                  powerButton
+              )
+          }
+      }
     }
 }

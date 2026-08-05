@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import "../core" as Core
 
 import "modules" as Modules
 import "dynamic" as Dynamic
@@ -27,12 +28,30 @@ Scope {
 
                 required property var modelData
 
+
+                readonly property var hyprlandMonitor:
+                    Core.ServiceRegistry.hyprland.monitorForScreen(
+                        screenScope.modelData
+                    )
+
+                readonly property var activeWorkspace:
+                    hyprlandMonitor
+                        ? hyprlandMonitor.activeWorkspace
+                        : null
+
+                readonly property bool hasFullscreenWindow:
+                    activeWorkspace
+                        ? activeWorkspace.hasFullscreen
+                        : false
+
                 // =====================================================
                 // Main bar window
                 // =====================================================
 
                 PanelWindow {
-                    id: barWindow
+                   id: barWindow
+
+                   visible: !screenScope.hasFullscreenWindow
 
                     screen: screenScope.modelData
 
@@ -74,6 +93,7 @@ Scope {
 
                 PanelWindow {
                     id: islandWindow
+                    visible: !screenScope.hasFullscreenWindow
 
                     screen: screenScope.modelData
 
@@ -167,6 +187,23 @@ Scope {
                             island.closeIsland()
                     }
                 }
+
+
+                Connections {
+                    target: screenScope
+
+                    function onHasFullscreenWindowChanged() {
+                        if (!screenScope.hasFullscreenWindow)
+                            return
+
+                        islandFocusGrab.active = false
+
+                        if (island.expanded)
+                            island.closeIsland()
+                    }
+                }  
+
+
 
                 Component.onDestruction: {
                     islandFocusGrab.active = false

@@ -50,6 +50,13 @@ QtObject {
         if (workspace)
             workspace.activate()
     }
+    
+    function monitorForScreen(screen) {
+        if (!screen)
+            return null
+
+        return Hyprland.monitorFor(screen)
+    }
 
     function refreshWorkspaces() {
         Hyprland.refreshWorkspaces()

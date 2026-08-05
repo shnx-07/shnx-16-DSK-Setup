@@ -10,10 +10,13 @@ QtObject {
         Services.HyprlandService {}
 
     readonly property Services.ProfileService profile:
-      Services.ProfileService {}
+        Services.ProfileService {}
 
     readonly property Services.SearchService search:
-      Services.SearchService {}
+        Services.SearchService {}
+
+    readonly property Services.ClockService clock:
+        Services.ClockService {}
 
     readonly property Services.AudioService audio:
         Services.AudioService {}

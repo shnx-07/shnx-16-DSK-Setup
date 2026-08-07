@@ -3,5 +3,7 @@ module qs.core
 singleton ServiceRegistry 1.0 ServiceRegistry.qml
 singleton PanelController 1.0 PanelController.qml
 singleton IslandController 1.0 IslandController.qml
+singleton UtilityDockController 1.0 UtilityDockController.qml
 
 ShellRoot 1.0 ShellRoot.qml
+

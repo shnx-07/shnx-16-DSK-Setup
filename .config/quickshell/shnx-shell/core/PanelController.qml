@@ -34,6 +34,23 @@ QtObject {
     readonly property bool overviewPanelOpen:
         quickSettingsOpen
         && selectedSection === "overview"
+
+    readonly property bool appearancePanelOpen:
+    openPanel === "appearance"
+
+    function openAppearance() {
+        selectedSection = ""
+        openPanel = "appearance"
+    }
+
+    function toggleAppearance() {
+        if (appearancePanelOpen) {
+            close()
+            return
+        }
+
+        openAppearance()
+    }
     
     function toggleProfileHub(item) {
         const samePanel =
@@ -105,29 +122,20 @@ QtObject {
       }
 
     readonly property bool appLauncherOpen:
-    openPanel === "appLauncher"
+        openPanel === "appLauncher"
 
-    function openAppLauncher(item) {
-        if (item !== undefined && item !== null)
-            anchorItem = item
-
+    function openAppLauncher() {
         selectedSection = ""
         openPanel = "appLauncher"
     }
 
-    function toggleAppLauncher(item) {
-        const samePanel =
-            openPanel === "appLauncher"
-
-        const sameAnchor =
-            anchorItem === item
-
-        if (samePanel && sameAnchor) {
+    function toggleAppLauncher() {
+        if (appLauncherOpen) {
             close()
             return
         }
 
-        openAppLauncher(item)
+        openAppLauncher()
     }
 
     function toggleNotifications(item) {

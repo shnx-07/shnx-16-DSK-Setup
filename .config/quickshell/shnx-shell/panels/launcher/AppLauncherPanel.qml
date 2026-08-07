@@ -2,44 +2,28 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.core as Core
+import Quickshell.Wayland
 
-PopupWindow {
+PanelWindow {
     id: root
 
     implicitWidth: 760
     implicitHeight: 680
 
     color: "transparent"
-    grabFocus: true
 
-    property int horizontalOffset: 14
-    property int verticalOffset: 15
+    visible: Core.PanelController.appLauncherOpen
 
-    anchor.item:
-        Core.PanelController.anchorItem
+    anchors {
+        top: true
+        bottom: true
+        left: true
+        right: true
+    }
 
-    anchor.edges:
-        Edges.Bottom | Edges.Left
-
-    anchor.gravity:
-        Edges.Bottom | Edges.Right
-
-    anchor.rect.x:
-        horizontalOffset
-
-    anchor.rect.y:
-        Core.PanelController.anchorItem
-            ? Core.PanelController.anchorItem.height
-                + verticalOffset
-            : verticalOffset
-
-    anchor.adjustment:
-        PopupAdjustment.Flip
-        | PopupAdjustment.Slide
-
-    visible:
-        Core.PanelController.appLauncherOpen
-        && Core.PanelController.anchorItem !== null
+    exclusionMode: ExclusionMode.Ignore
+    aboveWindows: true
+    focusable: true
 
     onVisibleChanged: {
         if (visible) {
@@ -118,8 +102,9 @@ PopupWindow {
     }
 
     Rectangle {
-        anchors.fill: parent
-
+        width: 760
+        height: 680
+        anchors.centerIn: parent
         radius: 24
         color: "#f016191f"
 

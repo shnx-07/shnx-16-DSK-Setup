@@ -1,0 +1,36 @@
+{
+  "utilityDock": {
+    "toggle": {
+      "modifiers": ["SUPER", "SHIFT"],
+      "key": "D",
+      "label": "Super + Shift + D"
+    }
+  },
+
+  "dockItems": {
+    "wallpaper": {
+      "label": "W"
+    },
+    "appearance": {
+      "label": "A"
+    },
+    "lockScreen": {
+      "label": "L"
+    },
+    "voiceRecorder": {
+      "label": "V"
+    },
+    "screenRecorder": {
+      "label": "R"
+    },
+    "codeSnippets": {
+      "label": "S"
+    },
+    "clipboard": {
+      "label": "C"
+    },
+    "appLauncher": {
+      "label": "A"
+    }
+  }
+}

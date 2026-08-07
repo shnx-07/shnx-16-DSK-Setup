@@ -1,0 +1,5 @@
+[config]
+
+[templates.shnx_shell_palette]
+input_path = "~/.config/matugen/templates/shnx-shell-palette.qml"
+output_path = "~/.config/matugen/generated/MatugenPalette.candidate.qml"

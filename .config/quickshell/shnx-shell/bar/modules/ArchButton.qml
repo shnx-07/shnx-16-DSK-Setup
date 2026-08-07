@@ -1,4 +1,5 @@
 import QtQuick
+import "../../theme" as ThemeSystem
 
 Rectangle {
     id: root
@@ -8,20 +9,26 @@ Rectangle {
     implicitWidth: 38
     implicitHeight: 32
 
-    radius: 10
+    radius: ThemeSystem.Theme.radius.button
 
     color: mouseArea.pressed
-        ? "#343944"
+        ? ThemeSystem.Theme.colors.pressedOverlay
         : mouseArea.containsMouse
-            ? "#2d323c"
-            : "#252932"
+            ? ThemeSystem.Theme.colors.hoverOverlay
+            : ThemeSystem.Theme.colors.surfaceContainer
 
     border.width: 1
     border.color: mouseArea.containsMouse
-        ? "#596273"
-        : "#3b414d"
+        ? ThemeSystem.Theme.colors.outline
+        : ThemeSystem.Theme.colors.outlineVariant
 
     Behavior on color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Behavior on border.color {
         ColorAnimation {
             duration: 120
         }
@@ -31,7 +38,7 @@ Rectangle {
         anchors.centerIn: parent
 
         text: "󰣇"
-        color: "#f2f3f5"
+        color: ThemeSystem.Theme.colors.on_surface
 
         font.pixelSize: 18
     }

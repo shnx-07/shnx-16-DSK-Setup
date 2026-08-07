@@ -40,7 +40,10 @@ QtObject {
         Services.WeatherService {}
 
     readonly property Services.SystemService system:
-        Services.SystemService {}
+    Services.SystemService {}
+
+    readonly property Services.ThemeService theme:
+        Services.ThemeService {}
 
     readonly property Services.BackendService backend:
         Services.BackendService {

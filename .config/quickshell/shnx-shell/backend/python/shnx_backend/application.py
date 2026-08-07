@@ -12,11 +12,26 @@ from .ipc.messages import (
     response_message,
 )
 from .ipc.server import IpcServer
+
+from .services.thumbnails import (
+    ThumbnailError,
+    ThumbnailService,
+)
+
+from .services.wallpaper import (
+    WallpaperError,
+    WallpaperService,
+)
+
 from .services.weather import (
     WeatherError,
     WeatherService,
 )
 
+from .services.palette_source import (
+    PaletteSourceError,
+    PaletteSourceService,
+)
 
 class BackendApplication:
     def __init__(self) -> None:
@@ -36,6 +51,9 @@ class BackendApplication:
         )
 
         self._weather = WeatherService()
+        self._wallpaper = WallpaperService()
+        self._thumbnails = ThumbnailService()
+        self._palette_source = PaletteSourceService()
 
         self._server = IpcServer(
             socket_path=self._socket_path,
@@ -52,11 +70,20 @@ class BackendApplication:
 
         try:
             await self._server.serve_forever()
+
         except asyncio.CancelledError:
             raise
+
         finally:
             await self._server.stop()
-            self._logger.info("Backend stopped")
+
+            self._logger.info(
+                "Backend stopped"
+            )
+
+    # ------------------------------------------------------------------
+    # Command router
+    # ------------------------------------------------------------------
 
     async def _handle_message(
         self,
@@ -96,6 +123,36 @@ class BackendApplication:
                 message
             )
 
+        if message.command == "wallpaper.scan":
+            return await self._handle_wallpaper_scan(
+                message
+            )
+
+        if message.command == "wallpaper.refresh":
+            return await self._handle_wallpaper_refresh(
+                message
+            )
+
+        if message.command == "wallpaper.apply":
+            return await self._handle_wallpaper_apply(
+                message
+            )
+
+        if message.command == "wallpaper.preview":
+            return await self._handle_wallpaper_preview(
+                message
+            )
+
+        if message.command == "wallpaper.previews":
+            return await self._handle_wallpaper_previews(
+                message
+            )
+        
+        if message.command == "theme.generate":
+            return await self._handle_theme_generate(
+                message
+            )
+
         return error_message(
             request_id=message.request_id,
             code="unknown_command",
@@ -103,6 +160,10 @@ class BackendApplication:
                 f"Unknown command: {message.command!r}"
             ),
         )
+
+    # ------------------------------------------------------------------
+    # Weather
+    # ------------------------------------------------------------------
 
     async def _handle_weather_get(
         self,
@@ -141,6 +202,7 @@ class BackendApplication:
                 location=location,
                 force_refresh=force_refresh,
             )
+
         except WeatherError as error:
             return error_message(
                 request_id=message.request_id,
@@ -153,3 +215,590 @@ class BackendApplication:
             command="weather.get",
             payload=weather,
         )
+
+    # ------------------------------------------------------------------
+    # Wallpaper library
+    # ------------------------------------------------------------------
+
+    async def _handle_wallpaper_scan(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        folders = message.payload.get(
+            "folders",
+            None,
+        )
+
+        validation_error = self._validate_folders(
+            folders
+        )
+
+        if validation_error is not None:
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_wallpaper_folders",
+                message=validation_error,
+            )
+
+        try:
+            result = await self._wallpaper.scan(
+                folders=folders
+            )
+
+        except WallpaperError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_scan_failed",
+                message=str(error),
+            )
+
+        except Exception:
+            self._logger.exception(
+                "Unexpected wallpaper scan failure"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_scan_failed",
+                message=(
+                    "Wallpaper scan failed unexpectedly."
+                ),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="wallpaper.scan",
+            payload=result,
+        )
+
+    async def _handle_wallpaper_refresh(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        folders = message.payload.get(
+            "folders",
+            None,
+        )
+
+        validation_error = self._validate_folders(
+            folders
+        )
+
+        if validation_error is not None:
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_wallpaper_folders",
+                message=validation_error,
+            )
+
+        try:
+            result = await self._wallpaper.refresh(
+                folders=folders
+            )
+
+        except WallpaperError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_refresh_failed",
+                message=str(error),
+            )
+
+        except Exception:
+            self._logger.exception(
+                "Unexpected wallpaper refresh failure"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_refresh_failed",
+                message=(
+                    "Wallpaper refresh failed unexpectedly."
+                ),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="wallpaper.refresh",
+            payload=result,
+        )
+
+    # ------------------------------------------------------------------
+    # Wallpaper apply
+    # ------------------------------------------------------------------
+
+    async def _handle_wallpaper_apply(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        path = message.payload.get(
+            "path",
+            "",
+        )
+
+        transition = message.payload.get(
+            "transition",
+            "random",
+        )
+
+        if not isinstance(path, str):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_wallpaper_path",
+                message=(
+                    "wallpaper.apply path must be a string."
+                ),
+            )
+
+        if not path.strip():
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_wallpaper_path",
+                message=(
+                    "wallpaper.apply requires a wallpaper path."
+                ),
+            )
+
+        if not isinstance(transition, str):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_wallpaper_transition",
+                message=(
+                    "wallpaper.apply transition must "
+                    "be a string."
+                ),
+            )
+
+        try:
+            result = await self._wallpaper.apply(
+                path=path,
+                transition=transition,
+            )
+
+        except WallpaperError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_apply_failed",
+                message=str(error),
+            )
+
+        except Exception:
+            self._logger.exception(
+                "Unexpected wallpaper apply failure"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_apply_failed",
+                message=(
+                    "Wallpaper application failed unexpectedly."
+                ),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="wallpaper.apply",
+            payload=result,
+        )
+
+    # ------------------------------------------------------------------
+    # Wallpaper previews
+    # ------------------------------------------------------------------
+
+    async def _handle_wallpaper_preview(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        path = message.payload.get(
+            "path",
+            "",
+        )
+
+        media_type = message.payload.get(
+            "type",
+            None,
+        )
+
+        width = message.payload.get(
+            "width",
+            ThumbnailService.DEFAULT_WIDTH,
+        )
+
+        height = message.payload.get(
+            "height",
+            ThumbnailService.DEFAULT_HEIGHT,
+        )
+
+        if not isinstance(path, str):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_preview_path",
+                message=(
+                    "wallpaper.preview path must be a string."
+                ),
+            )
+
+        if not path.strip():
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_preview_path",
+                message=(
+                    "wallpaper.preview requires a path."
+                ),
+            )
+
+        if (
+            media_type is not None
+            and not isinstance(media_type, str)
+        ):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_preview_type",
+                message=(
+                    "wallpaper.preview type must "
+                    "be a string or null."
+                ),
+            )
+
+        if not self._valid_dimension(width):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_preview_width",
+                message=(
+                    "wallpaper.preview width must "
+                    "be a positive integer."
+                ),
+            )
+
+        if not self._valid_dimension(height):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_preview_height",
+                message=(
+                    "wallpaper.preview height must "
+                    "be a positive integer."
+                ),
+            )
+
+        try:
+            result = (
+                await self._thumbnails.ensure_preview(
+                    path=path,
+                    media_type=media_type,
+                    width=width,
+                    height=height,
+                )
+            )
+
+        except ThumbnailError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_preview_failed",
+                message=str(error),
+            )
+
+        except Exception:
+            self._logger.exception(
+                "Unexpected wallpaper preview failure"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_preview_failed",
+                message=(
+                    "Wallpaper preview generation "
+                    "failed unexpectedly."
+                ),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="wallpaper.preview",
+            payload=result,
+        )
+
+    async def _handle_wallpaper_previews(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        wallpapers = message.payload.get(
+            "wallpapers",
+            [],
+        )
+
+        width = message.payload.get(
+            "width",
+            ThumbnailService.DEFAULT_WIDTH,
+        )
+
+        height = message.payload.get(
+            "height",
+            ThumbnailService.DEFAULT_HEIGHT,
+        )
+
+        concurrency = message.payload.get(
+            "concurrency",
+            ThumbnailService.DEFAULT_CONCURRENCY,
+        )
+
+        if not isinstance(wallpapers, list):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_preview_library",
+                message=(
+                    "wallpaper.previews wallpapers "
+                    "must be a list."
+                ),
+            )
+
+        for wallpaper in wallpapers:
+            if not isinstance(wallpaper, dict):
+                return error_message(
+                    request_id=message.request_id,
+                    code="invalid_preview_entry",
+                    message=(
+                        "Every wallpaper preview entry "
+                        "must be an object."
+                    ),
+                )
+
+            path = wallpaper.get(
+                "path",
+                "",
+            )
+
+            if not isinstance(path, str):
+                return error_message(
+                    request_id=message.request_id,
+                    code="invalid_preview_path",
+                    message=(
+                        "Every preview path must "
+                        "be a string."
+                    ),
+                )
+
+            if not path.strip():
+                return error_message(
+                    request_id=message.request_id,
+                    code="invalid_preview_path",
+                    message=(
+                        "Every preview entry requires "
+                        "a wallpaper path."
+                    ),
+                )
+
+            media_type = wallpaper.get(
+                "type",
+                None,
+            )
+
+            if (
+                media_type is not None
+                and not isinstance(
+                    media_type,
+                    str,
+                )
+            ):
+                return error_message(
+                    request_id=message.request_id,
+                    code="invalid_preview_type",
+                    message=(
+                        "Every preview type must "
+                        "be a string or null."
+                    ),
+                )
+
+        if not self._valid_dimension(width):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_preview_width",
+                message=(
+                    "wallpaper.previews width must "
+                    "be a positive integer."
+                ),
+            )
+
+        if not self._valid_dimension(height):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_preview_height",
+                message=(
+                    "wallpaper.previews height must "
+                    "be a positive integer."
+                ),
+            )
+
+        if not self._valid_positive_integer(
+            concurrency
+        ):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_preview_concurrency",
+                message=(
+                    "wallpaper.previews concurrency "
+                    "must be a positive integer."
+                ),
+            )
+
+        try:
+            results = (
+                await self._thumbnails.ensure_many(
+                    wallpapers=wallpapers,
+                    width=width,
+                    height=height,
+                    concurrency=concurrency,
+                )
+            )
+
+        except ThumbnailError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_previews_failed",
+                message=str(error),
+            )
+
+        except Exception:
+            self._logger.exception(
+                "Unexpected wallpaper previews failure"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="wallpaper_previews_failed",
+                message=(
+                    "Wallpaper preview generation "
+                    "failed unexpectedly."
+                ),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="wallpaper.previews",
+            payload={
+                "previews": results,
+            },
+        )
+    
+    async def _handle_theme_generate(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        path = message.payload.get(
+            "path",
+            "",
+        )
+
+        media_type = message.payload.get(
+            "type",
+            None,
+        )
+
+        if not isinstance(path, str):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_palette_path",
+                message="theme.generate path must be a string.",
+            )
+
+        if not path.strip():
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_palette_path",
+                message="theme.generate requires a wallpaper path.",
+            )
+
+        if (
+            media_type is not None
+            and not isinstance(media_type, str)
+        ):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_palette_type",
+                message=(
+                    "theme.generate type must "
+                    "be a string or null."
+                ),
+            )
+
+        try:
+            result = await self._palette_source.generate(
+                path=path,
+                media_type=media_type,
+            )
+
+        except PaletteSourceError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="theme_generate_failed",
+                message=str(error),
+            )
+
+        except Exception:
+            self._logger.exception(
+                "Unexpected theme generation failure"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="theme_generate_failed",
+                message=(
+                    "Theme generation failed unexpectedly."
+                ),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="theme.generate",
+            payload=result,
+        )
+
+
+
+
+    # ------------------------------------------------------------------
+    # Validation helpers
+    # ------------------------------------------------------------------
+
+    def _validate_folders(
+        self,
+        folders,
+    ) -> str | None:
+        if folders is None:
+            return None
+
+        if not isinstance(folders, list):
+            return (
+                "Wallpaper folders must be a list."
+            )
+
+        for folder in folders:
+            if not isinstance(folder, str):
+                return (
+                    "Every wallpaper source folder "
+                    "must be a string."
+                )
+
+        return None
+
+    def _valid_dimension(
+        self,
+        value,
+    ) -> bool:
+        if isinstance(value, bool):
+            return False
+
+        if not isinstance(value, int):
+            return False
+
+        return value > 0
+
+    def _valid_positive_integer(
+        self,
+        value,
+    ) -> bool:
+        if isinstance(value, bool):
+            return False
+
+        if not isinstance(value, int):
+            return False
+
+        return value > 0

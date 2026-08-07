@@ -115,15 +115,21 @@ Scope {
                                 onActivated: function(anchorItem) {
                                     Core.UtilityDockController.select(index)
 
-                                    if (modelData.route === "appLauncher") {
+                                    if (modelData.route === "wallpaper") {
                                         Core.UtilityDockController.hide()
-                                        Core.PanelController.openAppLauncher()
+                                        Core.PanelController.openWallpaper()
                                         return
                                     }
 
                                     if (modelData.route === "appearance") {
                                         Core.UtilityDockController.hide()
                                         Core.PanelController.openAppearance()
+                                        return
+                                    }
+
+                                    if (modelData.route === "appLauncher") {
+                                        Core.UtilityDockController.hide()
+                                        Core.PanelController.openAppLauncher()
                                         return
                                     }
 

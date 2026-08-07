@@ -51,6 +51,24 @@ QtObject {
 
         openAppearance()
     }
+
+    readonly property bool wallpaperPanelOpen:
+        openPanel === "wallpaper"
+
+    function openWallpaper() {
+        anchorItem = null
+        selectedSection = ""
+        openPanel = "wallpaper"
+    }
+
+    function toggleWallpaper() {
+        if (wallpaperPanelOpen) {
+            close()
+            return
+        }
+
+        openWallpaper()
+    }
     
     function toggleProfileHub(item) {
         const samePanel =

@@ -1,11 +1,14 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+
+import qs.core as Core
+
 import "../theme" as ThemeSystem
 import "../theme/generated" as Generated
 
 QtObject {
-  id: root
+    id: root
 
     readonly property Timer settingsReloadTimer: Timer {
         interval: 150
@@ -52,8 +55,31 @@ QtObject {
         }
     }
 
-    readonly property string appearanceMode: settings.appearanceMode
-    readonly property string colorStyle: settings.colorStyle
+    readonly property string appearanceMode:
+        settings.appearanceMode
+
+    readonly property string colorStyle:
+        settings.colorStyle
+
+
+    /*
+     * ------------------------------------------------------------
+     * Matugen generation state
+     * ------------------------------------------------------------
+     */
+
+    property string pendingThemeGenerateRequestId: ""
+    property var pendingThemeWallpaper: null
+
+    readonly property bool generatingWallpaperTheme:
+        pendingThemeGenerateRequestId.length > 0
+
+
+    /*
+     * ------------------------------------------------------------
+     * Supported modes
+     * ------------------------------------------------------------
+     */
 
     readonly property var validAppearanceModes: [
         "dark",
@@ -67,19 +93,35 @@ QtObject {
         "wallpaperFull"
     ]
 
+
+    /*
+     * ------------------------------------------------------------
+     * Theme state
+     * ------------------------------------------------------------
+     */
+
     property string status: "ready"
     property string errorMessage: ""
 
-    readonly property bool isApplying: status === "applying"
-    readonly property bool hasError: errorMessage.length > 0
+    readonly property bool isApplying:
+        status === "applying"
 
-    property QtObject lastValidPalette: ThemeSystem.Theme.darkPalette
+    readonly property bool hasError:
+        errorMessage.length > 0
+
+    property QtObject lastValidPalette:
+        ThemeSystem.Theme.darkPalette
+
 
     /*
      * Structural preset selected by appearanceMode.
      */
+
     readonly property QtObject activePreset:
-        presetForMode(appearanceMode)
+        presetForMode(
+            appearanceMode
+        )
+
 
     /*
      * Generated palette selected by appearanceMode.
@@ -90,16 +132,29 @@ QtObject {
      *
      * Gray remains a darker structural mode for now.
      */
+
     readonly property QtObject activeGeneratedPalette:
-        generatedPaletteForMode(appearanceMode)
+        generatedPaletteForMode(
+            appearanceMode
+        )
+
 
     /*
      * Hybrid wallpaper accent mode:
-     * - accents come from generated palette
-     * - structure/content/status come from selected preset
+     *
+     * accents
+     *     -> generated Matugen palette
+     *
+     * structure/content/status
+     *     -> selected Dark / Light / Gray preset
      */
+
     readonly property QtObject wallpaperAccentPalette: QtObject {
-        // Generated accent roles
+
+        /*
+         * Generated accent roles
+         */
+
         readonly property color primary:
             root.activeGeneratedPalette.primary
 
@@ -139,12 +194,16 @@ QtObject {
             root.activeGeneratedPalette.on_tertiary_container
 
 
-        // Preset structural roles
+        /*
+         * Preset structural roles
+         */
+
         readonly property color background:
             root.activePreset.background
 
         readonly property color on_background:
             root.activePreset.on_background
+
 
         readonly property color surface:
             root.activePreset.surface
@@ -171,7 +230,10 @@ QtObject {
             root.activePreset.surfaceContainerHighest
 
 
-        // Preset content roles
+        /*
+         * Preset content roles
+         */
+
         readonly property color on_surface:
             root.activePreset.on_surface
 
@@ -184,12 +246,19 @@ QtObject {
         readonly property color inverse_on_surface:
             root.activePreset.inverse_on_surface
 
-        // Accent-related inverse role from generated palette
+
+        /*
+         * Accent-related inverse role
+         */
+
         readonly property color inversePrimary:
             root.activeGeneratedPalette.inversePrimary
 
 
-        // Preset outline and overlays
+        /*
+         * Preset outlines / overlays
+         */
+
         readonly property color outline:
             root.activePreset.outline
 
@@ -203,7 +272,10 @@ QtObject {
             root.activePreset.scrim
 
 
-        // Preset error roles
+        /*
+         * Preset error roles
+         */
+
         readonly property color error:
             root.activePreset.error
 
@@ -217,7 +289,10 @@ QtObject {
             root.activePreset.on_error_container
 
 
-        // Preset success roles
+        /*
+         * Preset success roles
+         */
+
         readonly property color success:
             root.activePreset.success
 
@@ -231,7 +306,10 @@ QtObject {
             root.activePreset.on_success_container
 
 
-        // Preset warning roles
+        /*
+         * Preset warning roles
+         */
+
         readonly property color warning:
             root.activePreset.warning
 
@@ -245,7 +323,10 @@ QtObject {
             root.activePreset.on_warning_container
 
 
-        // Preset information roles
+        /*
+         * Preset information roles
+         */
+
         readonly property color info:
             root.activePreset.info
 
@@ -258,6 +339,13 @@ QtObject {
         readonly property color on_info_container:
             root.activePreset.on_info_container
     }
+
+
+    /*
+     * ------------------------------------------------------------
+     * Palette validation
+     * ------------------------------------------------------------
+     */
 
     readonly property var requiredColorRoles: [
         "primary",
@@ -320,50 +408,236 @@ QtObject {
         "on_info_container"
     ]
 
-    signal themeApplied(string appearanceMode, string colorStyle)
-    signal themeApplyFailed(string message)
+
+    /*
+     * ------------------------------------------------------------
+     * Signals
+     * ------------------------------------------------------------
+     */
+
+    signal themeApplied(
+        string appearanceMode,
+        string colorStyle
+    )
+
+    signal themeApplyFailed(
+        string message
+    )
+
+    signal wallpaperThemeGenerationStarted(
+        var wallpaper
+    )
+
+    signal wallpaperThemeGenerationSucceeded(
+        var wallpaper,
+        string source
+    )
+
+    signal wallpaperThemeGenerationFailed(
+        var wallpaper,
+        string message
+    )
+
+
+    /*
+     * ------------------------------------------------------------
+     * Wallpaper -> Matugen connection
+     * ------------------------------------------------------------
+     */
+
+    property Connections wallpaperConnections: Connections {
+        target: Core.ServiceRegistry.wallpaper
+
+        function onWallpaperApplied(
+            wallpaper
+        ) {
+            if (!wallpaper)
+                return
+
+            /*
+            * Preset mode intentionally ignores wallpaper colors.
+            */
+            if (
+                root.colorStyle !== "wallpaperAccents"
+                && root.colorStyle !== "wallpaperFull"
+            ) {
+                return
+            }
+
+            root.generateThemeFromWallpaper(
+                wallpaper
+            )
+        }
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * Backend Matugen response
+     * ------------------------------------------------------------
+     */
+    
+    property Connections backendConnections: Connections {
+        target: Core.ServiceRegistry.backend
+
+        function onResponseReceived(
+            command,
+            requestId,
+            payload
+        ) {
+            if (command !== "theme.generate")
+                return
+
+            if (
+                requestId
+                !== root.pendingThemeGenerateRequestId
+            ) {
+                return
+            }
+
+            const generatedWallpaper =
+                root.pendingThemeWallpaper
+
+            root.pendingThemeGenerateRequestId = ""
+            root.pendingThemeWallpaper = null
+
+            if (!payload) {
+                const message =
+                    "theme.generate returned no payload."
+
+                console.warn(
+                    "[ThemeService]",
+                    message
+                )
+
+                root.wallpaperThemeGenerationFailed(
+                    generatedWallpaper,
+                    message
+                )
+
+                return
+            }
+
+            if (payload.success !== true) {
+                const message =
+                    payload.error !== undefined
+                        ? String(payload.error)
+                        : "Matugen palette generation failed."
+
+                console.warn(
+                    "[ThemeService]",
+                    message
+                )
+
+                root.wallpaperThemeGenerationFailed(
+                    generatedWallpaper,
+                    message
+                )
+
+                return
+            }
+
+            console.log(
+                "[ThemeService] Matugen palette generated successfully:",
+                payload.source
+            )
+
+            root.wallpaperThemeGenerationSucceeded(
+                generatedWallpaper,
+                payload.source !== undefined
+                    ? String(payload.source)
+                    : ""
+            )
+        }
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * Startup
+     * ------------------------------------------------------------
+     */
 
     Component.onCompleted: {
         if (settingsFile.loaded)
             applyCurrentTheme()
     }
 
-    function isValidAppearanceMode(mode) {
-        return validAppearanceModes.indexOf(mode) !== -1
+
+    /*
+     * ------------------------------------------------------------
+     * Mode helpers
+     * ------------------------------------------------------------
+     */
+
+    function isValidAppearanceMode(
+        mode
+    ) {
+        return (
+            validAppearanceModes.indexOf(
+                mode
+            ) !== -1
+        )
     }
 
-    function isValidColorStyle(style) {
-        return validColorStyles.indexOf(style) !== -1
+
+    function isValidColorStyle(
+        style
+    ) {
+        return (
+            validColorStyles.indexOf(
+                style
+            ) !== -1
+        )
     }
 
-    function presetForMode(mode) {
+
+    function presetForMode(
+        mode
+    ) {
         switch (mode) {
         case "light":
             return ThemeSystem.Theme.lightPalette
+
         case "gray":
             return ThemeSystem.Theme.grayPalette
+
         case "dark":
         default:
             return ThemeSystem.Theme.darkPalette
         }
     }
 
-    function generatedPaletteForMode(mode) {
+
+    function generatedPaletteForMode(
+        mode
+    ) {
         switch (mode) {
         case "light":
             return Generated.MatugenPalette.lightPalette
+
         case "gray":
             return Generated.MatugenPalette.darkPalette
+
         case "dark":
         default:
             return Generated.MatugenPalette.darkPalette
         }
     }
 
+
+    /*
+     * ------------------------------------------------------------
+     * Current palette selection
+     * ------------------------------------------------------------
+     */
+
     function paletteForCurrentSelection() {
         switch (colorStyle) {
         case "preset":
-            return presetForMode(appearanceMode)
+            return presetForMode(
+                appearanceMode
+            )
 
         case "wallpaperAccents":
             return wallpaperAccentPalette
@@ -376,7 +650,16 @@ QtObject {
         }
     }
 
-    function validatePalette(candidatePalette) {
+
+    /*
+     * ------------------------------------------------------------
+     * Palette validation
+     * ------------------------------------------------------------
+     */
+
+    function validatePalette(
+        candidatePalette
+    ) {
         if (!candidatePalette) {
             return {
                 valid: false,
@@ -384,14 +667,23 @@ QtObject {
             }
         }
 
-        for (let index = 0; index < requiredColorRoles.length; index++) {
-            const role = requiredColorRoles[index]
+        for (
+            let index = 0;
+            index < requiredColorRoles.length;
+            index++
+        ) {
+            const role =
+                requiredColorRoles[index]
 
-            if (candidatePalette[role] === undefined
-                    || candidatePalette[role] === null) {
+            if (
+                candidatePalette[role] === undefined
+                || candidatePalette[role] === null
+            ) {
                 return {
                     valid: false,
-                    message: "Palette is missing required role: " + role
+                    message:
+                        "Palette is missing required role: "
+                        + role
                 }
             }
         }
@@ -402,110 +694,323 @@ QtObject {
         }
     }
 
-    function commitPalette(candidatePalette) {
-        const validation = validatePalette(candidatePalette)
+
+    /*
+     * ------------------------------------------------------------
+     * Commit palette
+     * ------------------------------------------------------------
+     */
+
+    function commitPalette(
+        candidatePalette
+    ) {
+        const validation =
+            validatePalette(
+                candidatePalette
+            )
 
         if (!validation.valid) {
             status = "error"
-            errorMessage = validation.message
-            themeApplyFailed(errorMessage)
+            errorMessage =
+                validation.message
+
+            themeApplyFailed(
+                errorMessage
+            )
+
             return false
         }
 
-        if (!ThemeSystem.Theme.applyPalette(candidatePalette)) {
+        if (
+            !ThemeSystem.Theme.applyPalette(
+                candidatePalette
+            )
+        ) {
             status = "error"
-            errorMessage = "Theme rejected the candidate palette."
-            themeApplyFailed(errorMessage)
+
+            errorMessage =
+                "Theme rejected the candidate palette."
+
+            themeApplyFailed(
+                errorMessage
+            )
+
             return false
         }
 
-        lastValidPalette = candidatePalette
+        lastValidPalette =
+            candidatePalette
+
         status = "ready"
         errorMessage = ""
 
-        themeApplied(appearanceMode, colorStyle)
+        themeApplied(
+            appearanceMode,
+            colorStyle
+        )
+
         return true
     }
+
+
+    /*
+     * ------------------------------------------------------------
+     * Apply active mode/style
+     * ------------------------------------------------------------
+     */
 
     function applyCurrentTheme() {
         status = "applying"
         errorMessage = ""
 
-        if (!isValidAppearanceMode(appearanceMode)) {
+        if (
+            !isValidAppearanceMode(
+                appearanceMode
+            )
+        ) {
             status = "error"
-            errorMessage = "Unsupported appearance mode: " + appearanceMode
-            themeApplyFailed(errorMessage)
+
+            errorMessage =
+                "Unsupported appearance mode: "
+                + appearanceMode
+
+            themeApplyFailed(
+                errorMessage
+            )
+
             return false
         }
 
-        if (!isValidColorStyle(colorStyle)) {
+        if (
+            !isValidColorStyle(
+                colorStyle
+            )
+        ) {
             status = "error"
-            errorMessage = "Unsupported color style: " + colorStyle
-            themeApplyFailed(errorMessage)
+
+            errorMessage =
+                "Unsupported color style: "
+                + colorStyle
+
+            themeApplyFailed(
+                errorMessage
+            )
+
             return false
         }
 
-        const candidatePalette = paletteForCurrentSelection()
+        const candidatePalette =
+            paletteForCurrentSelection()
 
         if (!candidatePalette) {
             status = "error"
-            errorMessage = "No palette is available for the current selection."
-            themeApplyFailed(errorMessage)
+
+            errorMessage =
+                "No palette is available for the current selection."
+
+            themeApplyFailed(
+                errorMessage
+            )
+
             return false
         }
 
-        return commitPalette(candidatePalette)
+        return commitPalette(
+            candidatePalette
+        )
     }
 
-    function setAppearanceMode(mode) {
+
+    /*
+     * ------------------------------------------------------------
+     * Appearance selection
+     * ------------------------------------------------------------
+     */
+
+    function setAppearanceMode(
+        mode
+    ) {
         if (!isValidAppearanceMode(mode)) {
-            errorMessage = "Unsupported appearance mode: " + mode
-            themeApplyFailed(errorMessage)
+            errorMessage =
+                "Unsupported appearance mode: "
+                + mode
+
+            themeApplyFailed(
+                errorMessage
+            )
+
             return false
         }
 
-        const previousMode = settings.appearanceMode
-        settings.appearanceMode = mode
+        const previousMode =
+            settings.appearanceMode
+
+        settings.appearanceMode =
+            mode
 
         if (!applyCurrentTheme()) {
-            settings.appearanceMode = previousMode
+            settings.appearanceMode =
+                previousMode
+
             return false
         }
 
         return true
     }
 
-    function setColorStyle(style) {
+
+    function setColorStyle(
+        style
+    ) {
         if (!isValidColorStyle(style)) {
-            errorMessage = "Unsupported color style: " + style
-            themeApplyFailed(errorMessage)
+            errorMessage =
+                "Unsupported color style: "
+                + style
+
+            themeApplyFailed(
+                errorMessage
+            )
+
             return false
         }
 
-        const previousStyle = settings.colorStyle
-        settings.colorStyle = style
+        const previousStyle =
+            settings.colorStyle
+
+        settings.colorStyle =
+            style
 
         if (!applyCurrentTheme()) {
-            settings.colorStyle = previousStyle
+            settings.colorStyle =
+                previousStyle
+
             return false
         }
 
         return true
     }
+
+
+    /*
+     * ------------------------------------------------------------
+     * Wallpaper -> Matugen generation
+     * ------------------------------------------------------------
+     */
+
+    function generateThemeFromWallpaper(
+        wallpaper
+    ) {
+        if (!wallpaper)
+            return false
+
+        /*
+         * Avoid multiple simultaneous Matugen jobs.
+         */
+
+        if (generatingWallpaperTheme) {
+            console.warn(
+                "[ThemeService] Matugen generation is already running"
+            )
+
+            return false
+        }
+
+        if (
+            !Core.ServiceRegistry.backend
+            || !Core.ServiceRegistry.backend.online
+        ) {
+            console.warn(
+                "[ThemeService] Backend unavailable for Matugen generation"
+            )
+
+            return false
+        }
+
+        const path =
+            wallpaper.path !== undefined
+                ? wallpaper.path
+                : ""
+
+        const mediaType =
+            wallpaper.type !== undefined
+                ? wallpaper.type
+                : null
+
+        if (!path || path.length === 0) {
+            console.warn(
+                "[ThemeService] Wallpaper has no valid path"
+            )
+
+            return false
+        }
+
+        pendingThemeWallpaper =
+            wallpaper
+
+        pendingThemeGenerateRequestId =
+            Core.ServiceRegistry.backend.sendCommand(
+                "theme.generate",
+                {
+                    path: path,
+                    type: mediaType
+                }
+            )
+
+        if (
+            !pendingThemeGenerateRequestId
+            || pendingThemeGenerateRequestId.length === 0
+        ) {
+            pendingThemeWallpaper = null
+
+            console.warn(
+                "[ThemeService] Could not send theme.generate request"
+            )
+
+            return false
+        }
+
+        console.log(
+            "[ThemeService] Generating Matugen palette from:",
+            path
+        )
+
+        wallpaperThemeGenerationStarted(
+            wallpaper
+        )
+
+        return true
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * Recovery
+     * ------------------------------------------------------------
+     */
 
     function restoreLastValidPalette() {
         status = "applying"
 
         if (!lastValidPalette) {
             ThemeSystem.Theme.resetToDefault()
-            lastValidPalette = ThemeSystem.Theme.defaultPalette
-            settings.appearanceMode = "dark"
-            settings.colorStyle = "preset"
+
+            lastValidPalette =
+                ThemeSystem.Theme.defaultPalette
+
+            settings.appearanceMode =
+                "dark"
+
+            settings.colorStyle =
+                "preset"
+
             status = "ready"
             errorMessage = ""
+
             return true
         }
 
-        return commitPalette(lastValidPalette)
+        return commitPalette(
+            lastValidPalette
+        )
     }
 }

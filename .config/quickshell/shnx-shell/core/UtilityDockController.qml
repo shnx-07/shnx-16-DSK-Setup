@@ -11,53 +11,53 @@ QtObject {
     property var targetScreen: null
     property bool activationLocked: false
 
-    readonly property var items: [
+    property var items: [
         {
             route: "wallpaper",
             label: "Wallpaper",
-            icon: "image-x-generic-symbolic",
+            glyph: "󰋩",
             shortcutKey: "wallpaper"
         },
         {
             route: "appearance",
             label: "Appearance",
-            icon: "applications-graphics-symbolic",
+            glyph: "󰏘",
             shortcutKey: "appearance"
         },
         {
             route: "lockScreen",
             label: "Lock Screen",
-            icon: "system-lock-screen-symbolic",
+            glyph: "󰌾",
             shortcutKey: "lockScreen"
         },
         {
             route: "appLauncher",
             label: "Apps",
-            icon: "view-app-grid-symbolic",
+            glyph: "󰀻",
             shortcutKey: "appLauncher"
         },
         {
             route: "voiceRecorder",
             label: "Voice Recorder",
-            icon: "audio-input-microphone-symbolic",
+            glyph: "󰍬",
             shortcutKey: "voiceRecorder"
         },
         {
             route: "screenRecorder",
             label: "Screen Recorder",
-            icon: "media-record-symbolic",
+            glyph: "󰑋",
             shortcutKey: "screenRecorder"
         },
         {
             route: "codeSnippets",
             label: "Code Snippets",
-            icon: "text-x-script-symbolic",
+            glyph: "󰅴",
             shortcutKey: "codeSnippets"
         },
         {
             route: "clipboard",
             label: "Clipboard",
-            icon: "edit-paste-symbolic",
+            glyph: "󰅇",
             shortcutKey: "clipboard"
         }
     ]

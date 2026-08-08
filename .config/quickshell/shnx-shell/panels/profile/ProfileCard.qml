@@ -40,3 +40,4 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
     }
 }
+

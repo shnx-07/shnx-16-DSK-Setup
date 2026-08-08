@@ -1,6 +1,8 @@
 import QtQuick
+
 import qs.core as Core
 import qs.theme as ShellTheme
+import qs.motion as Motion
 
 Rectangle {
     id: root
@@ -10,94 +12,153 @@ Rectangle {
     readonly property var notificationService:
         Core.ServiceRegistry.notifications
 
-    implicitWidth: 38
-    implicitHeight: 32
+    implicitWidth:
+        38
 
-    radius: ShellTheme.Theme.radius.button
+    implicitHeight:
+        32
 
-    color: mouseArea.pressed
-        ? ShellTheme.Theme.colors.pressedOverlay
-        : mouseArea.containsMouse
-            ? ShellTheme.Theme.colors.hoverOverlay
-            : ShellTheme.Theme.colors.surfaceContainer
+    antialiasing:
+        false
 
-    border.width: 1
-    border.color: mouseArea.containsMouse
-        ? ShellTheme.Theme.colors.outline
-        : ShellTheme.Theme.colors.outlineVariant
+    radius:
+        ShellTheme.Theme.radius.button
+
+    color:
+        mouseArea.pressed
+            ? ShellTheme.Theme.colors.pressedOverlay
+            : mouseArea.containsMouse
+                ? ShellTheme.Theme.colors.hoverOverlay
+                : ShellTheme.Theme.colors.surfaceContainer
+
+    border.width:
+        0
+
+    scale:
+        mouseArea.pressed
+            ? Motion.MotionTokens.compactPressScale
+            : mouseArea.containsMouse
+                ? Motion.MotionTokens.hoverScale
+                : 1.0
 
     Behavior on color {
         ColorAnimation {
-            duration: 120
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
-    Behavior on border.color {
-        ColorAnimation {
-            duration: 120
+    Behavior on scale {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
     Text {
-        anchors.centerIn: parent
+        anchors.centerIn:
+            parent
 
-        text: notificationService.doNotDisturb
-            ? "󰂛"
-            : notificationService.hasUnread
-                ? "󰂚"
-                : "󰂜"
+        text:
+            notificationService.doNotDisturb
+                ? "󰂛"
+                : notificationService.hasUnread
+                    ? "󰂚"
+                    : "󰂜"
 
-        color: notificationService.hasUnread
-            ? ShellTheme.Theme.colors.on_surface
-            : ShellTheme.Theme.colors.on_surface_variant
+        color:
+            notificationService.hasUnread
+                ? ShellTheme.Theme.colors.on_surface
+                : ShellTheme.Theme.colors.on_surface_variant
 
-        font.pixelSize: 17
-        font.weight: Font.DemiBold
+        font.family:
+            ShellTheme.Theme.typography.iconFontFamily
+
+        font.pixelSize:
+            17
+
+        font.weight:
+            Font.DemiBold
     }
 
     Rectangle {
-        visible: notificationService.hasUnread
+        visible:
+            notificationService.hasUnread
 
-        anchors.top: parent.top
-        anchors.right: parent.right
+        anchors {
+            top:
+                parent.top
 
-        anchors.topMargin: -4
-        anchors.rightMargin: -5
+            right:
+                parent.right
 
-        implicitWidth: Math.max(
-            16,
-            badgeLabel.implicitWidth + 8
-        )
+            topMargin:
+                -4
 
-        implicitHeight: 16
+            rightMargin:
+                -5
+        }
 
-        radius: ShellTheme.Theme.radius.pill
+        implicitWidth:
+            Math.max(
+                16,
+                badgeLabel.implicitWidth + 8
+            )
 
-        color: ShellTheme.Theme.colors.error
+        implicitHeight:
+            16
 
-        border.width: 1
-        border.color: ShellTheme.Theme.colors.on_error_container
+        antialiasing:
+            false
+
+        radius:
+            ShellTheme.Theme.radius.pill
+
+        color:
+            ShellTheme.Theme.colors.error
+
+        border.width:
+            0
 
         Text {
             id: badgeLabel
 
-            anchors.centerIn: parent
+            anchors.centerIn:
+                parent
 
-            text: notificationService.badgeText
-            color: ShellTheme.Theme.colors.on_error
+            text:
+                notificationService.badgeText
 
-            font.pixelSize: 9
-            font.weight: Font.Bold
+            color:
+                ShellTheme.Theme.colors.on_error
+
+            font.pixelSize:
+                9
+
+            font.weight:
+                Font.Bold
         }
     }
 
     MouseArea {
         id: mouseArea
 
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        anchors.fill:
+            parent
 
-        onClicked: root.clicked()
+        hoverEnabled:
+            true
+
+        cursorShape:
+            Qt.PointingHandCursor
+
+        onClicked:
+            root.clicked()
     }
 }

@@ -1,56 +1,95 @@
 import QtQuick
+
 import qs.theme as ShellTheme
+import qs.motion as Motion
 
 Rectangle {
     id: root
 
     signal clicked()
 
-    implicitWidth: 38
-    implicitHeight: 32
+    implicitWidth:
+        38
 
-    radius: ShellTheme.Theme.radius.button
+    implicitHeight:
+        32
 
-    color: mouseArea.pressed
-        ? ShellTheme.Theme.colors.destructiveContainer
-        : mouseArea.containsMouse
-            ? ShellTheme.Theme.colors.destructive
-            : ShellTheme.Theme.colors.errorContainer
+    antialiasing:
+        false
 
-    border.width: 1
-    border.color: mouseArea.containsMouse
-        ? ShellTheme.Theme.colors.on_destructive_container
-        : ShellTheme.Theme.colors.error
+    radius:
+        ShellTheme.Theme.radius.button
+
+    color:
+        mouseArea.pressed
+            ? ShellTheme.Theme.colors.destructiveContainer
+            : mouseArea.containsMouse
+                ? ShellTheme.Theme.colors.destructive
+                : ShellTheme.Theme.colors.errorContainer
+
+    border.width:
+        0
+
+    scale:
+        mouseArea.pressed
+            ? Motion.MotionTokens.compactPressScale
+            : mouseArea.containsMouse
+                ? Motion.MotionTokens.hoverScale
+                : 1.0
 
     Behavior on color {
         ColorAnimation {
-            duration: 120
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
-    Behavior on border.color {
-        ColorAnimation {
-            duration: 120
+    Behavior on scale {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
     Text {
-        anchors.centerIn: parent
+        anchors.centerIn:
+            parent
 
-        text: "󰐥"
-        color: ShellTheme.Theme.colors.on_destructive
+        text:
+            "󰐥"
 
-        font.pixelSize: 17
-        font.weight: Font.DemiBold
+        color:
+            ShellTheme.Theme.colors.on_destructive
+
+        font.family:
+            ShellTheme.Theme.typography.iconFontFamily
+
+        font.pixelSize:
+            17
+
+        font.weight:
+            Font.DemiBold
     }
 
     MouseArea {
         id: mouseArea
 
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        anchors.fill:
+            parent
 
-        onClicked: root.clicked()
+        hoverEnabled:
+            true
+
+        cursorShape:
+            Qt.PointingHandCursor
+
+        onClicked:
+            root.clicked()
     }
 }

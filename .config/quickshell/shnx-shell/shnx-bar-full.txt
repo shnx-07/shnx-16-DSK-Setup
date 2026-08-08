@@ -1,0 +1,1699 @@
+================================================================================
+TOP BAR TREE
+================================================================================
+bar
+├── Bar.qml
+├── dynamic
+│   ├── DynamicIsland.qml
+│   ├── expanded
+│   │   ├── media
+│   │   │   ├── AlbumArt.qml
+│   │   │   ├── MediaControls.qml
+│   │   │   ├── MediaExpandedView.qml
+│   │   │   ├── MediaProgress.qml
+│   │   │   └── Waveform.qml
+│   │   └── MicrophoneFeedbackView.qml
+│   ├── glances
+│   │   ├── GlanceContainer.qml
+│   │   ├── MediaGlance.qml
+│   │   ├── MicrophoneFeedbackView.qml
+│   │   └── NotificationGlance.qml
+│   ├── IslandSurface.qml
+│   ├── IslandTriggerRow.qml
+│   ├── panelModules
+│   │   ├── DynamicPanelClock.qml
+│   │   ├── DynamicPanelMedia.qml
+│   │   ├── DynamicPanelMicrophoneFeedback.qml
+│   │   └── DynamicPanelNotifications.qml
+│   └── triggers
+│       ├── ClockTrigger.qml
+│       ├── MediaTrigger.qml
+│       ├── MicrophoneTrigger.qml
+│       ├── ScreenRecorderTrigger.qml
+│       ├── VoiceRecorderTrigger.qml
+│       └── WallpaperTrigger.qml
+└── modules
+    ├── ActiveWindowIndicator.qml
+    ├── ArchButton.qml
+    ├── BatteryIndicator.qml
+    ├── BluetoothIndicator.qml
+    ├── CenterSection.qml
+    ├── LeftSection.qml
+    ├── NotificationButton.qml
+    ├── PowerButton.qml
+    ├── ProfileButton.qml
+    ├── QuickSettingsButton.qml
+    ├── RightSection.qml
+    ├── WifiIndicator.qml
+    └── WorkspaceIndicator.qml
+
+8 directories, 37 files
+
+
+================================================================================
+FILE: bar/Bar.qml
+================================================================================
+import QtQuick
+
+import Quickshell
+import Quickshell.Hyprland
+import Quickshell.Wayland
+
+import "../core" as Core
+import "modules" as Modules
+import "dynamic" as Dynamic
+
+Scope {
+    id: root
+
+    readonly property int barHeight: 44
+
+    readonly property int islandCompactWidth: 150
+    readonly property int islandCompactHeight: 34
+
+    readonly property int islandExpandedWidth: 700
+    readonly property int islandExpandedHeight: 380
+
+    Variants {
+        model:
+            Quickshell.screens
+
+        delegate: Component {
+            Scope {
+                id: screenScope
+
+                required property var modelData
+
+                readonly property var hyprlandMonitor:
+                    Core.ServiceRegistry.hyprland.monitorForScreen(
+                        screenScope.modelData
+                    )
+
+                readonly property var activeWorkspace:
+                    screenScope.hyprlandMonitor
+                        ? screenScope.hyprlandMonitor.activeWorkspace
+                        : null
+
+                readonly property bool hasFullscreenWindow:
+                    screenScope.activeWorkspace
+                        ? screenScope.activeWorkspace.hasFullscreen
+                        : false
+
+                /*
+                 * ----------------------------------------------------
+                 * TOP BAR
+                 * ----------------------------------------------------
+                 */
+
+                PanelWindow {
+                      id: barWindow
+
+                      visible:
+                          !screenScope.hasFullscreenWindow
+
+                      screen:
+                          screenScope.modelData
+
+                      anchors {
+                          top: true
+                          left: true
+                          right: true
+                      }
+
+                      implicitHeight:
+                          root.barHeight
+
+                      exclusiveZone:
+                          root.barHeight
+
+                      aboveWindows:
+                          true
+
+                      focusable:
+                          false
+
+                      color:
+                          Qt.rgba(0, 0, 0, 0)
+
+                      WlrLayershell.layer:
+                          WlrLayer.Top
+
+                      WlrLayershell.namespace:
+                          "shnx-bar"
+
+                      Item {
+                          anchors {
+                              fill: parent
+                              leftMargin: 10
+                              rightMargin: 10
+                          }
+
+                          Modules.LeftSection {
+                              anchors {
+                                  left: parent.left
+                                  verticalCenter: parent.verticalCenter
+                              }
+                          }
+
+                          Modules.RightSection {
+                              anchors {
+                                  right: parent.right
+                                  verticalCenter: parent.verticalCenter
+                              }
+                          }
+                      }
+                  }                /*
+                 * ----------------------------------------------------
+                 * DYNAMIC ISLAND
+                 * ----------------------------------------------------
+                 */
+
+                PanelWindow {
+                    id: islandWindow
+
+                    screen:
+                        screenScope.modelData
+
+                    visible:
+                        !screenScope.hasFullscreenWindow
+
+                    anchors {
+                        top: true
+                    }
+
+                    margins {
+                        top:
+                            Math.round(
+                                (
+                                    root.barHeight
+                                    - root.islandCompactHeight
+                                ) / 2
+                            )
+                    }
+
+                    implicitWidth:
+                        root.islandExpandedWidth
+
+                    implicitHeight:
+                        root.islandExpandedHeight
+
+                    exclusionMode:
+                        ExclusionMode.Ignore
+
+                    aboveWindows: true
+
+                    focusable:
+                        island.expanded
+
+                    color:
+                        "transparent"
+
+                    WlrLayershell.layer:
+                        WlrLayer.Overlay
+
+                    WlrLayershell.namespace:
+                        "shnx-dynamic-island"
+
+                    /*
+                     * Only the visible island geometry accepts input.
+                     * Everything outside the animated shape passes
+                     * through to windows below.
+                     */
+                    mask: Region {
+                        x:
+                            Math.round(
+                                island.inputX
+                            )
+
+                        y:
+                            Math.round(
+                                island.inputY
+                            )
+
+                        width:
+                            Math.round(
+                                island.inputWidth
+                            )
+
+                        height:
+                            Math.round(
+                                island.inputHeight
+                            )
+                    }
+
+                    Dynamic.DynamicIsland {
+                        id: island
+
+                        anchors.fill:
+                            parent
+
+                        compactWidth:
+                            root.islandCompactWidth
+
+                        compactHeight:
+                            root.islandCompactHeight
+
+                        expandedWidth:
+                            root.islandExpandedWidth
+
+                        expandedHeight:
+                            root.islandExpandedHeight
+
+                        onExpandedChanged: {
+                            islandFocusGrab.active =
+                                expanded
+
+                            if (expanded) {
+                                Qt.callLater(
+                                    function() {
+                                        island.takeKeyboardFocus()
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                /*
+                 * ----------------------------------------------------
+                 * FOCUS / OUTSIDE CLICK
+                 * ----------------------------------------------------
+                 */
+
+                HyprlandFocusGrab {
+                    id: islandFocusGrab
+
+                    windows: [
+                        barWindow,
+                        islandWindow
+                    ]
+
+                    onCleared: {
+                        if (island.expanded) {
+                            island.closeIsland()
+                        }
+                    }
+                }
+
+                /*
+                 * ----------------------------------------------------
+                 * FULLSCREEN
+                 * ----------------------------------------------------
+                 */
+
+                Connections {
+                    target:
+                        screenScope
+
+                    function onHasFullscreenWindowChanged() {
+                        if (
+                            !screenScope.hasFullscreenWindow
+                        ) {
+                            return
+                        }
+
+                        islandFocusGrab.active =
+                            false
+
+                        if (island.expanded) {
+                            island.closeIsland()
+                        }
+                    }
+                }
+
+                Component.onDestruction: {
+                    islandFocusGrab.active =
+                        false
+                }
+            }
+        }
+    }
+}
+
+
+================================================================================
+FILE: bar/dynamic/DynamicIsland.qml
+================================================================================
+import QtQuick
+import "../../core" as Core
+import "panelModules" as PanelModules
+import "../../theme" as ShellTheme
+
+Item {
+    id: root
+
+    // =============================================================
+    // Public state and geometry
+    // =============================================================
+    
+    readonly property bool expanded:
+       Core.IslandController.expanded
+
+    property int compactWidth: 150
+    property int compactHeight: 34
+
+    property int expandedWidth: 700
+    property int expandedHeight: 380
+
+    /*
+     * Bar.qml uses these values for the animated input mask.
+     * Do not remove or rename them.
+     */
+    readonly property real inputX: islandSurface.x
+    readonly property real inputY: islandSurface.y
+    readonly property real inputWidth: islandSurface.width
+    readonly property real inputHeight: islandSurface.height
+
+    signal opened()
+    signal closed()
+
+    Connections {
+        target: Core.IslandController
+
+        function onExpandedChanged() {
+            if (Core.IslandController.expanded)
+                root.opened()
+            else
+                root.closed()
+        }
+    }
+
+    width: expandedWidth
+    height: expandedHeight
+
+    focus: false
+
+    // =============================================================
+    // Public actions
+    // =============================================================
+
+    function openIsland() {
+        Core.IslandController.openClock()
+    }
+
+    function closeIsland() {
+        Core.IslandController.closeIsland()
+    }
+
+    function toggleIsland() {
+        Core.IslandController.toggleClock()
+    }
+
+    function takeKeyboardFocus() {
+        root.forceActiveFocus()
+    }
+
+    // =============================================================
+    // Keyboard dismissal
+    // =============================================================
+
+    Keys.onEscapePressed: function(event) {
+        if (!root.expanded)
+            return
+
+        root.closeIsland()
+        event.accepted = true
+    }
+
+    Keys.onPressed: function(event) {
+        if (!root.expanded)
+            return
+
+        if (event.key === Qt.Key_Escape) {
+            root.closeIsland()
+            event.accepted = true
+        }
+    }
+
+   
+
+    // =============================================================
+    // Visible Dynamic Island surface
+    // =============================================================
+
+    Rectangle {
+        id: islandSurface
+
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        width: root.expanded
+            ? root.expandedWidth
+            : root.compactWidth
+
+        height: root.expanded
+            ? root.expandedHeight
+            : root.compactHeight
+
+        radius: root.expanded
+            ? ShellTheme.Theme.radius.island
+            : root.compactHeight / 2
+
+        color: ShellTheme.Theme.colors.background
+
+        border.width: 0
+        clip: true
+
+        Behavior on width {
+            NumberAnimation {
+                duration: 280
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        Behavior on height {
+            NumberAnimation {
+                duration: 320
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        Behavior on radius {
+            NumberAnimation {
+                duration: 250
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        
+
+        // =========================================================
+        // Compact trigger content
+        // =========================================================
+
+        Item {
+            id: compactContent
+
+            anchors.fill: parent
+
+            visible: opacity > 0
+            enabled: !root.expanded
+
+            opacity: root.expanded ? 0 : 1
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: root.expanded ? 90 : 170
+                    easing.type: Easing.OutCubic
+                }
+            }
+
+            IslandTriggerRow {
+                anchors.fill: parent
+            }
+        }
+
+
+        // =========================================================
+        // Expanded Clock | Calendar content
+        // =========================================================
+
+        Item {
+            id: expandedContent
+
+            anchors.fill: parent
+
+            visible: opacity > 0
+            enabled: root.expanded
+
+            opacity: root.expanded ? 1 : 0
+            scale: root.expanded ? 1 : 0.985
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: root.expanded ? 190 : 100
+                    easing.type: Easing.OutCubic
+                }
+            }
+
+            Behavior on scale {
+                NumberAnimation {
+                    duration: root.expanded ? 220 : 110
+                    easing.type: Easing.OutCubic
+                }
+            }
+
+            PanelModules.DynamicPanelClock {
+                anchors.fill: parent
+
+                visible: Core.IslandController.clockActive
+            }
+        }
+    }
+}
+
+
+================================================================================
+FILE: bar/dynamic/expanded/media/AlbumArt.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/expanded/media/MediaControls.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/expanded/media/MediaExpandedView.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/expanded/media/MediaProgress.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/expanded/media/Waveform.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/expanded/MicrophoneFeedbackView.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/glances/GlanceContainer.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/glances/MediaGlance.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/glances/MicrophoneFeedbackView.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/glances/NotificationGlance.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/IslandSurface.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/IslandTriggerRow.qml
+================================================================================
+import QtQuick
+import "../../core" as Core
+import "triggers" as Triggers
+
+Item {
+    id: root
+
+    anchors.fill: parent
+
+    Triggers.ClockTrigger {
+        anchors.fill: parent
+
+        onTriggered:
+            Core.IslandController.toggleClock()
+    }
+}
+
+
+================================================================================
+FILE: bar/dynamic/panelModules/DynamicPanelClock.qml
+================================================================================
+import QtQuick
+import "../../../core" as Core
+import "../../../panels/clock" as ClockPanel
+
+Item {
+    id: root
+
+    /*
+     * This component adapts the reusable clock panel to the
+     * Dynamic Island.
+     *
+     * Island-specific padding and service connections belong here.
+     */
+
+    property int horizontalPadding: 24
+    property int verticalPadding: 22
+
+    ClockPanel.ClockCalendarPanel {
+        id: clockCalendarPanel
+
+        anchors.fill: parent
+        anchors.leftMargin: root.horizontalPadding
+        anchors.rightMargin: root.horizontalPadding
+        anchors.topMargin: root.verticalPadding
+        anchors.bottomMargin: root.verticalPadding
+
+        clockService: Core.ServiceRegistry.clock
+    }
+}
+
+
+================================================================================
+FILE: bar/dynamic/panelModules/DynamicPanelMedia.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/panelModules/DynamicPanelMicrophoneFeedback.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/panelModules/DynamicPanelNotifications.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/triggers/ClockTrigger.qml
+================================================================================
+import QtQuick
+import "../../../core" as Core
+import "../../../theme" as ShellTheme
+
+Item {
+    id: root
+
+    signal triggered()
+
+    implicitWidth: 150
+    implicitHeight: 34
+
+    Text {
+        id: clockText
+
+        anchors.centerIn: parent
+
+        text: Core.ServiceRegistry.clock.compactTime
+
+        color: ShellTheme.Theme.colors.on_surface
+        font.pixelSize: ShellTheme.Theme.typography.bodyMedium
+        font.weight: Font.Medium
+    }
+
+    TapHandler {
+        acceptedButtons: Qt.LeftButton
+
+        onTapped:
+            root.triggered()
+    }
+}
+
+
+================================================================================
+FILE: bar/dynamic/triggers/MediaTrigger.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/triggers/MicrophoneTrigger.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/triggers/ScreenRecorderTrigger.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/triggers/VoiceRecorderTrigger.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/dynamic/triggers/WallpaperTrigger.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/modules/ActiveWindowIndicator.qml
+================================================================================
+import QtQuick
+import qs.core as Core
+import qs.theme as ShellTheme
+
+Rectangle {
+    id: root
+
+    readonly property string windowTitle:
+        Core.ServiceRegistry.hyprland.activeWindowTitle
+
+    readonly property bool hasActiveWindow:
+        windowTitle.length > 0
+
+    readonly property int horizontalPadding: 12
+    readonly property int maximumWidth: 320
+
+    visible: hasActiveWindow
+
+    implicitWidth: hasActiveWindow
+        ? Math.min(titleMetrics.advanceWidth + horizontalPadding * 2, maximumWidth)
+        : 0
+
+    implicitHeight: 32
+
+    radius: ShellTheme.Theme.radius.button
+    color: ShellTheme.Theme.colors.surfaceContainer
+
+    border.width: 1
+    border.color: ShellTheme.Theme.colors.outlineVariant
+
+    TextMetrics {
+        id: titleMetrics
+
+        text: root.windowTitle
+        font: titleText.font
+    }
+
+    Text {
+        id: titleText
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            verticalCenter: parent.verticalCenter
+            leftMargin: root.horizontalPadding
+            rightMargin: root.horizontalPadding
+        }
+
+        text: root.windowTitle
+        color: ShellTheme.Theme.colors.on_surface_variant
+
+        font.pixelSize: ShellTheme.Theme.typography.labelMedium
+        font.weight: Font.Medium
+
+        elide: Text.ElideRight
+        maximumLineCount: 1
+        wrapMode: Text.NoWrap
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/ArchButton.qml
+================================================================================
+import QtQuick
+
+import qs.theme as ThemeSystem
+import "../motion" as Motion
+
+Rectangle {
+    id: root
+
+    signal clicked()
+
+    implicitWidth: 38
+    implicitHeight: 32
+
+    radius:
+        ThemeSystem.Theme.radius.button
+
+    color:
+        mouseArea.pressed
+            ? ThemeSystem.Theme.colors.pressedOverlay
+            : mouseArea.containsMouse
+                ? ThemeSystem.Theme.colors.hoverOverlay
+                : ThemeSystem.Theme.colors.surfaceContainer
+
+    border.width: 1
+
+    border.color:
+        mouseArea.containsMouse
+            ? ThemeSystem.Theme.colors.outline
+            : ThemeSystem.Theme.colors.outlineVariant
+
+    scale:
+        mouseArea.pressed
+            ? Motion.MotionTokens.compactPressScale
+            : mouseArea.containsMouse
+                ? Motion.MotionTokens.hoverScale
+                : 1.0
+
+    Behavior on color {
+        ColorAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Behavior on border.color {
+        ColorAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Behavior on scale {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Text {
+        anchors.centerIn:
+            parent
+
+        text:
+            "󰣇"
+
+        color:
+            ThemeSystem.Theme.colors.on_surface
+
+        font.family:
+            ThemeSystem.Theme.typography.iconFontFamily
+
+        font.pixelSize: 18
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill:
+            parent
+
+        hoverEnabled: true
+
+        cursorShape:
+            Qt.PointingHandCursor
+
+        onClicked:
+            root.clicked()
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/BatteryIndicator.qml
+================================================================================
+import QtQuick
+import qs.core as Core
+import qs.theme as ShellTheme
+
+Rectangle {
+    id: root
+
+    signal clicked()
+
+    readonly property var battery:
+        Core.ServiceRegistry.battery
+
+    implicitWidth: contentRow.implicitWidth + 20
+    implicitHeight: 32
+
+    radius: ShellTheme.Theme.radius.button
+
+    color: mouseArea.pressed
+        ? ShellTheme.Theme.colors.pressedOverlay
+        : mouseArea.containsMouse
+            ? ShellTheme.Theme.colors.hoverOverlay
+            : ShellTheme.Theme.colors.surfaceContainer
+
+    border.width: 1
+
+    border.color: {
+        if (battery.critical)
+            return ShellTheme.Theme.colors.error
+
+        if (mouseArea.containsMouse)
+            return ShellTheme.Theme.colors.outline
+
+        return ShellTheme.Theme.colors.outlineVariant
+    }
+
+    Row {
+        id: contentRow
+
+        anchors.centerIn: parent
+        spacing: 7
+
+        Text {
+            text: battery.icon
+
+            color: {
+                if (battery.critical)
+                    return ShellTheme.Theme.colors.error
+
+                if (battery.low)
+                    return ShellTheme.Theme.colors.warning
+
+                if (battery.charging)
+                    return ShellTheme.Theme.colors.success
+
+                return ShellTheme.Theme.colors.on_surface
+            }
+
+            font.pixelSize: 17
+        }
+
+        Text {
+            text: battery.available
+                ? battery.percentage + "%"
+                : "--"
+
+            color: ShellTheme.Theme.colors.on_surface
+
+            font.pixelSize: ShellTheme.Theme.typography.labelMedium
+            font.weight: Font.DemiBold
+        }
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+
+        onClicked: root.clicked()
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/BluetoothIndicator.qml
+================================================================================
+import QtQuick
+import qs.core as Core
+import qs.theme as ShellTheme
+
+Rectangle {
+    id: root
+
+    signal clicked()
+
+    readonly property var bluetooth:
+        Core.ServiceRegistry.bluetooth
+
+    implicitWidth: contentRow.implicitWidth + 20
+    implicitHeight: 32
+
+    radius: ShellTheme.Theme.radius.button
+
+    color: mouseArea.pressed
+        ? ShellTheme.Theme.colors.pressedOverlay
+        : mouseArea.containsMouse
+            ? ShellTheme.Theme.colors.hoverOverlay
+            : ShellTheme.Theme.colors.surfaceContainer
+
+    border.width: 1
+
+    border.color: mouseArea.containsMouse
+        ? ShellTheme.Theme.colors.outline
+        : ShellTheme.Theme.colors.outlineVariant
+
+    Behavior on color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Behavior on border.color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Row {
+        id: contentRow
+
+        anchors.centerIn: parent
+        spacing: 7
+
+        Text {
+            text: bluetooth.icon
+
+            color: {
+                if (!bluetooth.available || !bluetooth.enabled)
+                    return ShellTheme.Theme.colors.disabled
+
+                if (bluetooth.connected)
+                    return ShellTheme.Theme.colors.primary
+
+                return ShellTheme.Theme.colors.on_surface
+            }
+
+            font.pixelSize: 17
+        }
+
+        Text {
+            visible: bluetooth.connected
+
+            text: {
+                if (bluetooth.connectedDeviceCount > 1)
+                    return bluetooth.connectedDeviceCount.toString()
+
+                return bluetooth.primaryDeviceName
+            }
+
+            width: visible
+                ? Math.min(implicitWidth, 120)
+                : 0
+
+            color: ShellTheme.Theme.colors.on_surface
+
+            font.pixelSize: ShellTheme.Theme.typography.labelMedium
+            font.weight: Font.DemiBold
+
+            elide: Text.ElideRight
+            maximumLineCount: 1
+            wrapMode: Text.NoWrap
+        }
+
+        Text {
+            visible:
+                bluetooth.connectedDeviceCount === 1
+                && bluetooth.primaryDeviceHasBattery
+
+            text: bluetooth.primaryDeviceBattery + "%"
+
+            color: ShellTheme.Theme.colors.on_surface_variant
+
+            font.pixelSize: ShellTheme.Theme.typography.labelSmall
+            font.weight: Font.Medium
+        }
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+
+        onClicked: root.clicked()
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/CenterSection.qml
+================================================================================
+import QtQuick
+import "../dynamic"
+
+Item {
+    id: root
+
+    implicitWidth: island.implicitWidth
+    implicitHeight: 34
+
+    DynamicIsland {
+        id: island
+
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/LeftSection.qml
+================================================================================
+import QtQuick
+import qs.core as Core
+
+Item {
+    id: root
+
+    implicitWidth: contentRow.implicitWidth
+    implicitHeight: 32
+
+    Row {
+        id: contentRow
+
+        anchors.fill: parent
+        spacing: 8
+
+        ArchButton {
+            id: archButton
+
+            onClicked: {
+                Core.PanelController.toggleProfileHub(
+                    archButton
+                )
+            }
+        }
+
+        WorkspaceIndicator {}
+
+        ActiveWindowIndicator {}
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/NotificationButton.qml
+================================================================================
+import QtQuick
+import qs.core as Core
+import qs.theme as ShellTheme
+
+Rectangle {
+    id: root
+
+    signal clicked()
+
+    readonly property var notificationService:
+        Core.ServiceRegistry.notifications
+
+    implicitWidth: 38
+    implicitHeight: 32
+
+    radius: ShellTheme.Theme.radius.button
+
+    color: mouseArea.pressed
+        ? ShellTheme.Theme.colors.pressedOverlay
+        : mouseArea.containsMouse
+            ? ShellTheme.Theme.colors.hoverOverlay
+            : ShellTheme.Theme.colors.surfaceContainer
+
+    border.width: 1
+    border.color: mouseArea.containsMouse
+        ? ShellTheme.Theme.colors.outline
+        : ShellTheme.Theme.colors.outlineVariant
+
+    Behavior on color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Behavior on border.color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Text {
+        anchors.centerIn: parent
+
+        text: notificationService.doNotDisturb
+            ? "󰂛"
+            : notificationService.hasUnread
+                ? "󰂚"
+                : "󰂜"
+
+        color: notificationService.hasUnread
+            ? ShellTheme.Theme.colors.on_surface
+            : ShellTheme.Theme.colors.on_surface_variant
+
+        font.pixelSize: 17
+        font.weight: Font.DemiBold
+    }
+
+    Rectangle {
+        visible: notificationService.hasUnread
+
+        anchors.top: parent.top
+        anchors.right: parent.right
+
+        anchors.topMargin: -4
+        anchors.rightMargin: -5
+
+        implicitWidth: Math.max(
+            16,
+            badgeLabel.implicitWidth + 8
+        )
+
+        implicitHeight: 16
+
+        radius: ShellTheme.Theme.radius.pill
+
+        color: ShellTheme.Theme.colors.error
+
+        border.width: 1
+        border.color: ShellTheme.Theme.colors.on_error_container
+
+        Text {
+            id: badgeLabel
+
+            anchors.centerIn: parent
+
+            text: notificationService.badgeText
+            color: ShellTheme.Theme.colors.on_error
+
+            font.pixelSize: 9
+            font.weight: Font.Bold
+        }
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+
+        onClicked: root.clicked()
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/PowerButton.qml
+================================================================================
+import QtQuick
+import qs.theme as ShellTheme
+
+Rectangle {
+    id: root
+
+    signal clicked()
+
+    implicitWidth: 38
+    implicitHeight: 32
+
+    radius: ShellTheme.Theme.radius.button
+
+    color: mouseArea.pressed
+        ? ShellTheme.Theme.colors.destructiveContainer
+        : mouseArea.containsMouse
+            ? ShellTheme.Theme.colors.destructive
+            : ShellTheme.Theme.colors.errorContainer
+
+    border.width: 1
+    border.color: mouseArea.containsMouse
+        ? ShellTheme.Theme.colors.on_destructive_container
+        : ShellTheme.Theme.colors.error
+
+    Behavior on color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Behavior on border.color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Text {
+        anchors.centerIn: parent
+
+        text: "󰐥"
+        color: ShellTheme.Theme.colors.on_destructive
+
+        font.pixelSize: 17
+        font.weight: Font.DemiBold
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+
+        onClicked: root.clicked()
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/ProfileButton.qml
+================================================================================
+
+
+================================================================================
+FILE: bar/modules/QuickSettingsButton.qml
+================================================================================
+import QtQuick
+import qs.theme as ShellTheme
+
+Rectangle {
+    id: root
+
+    signal clicked()
+
+    implicitWidth: 38
+    implicitHeight: 32
+
+    radius: ShellTheme.Theme.radius.button
+
+    color: mouseArea.pressed
+        ? ShellTheme.Theme.colors.pressedOverlay
+        : mouseArea.containsMouse
+            ? ShellTheme.Theme.colors.hoverOverlay
+            : ShellTheme.Theme.colors.surfaceContainer
+
+    border.width: 1
+
+    border.color:
+        mouseArea.containsMouse
+            ? ShellTheme.Theme.colors.outline
+            : ShellTheme.Theme.colors.outlineVariant
+
+    Behavior on color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Behavior on border.color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Text {
+        anchors.centerIn: parent
+
+        text: "󰒓"
+        color: ShellTheme.Theme.colors.on_surface
+
+        font.pixelSize: 17
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+        hoverEnabled: true
+
+        cursorShape:
+            Qt.PointingHandCursor
+
+        onClicked:
+            root.clicked()
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/RightSection.qml
+================================================================================
+import QtQuick
+import qs.core as Core
+
+Item {
+    id: root
+
+    implicitWidth: contentRow.implicitWidth
+    implicitHeight: 32
+
+    Row {
+        id: contentRow
+
+        anchors.fill: parent
+        spacing: 8
+
+        BatteryIndicator {
+            id: batteryButton
+
+            onClicked: {
+                Core.PanelController.toggleBattery(
+                    batteryButton
+                )
+            }
+        }
+
+        WifiIndicator {
+            id: wifiButton
+
+            onClicked: {
+                Core.PanelController.toggleWifi(
+                    wifiButton
+                )
+            }
+        }
+
+        BluetoothIndicator {
+            id: bluetoothButton
+
+            onClicked: {
+                Core.PanelController.toggleBluetooth(
+                    bluetoothButton
+                )
+            }
+        }
+
+        NotificationButton {
+            id: notificationButton
+
+            onClicked: {
+                Core.PanelController.toggleNotifications(
+                    notificationButton
+                )
+            }
+        }
+
+        PowerButton {
+          id: powerButton
+
+          onClicked: {
+              Core.PanelController.togglePower(
+                  powerButton
+              )
+          }
+      }
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/WifiIndicator.qml
+================================================================================
+import QtQuick
+import qs.core as Core
+import qs.theme as ShellTheme
+
+Rectangle {
+    id: root
+
+    signal clicked()
+
+    readonly property var network:
+        Core.ServiceRegistry.network
+
+    implicitWidth: contentRow.implicitWidth + 20
+    implicitHeight: 32
+
+    radius: ShellTheme.Theme.radius.button
+
+    color: mouseArea.pressed
+        ? ShellTheme.Theme.colors.pressedOverlay
+        : mouseArea.containsMouse
+            ? ShellTheme.Theme.colors.hoverOverlay
+            : ShellTheme.Theme.colors.surfaceContainer
+
+    border.width: 1
+
+    border.color: mouseArea.containsMouse
+        ? ShellTheme.Theme.colors.outline
+        : ShellTheme.Theme.colors.outlineVariant
+
+    Behavior on color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Behavior on border.color {
+        ColorAnimation {
+            duration: 120
+        }
+    }
+
+    Row {
+        id: contentRow
+
+        anchors.centerIn: parent
+        spacing: 7
+
+        Text {
+            text: network.icon
+
+            color: {
+                if (!network.available
+                        || !network.wifiHardwareEnabled
+                        || !network.wifiEnabled) {
+                    return ShellTheme.Theme.colors.disabled
+                }
+
+                if (network.connected)
+                    return ShellTheme.Theme.colors.on_surface
+
+                return ShellTheme.Theme.colors.warning
+            }
+
+            font.pixelSize: 17
+        }
+
+        Text {
+            visible: network.connected
+
+            text: network.ssid
+
+            width: visible
+                ? Math.min(implicitWidth, 130)
+                : 0
+
+            color: ShellTheme.Theme.colors.on_surface
+
+            font.pixelSize: ShellTheme.Theme.typography.labelMedium
+            font.weight: Font.DemiBold
+
+            elide: Text.ElideRight
+            maximumLineCount: 1
+        }
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+
+        onClicked: root.clicked()
+    }
+}
+
+
+================================================================================
+FILE: bar/modules/WorkspaceIndicator.qml
+================================================================================
+import QtQuick
+import qs.core as Core
+import qs.theme as ShellTheme
+
+Rectangle {
+    id: root
+
+    implicitWidth: workspaceRow.implicitWidth + 8
+    implicitHeight: 32
+
+    radius: ShellTheme.Theme.radius.button
+
+    color: ShellTheme.Theme.colors.surfaceContainer
+
+    border.width: 1
+    border.color: ShellTheme.Theme.colors.outlineVariant
+
+    Row {
+        id: workspaceRow
+
+        anchors.centerIn: parent
+        spacing: 2
+
+        Repeater {
+            model: Core.ServiceRegistry.hyprland.workspaces
+
+            delegate: Rectangle {
+                id: workspaceButton
+
+                required property var modelData
+
+                readonly property bool validWorkspace:
+                    modelData && modelData.id > 0
+
+                readonly property bool selected:
+                    validWorkspace && modelData.focused
+
+                readonly property bool active:
+                    validWorkspace && modelData.active
+
+                readonly property bool urgent:
+                    validWorkspace && modelData.urgent
+
+                visible: validWorkspace
+
+                width: visible ? 30 : 0
+                height: 26
+
+                radius: ShellTheme.Theme.radius.small
+
+                color: {
+                    if (urgent)
+                        return ShellTheme.Theme.colors.errorContainer
+
+                    if (selected)
+                        return ShellTheme.Theme.colors.surfaceContainerHighest
+
+                    if (workspaceMouse.containsMouse)
+                        return ShellTheme.Theme.colors.hoverOverlay
+
+                    return "transparent"
+                }
+
+                border.width:
+                    selected || urgent
+                        ? 1
+                        : 0
+
+                border.color: {
+                    if (urgent)
+                        return ShellTheme.Theme.colors.error
+
+                    if (selected)
+                        return ShellTheme.Theme.colors.outline
+
+                    return "transparent"
+                }
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 120
+                    }
+                }
+
+                Behavior on border.color {
+                    ColorAnimation {
+                        duration: 120
+                    }
+                }
+
+                Text {
+                    anchors.centerIn: parent
+
+                    text: workspaceButton.modelData
+                        ? workspaceButton.modelData.name
+                        : ""
+
+                    color: workspaceButton.selected
+                        ? ShellTheme.Theme.colors.on_surface
+                        : ShellTheme.Theme.colors.on_surface_variant
+
+                    font.pixelSize: ShellTheme.Theme.typography.labelMedium
+
+                    font.weight:
+                        workspaceButton.selected
+                            ? Font.Bold
+                            : Font.DemiBold
+                }
+
+                MouseArea {
+                    id: workspaceMouse
+
+                    anchors.fill: parent
+
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+
+                    onClicked: {
+                        Core.ServiceRegistry.hyprland
+                            .activateWorkspace(
+                                workspaceButton.modelData
+                            )
+                    }
+                }
+            }
+        }
+    }
+}
+

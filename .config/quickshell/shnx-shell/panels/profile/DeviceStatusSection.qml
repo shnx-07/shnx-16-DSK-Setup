@@ -1,19 +1,29 @@
 import QtQuick
 import QtQuick.Layouts
+
 import qs.core as Core
 import qs.theme as ShellTheme
 
-Rectangle {
+import "../../components/visual" as Visual
+
+Item {
     id: root
 
     implicitWidth: 448
-    implicitHeight: statusColumn.implicitHeight + 28
 
-    radius: ShellTheme.Theme.radius.large
-    color: ShellTheme.Theme.colors.surfaceContainerLow
+    implicitHeight:
+        root.hasActiveStatus
+            ? statusColumn.implicitHeight
+            : 0
 
-    border.width: 1
-    border.color: ShellTheme.Theme.colors.outlineVariant
+    visible:
+        root.hasActiveStatus
+
+    /*
+     * ------------------------------------------------------------
+     * SERVICES
+     * ------------------------------------------------------------
+     */
 
     readonly property var audio:
         Core.ServiceRegistry.audio
@@ -24,33 +34,76 @@ Rectangle {
     readonly property var network:
         Core.ServiceRegistry.network
 
+    /*
+     * ------------------------------------------------------------
+     * ACTIVE STATE
+     * ------------------------------------------------------------
+     */
+
     readonly property bool hasBluetoothDevice:
-        bluetooth.available
-        && bluetooth.connectedDeviceCount > 0
+        root.bluetooth
+        && root.bluetooth.available
+        && root.bluetooth.connectedDeviceCount > 0
+
+    readonly property bool hasAudioOutput:
+        root.audio
+        && root.audio.available
+
+    readonly property bool hasNetworkConnection:
+        root.network
+        && root.network.connected
+
+    readonly property int activeCount:
+        (root.hasAudioOutput ? 1 : 0)
+        + (root.hasBluetoothDevice ? 1 : 0)
+        + (root.hasNetworkConnection ? 1 : 0)
+
+    readonly property bool hasActiveStatus:
+        root.activeCount > 0
+
+    /*
+     * ------------------------------------------------------------
+     * CONTENT
+     * ------------------------------------------------------------
+     */
 
     ColumnLayout {
         id: statusColumn
 
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.top
+        }
 
-        anchors.margins: 14
+        spacing:
+            ShellTheme.Theme.spacing.small
 
-        spacing: 10
-
+        /*
+         * SECTION HEADER
+         */
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 20
+            Layout.preferredHeight: 22
 
             Text {
-                text: "DEVICE STATUS"
+                text:
+                    "DEVICE STATUS"
 
-                color: ShellTheme.Theme.colors.on_surface_variant
+                color:
+                    ShellTheme.Theme.colors.on_surface_variant
 
-                font.pixelSize: ShellTheme.Theme.typography.labelSmall
-                font.weight: Font.DemiBold
-                font.letterSpacing: 1.2
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.labelSmall
+
+                font.weight:
+                    Font.DemiBold
+
+                font.letterSpacing:
+                    1.2
             }
 
             Item {
@@ -58,145 +111,195 @@ Rectangle {
             }
 
             Text {
-                text: {
-                    let count = 0
+                text:
+                    root.activeCount + " active"
 
-                    if (root.audio.available)
-                        count++
+                color:
+                    ShellTheme.Theme.colors.on_surface_variant
 
-                    if (root.hasBluetoothDevice)
-                        count++
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
 
-                    if (root.network.connected)
-                        count++
-
-                    return count + " active"
-                }
-
-                color: ShellTheme.Theme.colors.on_surface_variant
-                font.pixelSize: ShellTheme.Theme.typography.labelSmall
+                font.pixelSize:
+                    ShellTheme.Theme.typography.labelSmall
             }
         }
 
+        /*
+         * BLUETOOTH DEVICE
+         */
         StatusRow {
-            visible: root.hasBluetoothDevice
+            visible:
+                root.hasBluetoothDevice
 
-            iconText: root.bluetooth.icon
+            glyph:
+                root.bluetooth.icon
 
-            titleText:
+            title:
                 root.bluetooth.primaryDeviceName.length > 0
                     ? root.bluetooth.primaryDeviceName
                     : "Bluetooth device"
 
-            valueText:
+            value:
                 root.bluetooth.primaryDeviceBattery >= 0
                     ? root.bluetooth.primaryDeviceBattery + "%"
                     : "Connected"
         }
 
+        /*
+         * AUDIO OUTPUT
+         */
         StatusRow {
-            visible: root.audio.available
+            visible:
+                root.hasAudioOutput
 
-            iconText: root.audio.icon
-            titleText: "Audio output"
-            valueText: root.audio.sinkName
+            glyph:
+                root.audio.icon
+
+            title:
+                "Audio output"
+
+            value:
+                root.audio.sinkName
         }
 
+        /*
+         * NETWORK
+         */
         StatusRow {
-            visible: root.network.connected
+            visible:
+                root.hasNetworkConnection
 
-            iconText: root.network.icon
-            titleText: "Network"
+            glyph:
+                root.network.icon
 
-            valueText:
+            title:
+                "Network"
+
+            value:
                 root.network.ssid.length > 0
                     ? root.network.ssid
                     : root.network.stateName
         }
-
-        Text {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 36
-
-            visible:
-                !root.audio.available
-                && !root.hasBluetoothDevice
-                && !root.network.connected
-
-            text: "No active devices or connections"
-            color: ShellTheme.Theme.colors.on_surface_variant
-
-            font.pixelSize: ShellTheme.Theme.typography.labelMedium
-
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-        }
     }
+
+    /*
+     * ------------------------------------------------------------
+     * STATUS ROW
+     * ------------------------------------------------------------
+     */
 
     component StatusRow: Rectangle {
         id: statusRow
 
-        property string iconText: ""
-        property string titleText: ""
-        property string valueText: ""
+        property string glyph: ""
+        property string title: ""
+        property string value: ""
 
         Layout.fillWidth: true
-        Layout.preferredHeight: 48
+        Layout.preferredHeight: 46
 
-        radius: ShellTheme.Theme.radius.medium
-        color: ShellTheme.Theme.colors.surfaceContainer
+        radius:
+            ShellTheme.Theme.radius.control
+
+        color:
+            ShellTheme.Theme.colors.surfaceContainer
 
         border.width: 1
-        border.color: ShellTheme.Theme.colors.outlineVariant
+
+        border.color:
+            ShellTheme.Theme.colors.outlineVariant
 
         RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: 12
-            anchors.rightMargin: 12
+            anchors {
+                fill: parent
 
-            spacing: 10
+                leftMargin:
+                    ShellTheme.Theme.spacing.medium
 
+                rightMargin:
+                    ShellTheme.Theme.spacing.medium
+            }
+
+            spacing:
+                ShellTheme.Theme.spacing.medium
+
+            /*
+             * ICON
+             */
             Rectangle {
-                Layout.preferredWidth: 32
-                Layout.preferredHeight: 32
+                Layout.preferredWidth: 30
+                Layout.preferredHeight: 30
                 Layout.alignment: Qt.AlignVCenter
 
-                radius: width / 2
-                color: ShellTheme.Theme.colors.surfaceContainerHigh
+                radius:
+                    ShellTheme.Theme.radius.circle
 
-                Text {
-                    anchors.centerIn: parent
+                color:
+                    ShellTheme.Theme.colors.surfaceContainerHigh
 
-                    text: statusRow.iconText
-                    color: ShellTheme.Theme.colors.on_surface
+                Visual.Icon {
+                    anchors.centerIn:
+                        parent
 
-                    font.pixelSize: ShellTheme.Theme.typography.titleSmall
-                    font.family: "JetBrainsMono Nerd Font"
+                    glyph:
+                        statusRow.glyph
+
+                    iconSize: 16
+
+                    color:
+                        ShellTheme.Theme.colors.on_surface
                 }
             }
 
+            /*
+             * TITLE
+             */
             Text {
                 Layout.fillWidth: true
 
-                text: statusRow.titleText
-                color: ShellTheme.Theme.colors.on_surface
+                text:
+                    statusRow.title
 
-                font.pixelSize: ShellTheme.Theme.typography.labelMedium
-                font.weight: Font.Medium
+                color:
+                    ShellTheme.Theme.colors.on_surface
 
-                elide: Text.ElideRight
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.labelMedium
+
+                font.weight:
+                    Font.Medium
+
+                elide:
+                    Text.ElideRight
             }
 
+            /*
+             * VALUE
+             */
             Text {
                 Layout.maximumWidth: 190
 
-                text: statusRow.valueText
-                color: ShellTheme.Theme.colors.on_surface_variant
+                text:
+                    statusRow.value
 
-                font.pixelSize: ShellTheme.Theme.typography.labelSmall
+                color:
+                    ShellTheme.Theme.colors.on_surface_variant
 
-                elide: Text.ElideRight
-                horizontalAlignment: Text.AlignRight
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.labelSmall
+
+                elide:
+                    Text.ElideRight
+
+                horizontalAlignment:
+                    Text.AlignRight
             }
         }
     }

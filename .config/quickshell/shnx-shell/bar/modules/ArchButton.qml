@@ -1,5 +1,8 @@
 import QtQuick
-import qs.theme as ThemeSystem
+
+import qs.theme as ShellTheme
+import qs.motion as Motion
+import qs.components.visual as Visual
 
 Rectangle {
     id: root
@@ -9,47 +12,78 @@ Rectangle {
     implicitWidth: 38
     implicitHeight: 32
 
-    radius: ThemeSystem.Theme.radius.button
+    antialiasing: false
 
-    color: mouseArea.pressed
-        ? ThemeSystem.Theme.colors.pressedOverlay
-        : mouseArea.containsMouse
-            ? ThemeSystem.Theme.colors.hoverOverlay
-            : ThemeSystem.Theme.colors.surfaceContainer
+    radius:
+        ShellTheme.Theme.radius.button
 
-    border.width: 1
-    border.color: mouseArea.containsMouse
-        ? ThemeSystem.Theme.colors.outline
-        : ThemeSystem.Theme.colors.outlineVariant
+    color:
+        mouseArea.pressed
+            ? ShellTheme.Theme.colors.pressedOverlay
+            : mouseArea.containsMouse
+                ? ShellTheme.Theme.colors.hoverOverlay
+                : ShellTheme.Theme.colors.surfaceContainer
+
+    border.width:
+        0
+
+    scale:
+        mouseArea.pressed
+            ? Motion.MotionTokens.compactPressScale
+            : mouseArea.containsMouse
+                ? Motion.MotionTokens.hoverScale
+                : 1.0
 
     Behavior on color {
         ColorAnimation {
-            duration: 120
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
-    Behavior on border.color {
-        ColorAnimation {
-            duration: 120
+    Behavior on scale {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
-    Text {
-        anchors.centerIn: parent
+    Visual.Icon {
+        anchors.centerIn:
+            parent
 
-        text: "󰣇"
-        color: ThemeSystem.Theme.colors.on_surface
+        anchors.horizontalCenterOffset:
+            -2
 
-        font.pixelSize: 18
+        glyph:
+            "󰣇"
+
+        iconSize:
+            18
+
+        color:
+            ShellTheme.Theme.colors.on_surface
     }
 
     MouseArea {
         id: mouseArea
 
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        anchors.fill:
+            parent
 
-        onClicked: root.clicked()
+        hoverEnabled:
+            true
+
+        cursorShape:
+            Qt.PointingHandCursor
+
+        onClicked:
+            root.clicked()
     }
 }

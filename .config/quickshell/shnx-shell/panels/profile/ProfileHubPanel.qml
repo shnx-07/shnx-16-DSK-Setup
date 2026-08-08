@@ -1,11 +1,19 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
+
 import qs.core as Core
 import qs.theme as ShellTheme
 
+import "../../components/layout" as Layout
+
 PopupWindow {
     id: root
+
+    /*
+     * ------------------------------------------------------------
+     * Window geometry
+     * ------------------------------------------------------------
+     */
 
     implicitWidth: 480
     implicitHeight: 820
@@ -16,17 +24,31 @@ PopupWindow {
     property int horizontalOffset: 14
     property int verticalOffset: 15
 
-    anchor.item: Core.PanelController.anchorItem
-    anchor.edges: Edges.Bottom | Edges.Left
-    anchor.gravity: Edges.Bottom | Edges.Right
+    /*
+     * ------------------------------------------------------------
+     * Popup anchoring
+     * ------------------------------------------------------------
+     *
+     * Preserve the existing stable popup behavior.
+     */
 
-    anchor.rect.x: horizontalOffset
+    anchor.item:
+        Core.PanelController.anchorItem
+
+    anchor.edges:
+        Edges.Bottom | Edges.Left
+
+    anchor.gravity:
+        Edges.Bottom | Edges.Right
+
+    anchor.rect.x:
+        root.horizontalOffset
 
     anchor.rect.y:
         Core.PanelController.anchorItem
             ? Core.PanelController.anchorItem.height
-                + verticalOffset
-            : verticalOffset
+                + root.verticalOffset
+            : root.verticalOffset
 
     anchor.adjustment:
         PopupAdjustment.Flip
@@ -36,174 +58,271 @@ PopupWindow {
         Core.PanelController.profileHubOpen
         && Core.PanelController.anchorItem !== null
 
-    Rectangle {
+    /*
+     * ------------------------------------------------------------
+     * Main shared panel surface
+     * ------------------------------------------------------------
+     */
+
+    Layout.Surface {
         id: panelSurface
 
         anchors.fill: parent
 
-        radius: ShellTheme.Theme.radius.island
-        color: ShellTheme.Theme.colors.surfaceContainerLowest
+        radius:
+            ShellTheme.Theme.radius.island
 
-        border.width: 1
-        border.color: ShellTheme.Theme.colors.outlineVariant
+        backgroundColor:
+            ShellTheme.Theme.colors.surfaceContainerLowest
+
+        borderColor:
+            ShellTheme.Theme.colors.outlineVariant
+
+        borderWidth: 1
+
+        opacity:
+            root.visible
+                ? 1.0
+                : 0.0
+
+        scale:
+            root.visible
+                ? 1.0
+                : 0.96
+
+        transform: Translate {
+            y:
+                root.visible
+                    ? 0
+                    : -10
+        }
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.emphasized
+
+                easing.type:
+                    Motion.Easing.enter
+            }
+        }
+
+        Behavior on scale {
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.emphasized
+
+                easing.type:
+                    Motion.Easing.emphasized
+            }
+        }
+
+        Behavior on y {
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.emphasized
+
+                easing.type:
+                    Motion.Easing.emphasized
+            }
+        }
+
+        /*
+         * --------------------------------------------------------
+         * Scrollable profile content
+         * --------------------------------------------------------
+         */
 
         Flickable {
             id: panelScroll
 
-            anchors.fill: parent
-            anchors.margins: 16
+            anchors {
+                fill: parent
+
+                margins:
+                    ShellTheme.Theme.spacing.large
+            }
 
             clip: true
 
-            contentWidth: width
-            contentHeight: contentColumn.implicitHeight
+            contentWidth:
+                width
 
-            boundsBehavior: Flickable.StopAtBounds
+            contentHeight:
+                contentColumn.implicitHeight
+
+            boundsBehavior:
+                Flickable.StopAtBounds
 
             Column {
                 id: contentColumn
 
-                width: panelScroll.width
-                spacing: 12
+                width:
+                    panelScroll.width
+
+                spacing:
+                    ShellTheme.Theme.spacing.medium
 
                 /*
-                 * Profile identity
+                 * ------------------------------------------------
+                 * PROFILE IDENTITY
+                 * ------------------------------------------------
+                 *
+                 * Main visual anchor of the hub.
                  */
+
                 ProfileCard {
-                    width: parent.width
+                    width:
+                        parent.width
                 }
 
                 /*
-                 * Applications + CPU/RAM/Disk row
+                 * ------------------------------------------------
+                 * SYSTEM METRICS
+                 * ------------------------------------------------
+                 *
+                 * Application Launcher has been deliberately
+                 * removed from Profile.
+                 *
+                 * System metrics now receive the full available
+                 * width and remain a lightweight information strip.
                  */
-                Rectangle {
-                    id: launcherMetricsContainer
 
-                    width: parent.width
-                    height: 132
+                SystemMetricsSection {
+                    width:
+                        parent.width
 
-                    radius: ShellTheme.Theme.radius.panel
-                    color: ShellTheme.Theme.colors.surfaceContainerLow
+                    height:
+                        108
+                }
 
-                    border.width: 1
-                    border.color: ShellTheme.Theme.colors.outlineVariant
+                /*
+                 * ------------------------------------------------
+                 * PRIMARY CONTROLS
+                 * ------------------------------------------------
+                 */
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 12
+                Column {
+                    width:
+                        parent.width
 
-                        spacing: 10
+                    spacing:
+                        ShellTheme.Theme.spacing.small
 
-                        AppsLauncherButton {
-                            id: applicationsButton
+                    Text {
+                        text:
+                            "CONTROLS"
 
-                            Layout.preferredWidth: 145
-                            Layout.minimumWidth: 145
-                            Layout.maximumWidth: 145
-                            Layout.fillHeight: true
+                        color:
+                            ShellTheme.Theme.colors.on_surface_variant
 
-                            onClicked: {
-                                Core.PanelController.openAppLauncher(
-                                    Core.PanelController.anchorItem
-                                )
-                            }
-                        }
+                        font.family:
+                            ShellTheme.Theme.typography.fontFamily
 
-                        SystemMetricsSection {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                        }
+                        font.pixelSize:
+                            ShellTheme.Theme.typography.labelSmall
+
+                        font.weight:
+                            Font.DemiBold
+
+                        font.letterSpacing:
+                            1.2
+                    }
+
+                    AudioSlider {
+                        width: parent.width
+                        height: 42
+                    }
+
+                    Layout.Divider {
+                        width:
+                            parent.width
+                    }
+
+                    BrightnessSlider {
+                        width: parent.width
+                        height: 42
                     }
                 }
 
                 /*
-                 * Shared volume and brightness visual section.
-                 * AudioSlider and BrightnessSlider remain separate components.
+                 * ------------------------------------------------
+                 * QUICK SETTINGS
+                 * ------------------------------------------------
                  */
-                Rectangle {
-                    id: controlsContainer
 
-                    width: parent.width
-                    height: 178
-
-                    radius: ShellTheme.Theme.radius.panel
-                    color: ShellTheme.Theme.colors.surfaceContainerLow
-
-                    border.width: 1
-                    border.color: ShellTheme.Theme.colors.outlineVariant
-
-                    Column {
-                        anchors.fill: parent
-                        anchors.margins: 15
-
-                        spacing: 8
-
-                        Text {
-                            text: "CONTROLS"
-
-                            color: ShellTheme.Theme.colors.on_surface_variant
-
-                            font.pixelSize: ShellTheme.Theme.typography.labelSmall
-                            font.weight: Font.DemiBold
-                            font.letterSpacing: 1.2
-                        }
-
-                        AudioSlider {
-                            width: parent.width
-                            height: 72
-                        }
-
-                        Rectangle {
-                            width: parent.width
-                            height: 1
-
-                            color: ShellTheme.Theme.colors.outlineVariant
-                        }
-
-                        BrightnessSlider {
-                            width: parent.width
-                            height: 62
-                        }
-                    }
-                }
-
-                /*
-                 * Eight quick-setting tiles
-                 */
                 QuickSettingsSection {
-                    width: parent.width
-                    height: 340
+                    width:
+                        parent.width
+
+                    height:
+                        340
                 }
 
                 /*
-                 * Connected devices and active routes
+                 * ------------------------------------------------
+                 * DEVICE STATUS
+                 * ------------------------------------------------
+                 *
+                 * DeviceStatusSection itself will later decide
+                 * whether meaningful device information exists.
                  */
+
                 DeviceStatusSection {
-                    width: parent.width
+                    width:
+                        parent.width
                 }
 
                 /*
-                 * Profile and session actions
+                 * ------------------------------------------------
+                 * SECTION SEPARATOR
+                 * ------------------------------------------------
                  */
+
+                Layout.Divider {
+                    width:
+                        parent.width
+                }
+
+                /*
+                 * ------------------------------------------------
+                 * PROFILE / SESSION ACTIONS
+                 * ------------------------------------------------
+                 */
+
                 ProfileActions {
-                    width: parent.width
+                    width:
+                        parent.width
                 }
 
                 /*
-                 * Bottom breathing room so the final card does not sit
-                 * directly against the scrolling boundary.
+                 * Bottom breathing room.
                  */
+
                 Item {
-                    width: parent.width
-                    height: 4
+                    width:
+                        parent.width
+
+                    height:
+                        ShellTheme.Theme.spacing.xSmall
                 }
             }
         }
     }
 
+    /*
+     * ------------------------------------------------------------
+     * Popup dismissal
+     * ------------------------------------------------------------
+     *
+     * Keep existing controller synchronization unchanged.
+     */
+
     onVisibleChanged: {
-        if (!visible
-                && Core.PanelController.profileHubOpen) {
+        if (
+            !visible
+            && Core.PanelController.profileHubOpen
+        ) {
             Core.PanelController.close()
         }
     }

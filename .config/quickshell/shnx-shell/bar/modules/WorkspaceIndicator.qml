@@ -1,28 +1,42 @@
 import QtQuick
+
 import qs.core as Core
 import qs.theme as ShellTheme
+import qs.motion as Motion
 
 Rectangle {
     id: root
 
-    implicitWidth: workspaceRow.implicitWidth + 8
-    implicitHeight: 32
+    implicitWidth:
+        workspaceRow.implicitWidth + 8
 
-    radius: ShellTheme.Theme.radius.button
+    implicitHeight:
+        32
 
-    color: ShellTheme.Theme.colors.surfaceContainer
+    antialiasing:
+        false
 
-    border.width: 1
-    border.color: ShellTheme.Theme.colors.outlineVariant
+    radius:
+        ShellTheme.Theme.radius.button
+
+    color:
+        ShellTheme.Theme.colors.surfaceContainer
+
+    border.width:
+        0
 
     Row {
         id: workspaceRow
 
-        anchors.centerIn: parent
-        spacing: 2
+        anchors.centerIn:
+            parent
+
+        spacing:
+            2
 
         Repeater {
-            model: Core.ServiceRegistry.hyprland.workspaces
+            model:
+                Core.ServiceRegistry.hyprland.workspaces
 
             delegate: Rectangle {
                 id: workspaceButton
@@ -30,29 +44,43 @@ Rectangle {
                 required property var modelData
 
                 readonly property bool validWorkspace:
-                    modelData && modelData.id > 0
+                    modelData
+                    && modelData.id > 0
 
                 readonly property bool selected:
-                    validWorkspace && modelData.focused
+                    validWorkspace
+                    && modelData.focused
 
                 readonly property bool active:
-                    validWorkspace && modelData.active
+                    validWorkspace
+                    && modelData.active
 
                 readonly property bool urgent:
-                    validWorkspace && modelData.urgent
+                    validWorkspace
+                    && modelData.urgent
 
-                visible: validWorkspace
+                visible:
+                    validWorkspace
 
-                width: visible ? 30 : 0
-                height: 26
+                width:
+                    visible
+                        ? 30
+                        : 0
 
-                radius: ShellTheme.Theme.radius.small
+                height:
+                    26
+
+                antialiasing:
+                    false
+
+                radius:
+                    ShellTheme.Theme.radius.small
 
                 color: {
-                    if (urgent)
+                    if (workspaceButton.urgent)
                         return ShellTheme.Theme.colors.errorContainer
 
-                    if (selected)
+                    if (workspaceButton.selected)
                         return ShellTheme.Theme.colors.surfaceContainerHighest
 
                     if (workspaceMouse.containsMouse)
@@ -61,16 +89,23 @@ Rectangle {
                     return "transparent"
                 }
 
+                scale:
+                    workspaceMouse.pressed
+                        ? Motion.MotionTokens.compactPressScale
+                        : workspaceMouse.containsMouse
+                            ? Motion.MotionTokens.hoverScale
+                            : 1.0
+
                 border.width:
-                    selected || urgent
-                        ? 1
+                    workspaceButton.selected || workspaceButton.urgent
+                        ? 0.3
                         : 0
 
                 border.color: {
-                    if (urgent)
+                    if (workspaceButton.urgent)
                         return ShellTheme.Theme.colors.error
 
-                    if (selected)
+                    if (workspaceButton.selected)
                         return ShellTheme.Theme.colors.outline
 
                     return "transparent"
@@ -78,28 +113,50 @@ Rectangle {
 
                 Behavior on color {
                     ColorAnimation {
-                        duration: 120
+                        duration:
+                            Motion.MotionTokens.quick
+
+                        easing.type:
+                            Motion.Easing.standard
+                    }
+                }
+
+                Behavior on scale {
+                    NumberAnimation {
+                        duration:
+                            Motion.MotionTokens.quick
+
+                        easing.type:
+                            Motion.Easing.standard
                     }
                 }
 
                 Behavior on border.color {
                     ColorAnimation {
-                        duration: 120
+                        duration:
+                            Motion.MotionTokens.quick
+
+                        easing.type:
+                            Motion.Easing.standard
                     }
                 }
 
                 Text {
-                    anchors.centerIn: parent
+                    anchors.centerIn:
+                        parent
 
-                    text: workspaceButton.modelData
-                        ? workspaceButton.modelData.name
-                        : ""
+                    text:
+                        workspaceButton.modelData
+                            ? workspaceButton.modelData.name
+                            : ""
 
-                    color: workspaceButton.selected
-                        ? ShellTheme.Theme.colors.on_surface
-                        : ShellTheme.Theme.colors.on_surface_variant
+                    color:
+                        workspaceButton.selected
+                            ? ShellTheme.Theme.colors.on_surface
+                            : ShellTheme.Theme.colors.on_surface_variant
 
-                    font.pixelSize: ShellTheme.Theme.typography.labelMedium
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.labelMedium
 
                     font.weight:
                         workspaceButton.selected
@@ -110,10 +167,14 @@ Rectangle {
                 MouseArea {
                     id: workspaceMouse
 
-                    anchors.fill: parent
+                    anchors.fill:
+                        parent
 
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled:
+                        true
+
+                    cursorShape:
+                        Qt.PointingHandCursor
 
                     onClicked: {
                         Core.ServiceRegistry.hyprland

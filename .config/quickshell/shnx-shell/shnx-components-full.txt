@@ -1,0 +1,2912 @@
+
+================================================================================
+FILE: components/buttons/IconButton.qml
+================================================================================
+import QtQuick
+import QtQuick.Controls
+
+import "../../theme" as ShellTheme
+import "../../motion" as Motion
+import "../visual" as Visual
+
+Item {
+    id: root
+
+    signal clicked()
+
+    property string iconSource: ""
+    property string glyph: ""
+
+    property real buttonSize: 36
+    property real iconSize: 18
+
+    property bool enabled: true
+
+    property string tooltipText: ""
+
+    property color iconColor:
+        ShellTheme.Theme.colors.onSurface
+
+    property color hoverColor:
+        ShellTheme.Theme.colors.surfaceContainerHigh
+
+    property color pressedColor:
+        ShellTheme.Theme.colors.surfaceContainerHighest
+
+    property color focusColor:
+        ShellTheme.Theme.colors.primary
+
+    readonly property bool hovered:
+        mouseArea.containsMouse
+
+    readonly property bool pressed:
+        mouseArea.pressed
+
+    implicitWidth:
+        buttonSize
+
+    implicitHeight:
+        buttonSize
+
+    scale:
+        pressed
+            ? Motion.MotionTokens.compactPressScale
+            : hovered
+                ? Motion.MotionTokens.hoverScale
+                : 1.0
+
+    opacity:
+        enabled ? 1.0 : 0.45
+
+    Behavior on scale {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Behavior on opacity {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+
+        radius:
+            ShellTheme.Theme.radius.button
+
+        color: {
+            if (root.pressed)
+                return root.pressedColor
+
+            if (root.hovered)
+                return root.hoverColor
+
+            return "transparent"
+        }
+
+        border.width:
+            root.activeFocus ? 1 : 0
+
+        border.color:
+            root.focusColor
+
+        Behavior on color {
+            ColorAnimation {
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+    }
+
+    Visual.Icon {
+        anchors.centerIn: parent
+
+        source:
+            root.iconSource
+
+        glyph:
+            root.glyph
+
+        iconSize:
+            root.iconSize
+
+        color:
+            root.iconColor
+
+        disabled:
+            !root.enabled
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+
+        enabled:
+            root.enabled
+
+        hoverEnabled:
+            true
+
+        cursorShape:
+            root.enabled
+                ? Qt.PointingHandCursor
+                : Qt.ArrowCursor
+
+        onClicked:
+            root.clicked()
+    }
+
+    ToolTip {
+        visible:
+            root.tooltipText.length > 0
+            && root.hovered
+
+        text:
+            root.tooltipText
+
+        delay:
+            500
+    }
+}
+
+
+================================================================================
+FILE: components/buttons/PillButton.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../../motion" as Motion
+import "../visual" as Visual
+
+Item {
+    id: root
+
+    enum Variant {
+        Primary,
+        Secondary,
+        Destructive
+    }
+
+    signal clicked()
+
+    property int variant:
+        PillButton.Primary
+
+    property string text: ""
+    property string glyph: ""
+    property string iconSource: ""
+
+    property real iconSize: 18
+
+    property bool enabled: true
+
+    property real horizontalPadding:
+        ShellTheme.Theme.spacing.medium
+
+    property real verticalPadding:
+        ShellTheme.Theme.spacing.small
+
+    property real spacing:
+        ShellTheme.Theme.spacing.small
+
+    readonly property bool hovered:
+        mouseArea.containsMouse
+
+    readonly property bool pressed:
+        mouseArea.pressed
+
+    readonly property color backgroundColor: {
+        if (!root.enabled)
+            return ShellTheme.Theme.colors.surfaceContainer
+
+        if (root.variant === PillButton.Destructive)
+            return ShellTheme.Theme.colors.error
+
+        if (root.variant === PillButton.Secondary)
+            return ShellTheme.Theme.colors.surfaceContainerHigh
+
+        return ShellTheme.Theme.colors.primary
+    }
+
+    readonly property color foregroundColor: {
+        if (!root.enabled)
+            return ShellTheme.Theme.colors.onSurfaceVariant
+
+        if (root.variant === PillButton.Destructive)
+            return ShellTheme.Theme.colors.onError
+
+        if (root.variant === PillButton.Secondary)
+            return ShellTheme.Theme.colors.onSurface
+
+        return ShellTheme.Theme.colors.onPrimary
+    }
+
+    implicitWidth:
+        contentRow.implicitWidth
+        + root.horizontalPadding * 2
+
+    implicitHeight:
+        contentRow.implicitHeight
+        + root.verticalPadding * 2
+
+    scale:
+        root.pressed
+            ? Motion.MotionTokens.pressScale
+            : root.hovered
+                ? Motion.MotionTokens.hoverScale
+                : 1.0
+
+    opacity:
+        root.enabled ? 1.0 : 0.45
+
+    Behavior on scale {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Behavior on opacity {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+
+        radius:
+            ShellTheme.Theme.radius.pill
+
+        color:
+            root.backgroundColor
+
+        opacity:
+            root.pressed
+                ? 0.82
+                : root.hovered
+                    ? 0.92
+                    : 1.0
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+    }
+
+    Row {
+        id: contentRow
+
+        anchors.centerIn: parent
+
+        spacing:
+            root.spacing
+
+        Visual.Icon {
+            visible:
+                root.glyph.length > 0
+                || root.iconSource.length > 0
+
+            glyph:
+                root.glyph
+
+            source:
+                root.iconSource
+
+            iconSize:
+                root.iconSize
+
+            color:
+                root.foregroundColor
+
+            disabled:
+                !root.enabled
+        }
+
+        Text {
+            visible:
+                root.text.length > 0
+
+            text:
+                root.text
+
+            color:
+                root.foregroundColor
+
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelLarge
+
+            font.weight:
+                Font.DemiBold
+
+            verticalAlignment:
+                Text.AlignVCenter
+        }
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+
+        enabled:
+            root.enabled
+
+        hoverEnabled:
+            true
+
+        cursorShape:
+            root.enabled
+                ? Qt.PointingHandCursor
+                : Qt.ArrowCursor
+
+        onClicked:
+            root.clicked()
+    }
+}
+
+
+================================================================================
+FILE: components/buttons/ToggleButton.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../../motion" as Motion
+
+Item {
+    id: root
+
+    signal toggled(bool checked)
+    signal clicked()
+
+    property bool checked: false
+    property bool enabled: true
+
+    property string text: ""
+
+    property real horizontalPadding:
+        ShellTheme.Theme.spacing.medium
+
+    property real verticalPadding:
+        ShellTheme.Theme.spacing.small
+
+    readonly property bool hovered:
+        mouseArea.containsMouse
+
+    readonly property bool pressed:
+        mouseArea.pressed
+
+    readonly property color backgroundColor: {
+        if (!root.enabled)
+            return ShellTheme.Theme.colors.surfaceContainer
+
+        if (root.checked)
+            return ShellTheme.Theme.colors.primary
+
+        if (root.pressed)
+            return ShellTheme.Theme.colors.surfaceContainerHighest
+
+        if (root.hovered)
+            return ShellTheme.Theme.colors.surfaceContainerHigh
+
+        return ShellTheme.Theme.colors.surfaceContainer
+    }
+
+    readonly property color foregroundColor: {
+        if (!root.enabled)
+            return ShellTheme.Theme.colors.onSurfaceVariant
+
+        if (root.checked)
+            return ShellTheme.Theme.colors.onPrimary
+
+        return ShellTheme.Theme.colors.onSurface
+    }
+
+    implicitWidth:
+        label.implicitWidth
+        + root.horizontalPadding * 2
+
+    implicitHeight:
+        label.implicitHeight
+        + root.verticalPadding * 2
+
+    scale:
+        root.pressed
+            ? Motion.MotionTokens.pressScale
+            : 1.0
+
+    opacity:
+        root.enabled ? 1.0 : 0.45
+
+    Behavior on scale {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Behavior on opacity {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+
+        radius:
+            ShellTheme.Theme.radius.control
+
+        color:
+            root.backgroundColor
+
+        Behavior on color {
+            ColorAnimation {
+                duration:
+                    Motion.MotionTokens.standard
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+    }
+
+    Text {
+        id: label
+
+        anchors.centerIn: parent
+
+        text:
+            root.text
+
+        color:
+            root.foregroundColor
+
+        font.family:
+            ShellTheme.Theme.typography.fontFamily
+
+        font.pixelSize:
+            ShellTheme.Theme.typography.labelLarge
+
+        font.weight:
+            root.checked
+                ? Font.DemiBold
+                : Font.Medium
+
+        verticalAlignment:
+            Text.AlignVCenter
+    }
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+
+        enabled:
+            root.enabled
+
+        hoverEnabled:
+            true
+
+        cursorShape:
+            root.enabled
+                ? Qt.PointingHandCursor
+                : Qt.ArrowCursor
+
+        onClicked: {
+            root.checked = !root.checked
+
+            root.clicked()
+            root.toggled(root.checked)
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/cards/BaseCard.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../visual" as Visual
+
+Item {
+    id: root
+
+    default property alias content:
+        contentItem.data
+
+    property color backgroundColor:
+        ShellTheme.Theme.colors.surfaceContainerHigh
+
+    property color borderColor:
+        ShellTheme.Theme.colors.outlineVariant
+
+    property real borderWidth: 1
+
+    property real radius:
+        ShellTheme.Theme.radius.card
+
+    property int shadowLevel:
+        Visual.Shadow.Low
+
+    property bool clipContent: true
+
+    implicitWidth:
+        contentItem.implicitWidth
+
+    implicitHeight:
+        contentItem.implicitHeight
+
+    Visual.Shadow {
+        anchors.fill: card
+
+        level:
+            root.shadowLevel
+
+        radius:
+            root.radius
+    }
+
+    Rectangle {
+        id: card
+
+        anchors.fill: parent
+
+        radius:
+            root.radius
+
+        color:
+            root.backgroundColor
+
+        border.width:
+            root.borderWidth
+
+        border.color:
+            root.borderColor
+
+        clip:
+            root.clipContent
+
+        Item {
+            id: contentItem
+
+            anchors.fill: parent
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/cards/NotificationCard.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../../motion" as Motion
+import "../buttons" as Buttons
+import "../visual" as Visual
+
+BaseCard {
+    id: root
+
+    required property var notification
+
+    property bool unread: false
+
+    signal dismissRequested(var notification)
+    signal actionRequested(var notification, var action)
+
+    readonly property bool hasImage:
+        root.notification
+        && root.notification.image
+        && root.notification.image.length > 0
+
+    readonly property bool hasBody:
+        root.notification
+        && root.notification.body
+        && root.notification.body.length > 0
+
+    readonly property bool hasActions:
+        root.notification
+        && root.notification.actions
+        && root.notification.actions.length > 0
+
+    readonly property bool hovered:
+        cardMouseArea.containsMouse
+
+    implicitWidth: 360
+
+    implicitHeight:
+        contentColumn.implicitHeight
+        + ShellTheme.Theme.spacing.medium * 2
+
+    backgroundColor:
+        root.unread
+            ? ShellTheme.Theme.colors.surfaceContainerHigh
+            : root.hovered
+                ? ShellTheme.Theme.colors.hoverOverlay
+                : ShellTheme.Theme.colors.surfaceContainer
+
+    borderColor:
+        root.unread
+            ? ShellTheme.Theme.colors.primary
+            : root.hovered
+                ? ShellTheme.Theme.colors.outline
+                : ShellTheme.Theme.colors.outlineVariant
+
+    borderWidth: 1
+
+    Behavior on backgroundColor {
+        ColorAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Behavior on borderColor {
+        ColorAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    MouseArea {
+        id: cardMouseArea
+
+        anchors.fill: parent
+
+        hoverEnabled: true
+
+        acceptedButtons:
+            Qt.NoButton
+    }
+
+    Column {
+        id: contentColumn
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.top
+
+            margins:
+                ShellTheme.Theme.spacing.medium
+        }
+
+        spacing:
+            ShellTheme.Theme.spacing.small
+
+        /*
+         * HEADER
+         */
+        Row {
+            width:
+                parent.width
+
+            spacing:
+                ShellTheme.Theme.spacing.small
+
+            /*
+             * APPLICATION ICON
+             */
+            Rectangle {
+                width: 38
+                height: 38
+
+                radius:
+                    ShellTheme.Theme.radius.button
+
+                color:
+                    ShellTheme.Theme.colors.surfaceContainerHigh
+
+                border.width: 1
+
+                border.color:
+                    ShellTheme.Theme.colors.outlineVariant
+
+                clip: true
+
+                Image {
+                    anchors {
+                        fill: parent
+                        margins: 5
+                    }
+
+                    visible:
+                        root.hasImage
+
+                    source:
+                        root.hasImage
+                            ? root.notification.image
+                            : ""
+
+                    fillMode:
+                        Image.PreserveAspectCrop
+
+                    asynchronous: true
+                    cache: true
+
+                    sourceSize.width: 64
+                    sourceSize.height: 64
+                }
+
+                Text {
+                    anchors.centerIn:
+                        parent
+
+                    visible:
+                        !root.hasImage
+
+                    text: {
+                        const appName =
+                            root.notification
+                            && root.notification.appName
+                                ? String(root.notification.appName)
+                                : "?"
+
+                        return appName.length > 0
+                            ? appName.charAt(0).toUpperCase()
+                            : "?"
+                    }
+
+                    color:
+                        ShellTheme.Theme.colors.on_surface
+
+                    font.family:
+                        ShellTheme.Theme.typography.fontFamily
+
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.titleSmall
+
+                    font.weight:
+                        Font.Bold
+                }
+            }
+
+            /*
+             * APPLICATION + SUMMARY
+             */
+            Column {
+                width:
+                    Math.max(
+                        0,
+                        parent.width
+                        - 38
+                        - dismissButton.width
+                        - parent.spacing * 2
+                    )
+
+                anchors.verticalCenter:
+                    parent.verticalCenter
+
+                spacing:
+                    ShellTheme.Theme.spacing.xSmall
+
+                Text {
+                    width:
+                        parent.width
+
+                    text:
+                        root.notification
+                        && root.notification.appName
+                            ? root.notification.appName
+                            : "Application"
+
+                    color:
+                        ShellTheme.Theme.colors.on_surface_variant
+
+                    elide:
+                        Text.ElideRight
+
+                    font.family:
+                        ShellTheme.Theme.typography.fontFamily
+
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.labelSmall
+
+                    font.weight:
+                        Font.DemiBold
+                }
+
+                Text {
+                    width:
+                        parent.width
+
+                    text:
+                        root.notification
+                        && root.notification.summary
+                            ? root.notification.summary
+                            : "Notification"
+
+                    color:
+                        ShellTheme.Theme.colors.on_surface
+
+                    elide:
+                        Text.ElideRight
+
+                    font.family:
+                        ShellTheme.Theme.typography.fontFamily
+
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.bodySmall
+
+                    font.weight:
+                        root.unread
+                            ? Font.Bold
+                            : Font.DemiBold
+                }
+            }
+
+            /*
+             * DISMISS
+             */
+            Buttons.IconButton {
+                id: dismissButton
+
+                anchors.verticalCenter:
+                    parent.verticalCenter
+
+                buttonSize: 30
+                iconSize: 15
+
+                glyph:
+                    "󰅖"
+
+                iconColor:
+                    ShellTheme.Theme.colors.error
+
+                hoverColor:
+                    ShellTheme.Theme.colors.errorContainer
+
+                pressedColor:
+                    ShellTheme.Theme.colors.errorContainer
+
+                tooltipText:
+                    "Dismiss"
+
+                onClicked:
+                    root.dismissRequested(
+                        root.notification
+                    )
+            }
+        }
+
+        /*
+         * BODY
+         */
+        Text {
+            width:
+                parent.width
+
+            visible:
+                root.hasBody
+
+            text:
+                root.notification
+                && root.notification.body
+                    ? root.notification.body
+                    : ""
+
+            color:
+                ShellTheme.Theme.colors.on_surface_variant
+
+            wrapMode:
+                Text.Wrap
+
+            maximumLineCount: 4
+
+            elide:
+                Text.ElideRight
+
+            textFormat:
+                Text.PlainText
+
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelMedium
+
+            lineHeight: 1.15
+        }
+
+        /*
+         * ACTIONS
+         */
+        Flow {
+            width:
+                parent.width
+
+            visible:
+                root.hasActions
+
+            spacing:
+                ShellTheme.Theme.spacing.small
+
+            Repeater {
+                model:
+                    root.hasActions
+                        ? root.notification.actions
+                        : []
+
+                delegate: Buttons.PillButton {
+                    required property var modelData
+
+                    variant:
+                        Buttons.PillButton.Primary
+
+                    text:
+                        modelData
+                        && modelData.text
+                            ? modelData.text
+                            : "Open"
+
+                    onClicked:
+                        root.actionRequested(
+                            root.notification,
+                            modelData
+                        )
+                }
+            }
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/cards/ProfileInfoCard.qml
+================================================================================
+
+
+================================================================================
+FILE: components/cards/RecordingCard.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../../motion" as Motion
+import "../buttons" as Buttons
+
+BaseCard {
+    id: root
+
+    signal playRequested()
+    signal deleteRequested()
+
+    property string title: ""
+    property string subtitle: ""
+    property string duration: ""
+
+    property bool playing: false
+    property bool enabled: true
+
+    property string playGlyph:
+        root.playing ? "󰏤" : "󰐊"
+
+    property string deleteGlyph:
+        "󰆴"
+
+    implicitWidth: 320
+    implicitHeight: 72
+
+    opacity:
+        root.enabled ? 1.0 : 0.45
+
+    Behavior on opacity {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Row {
+        anchors {
+            fill: parent
+            margins:
+                ShellTheme.Theme.spacing.medium
+        }
+
+        spacing:
+            ShellTheme.Theme.spacing.medium
+
+        Buttons.IconButton {
+            anchors.verticalCenter:
+                parent.verticalCenter
+
+            glyph:
+                root.playGlyph
+
+            enabled:
+                root.enabled
+
+            tooltipText:
+                root.playing
+                    ? "Pause"
+                    : "Play"
+
+            onClicked:
+                root.playRequested()
+        }
+
+        Column {
+            anchors.verticalCenter:
+                parent.verticalCenter
+
+            width:
+                Math.max(
+                    0,
+                    parent.width
+                    - ShellTheme.Theme.spacing.medium * 2
+                    - 72
+                )
+
+            spacing:
+                ShellTheme.Theme.spacing.xSmall
+
+            Text {
+                width:
+                    parent.width
+
+                text:
+                    root.title
+
+                color:
+                    ShellTheme.Theme.colors.onSurface
+
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.bodyLarge
+
+                font.weight:
+                    Font.Medium
+
+                elide:
+                    Text.ElideRight
+            }
+
+            Text {
+                width:
+                    parent.width
+
+                visible:
+                    root.subtitle.length > 0
+
+                text:
+                    root.subtitle
+
+                color:
+                    ShellTheme.Theme.colors.onSurfaceVariant
+
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.bodySmall
+
+                elide:
+                    Text.ElideRight
+            }
+        }
+
+        Text {
+            anchors.verticalCenter:
+                parent.verticalCenter
+
+            visible:
+                root.duration.length > 0
+
+            text:
+                root.duration
+
+            color:
+                ShellTheme.Theme.colors.onSurfaceVariant
+
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelMedium
+        }
+
+        Buttons.IconButton {
+            anchors.verticalCenter:
+                parent.verticalCenter
+
+            glyph:
+                root.deleteGlyph
+
+            enabled:
+                root.enabled
+
+            tooltipText:
+                "Delete"
+
+            onClicked:
+                root.deleteRequested()
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/cards/WeatherCard.qml
+================================================================================
+
+
+================================================================================
+FILE: components/controls/ProgressBar.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../../motion" as Motion
+
+Item {
+    id: root
+
+    property real value: 0.0
+    property real from: 0.0
+    property real to: 1.0
+
+    property real thickness: 6
+
+    property color trackColor:
+        ShellTheme.Theme.colors.surfaceContainerHigh
+
+    property color progressColor:
+        ShellTheme.Theme.colors.primary
+
+    property real radius:
+        ShellTheme.Theme.radius.pill
+
+    readonly property real normalizedValue: {
+        const range = root.to - root.from
+
+        if (range <= 0)
+            return 0
+
+        return Math.max(
+            0,
+            Math.min(
+                1,
+                (root.value - root.from) / range
+            )
+        )
+    }
+
+    implicitWidth: 160
+    implicitHeight: thickness
+
+    Rectangle {
+        anchors.fill: parent
+
+        radius:
+            root.radius
+
+        color:
+            root.trackColor
+    }
+
+    Rectangle {
+        anchors {
+            left: parent.left
+            top: parent.top
+            bottom: parent.bottom
+        }
+
+        width:
+            parent.width * root.normalizedValue
+
+        radius:
+            root.radius
+
+        color:
+            root.progressColor
+
+        Behavior on width {
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.standard
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/controls/SegmentedControl.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../../motion" as Motion
+
+Item {
+    id: root
+
+    required property var options
+
+    property int currentIndex: 0
+    property bool enabled: true
+
+    signal selected(int index)
+
+    implicitWidth: 176
+    implicitHeight: 30
+
+    readonly property int optionCount:
+        root.options ? root.options.length : 0
+
+    Rectangle {
+        anchors.fill: parent
+
+        radius:
+            height / 2
+
+        color:
+            ShellTheme.Theme.colors.surfaceContainerLowest
+
+        opacity:
+            root.enabled ? 1.0 : 0.45
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+
+        Rectangle {
+            id: selectionBackground
+
+            visible:
+                root.optionCount > 0
+
+            width:
+                root.width / Math.max(1, root.optionCount) - 4
+
+            height:
+                parent.height - 4
+
+            x:
+                2
+                + root.currentIndex
+                * (root.width / Math.max(1, root.optionCount))
+
+            y: 2
+
+            radius:
+                height / 2
+
+            color:
+                ShellTheme.Theme.colors.surfaceContainerHigh
+
+            Behavior on x {
+                NumberAnimation {
+                    duration:
+                        Motion.MotionTokens.standard
+
+                    easing.type:
+                        Motion.Easing.standard
+                }
+            }
+        }
+
+        Row {
+            anchors.fill: parent
+
+            Repeater {
+                model:
+                    root.options
+
+                delegate: Item {
+                    required property int index
+                    required property var modelData
+
+                    width:
+                        root.width / Math.max(1, root.optionCount)
+
+                    height:
+                        root.height
+
+                    Text {
+                        anchors.centerIn: parent
+
+                        text:
+                            String(modelData)
+
+                        color:
+                            index === root.currentIndex
+                                ? ShellTheme.Theme.colors.on_surface
+                                : ShellTheme.Theme.colors.on_surface_variant
+
+                        font.family:
+                            ShellTheme.Theme.typography.fontFamily
+
+                        font.pixelSize:
+                            ShellTheme.Theme.typography.labelMedium
+
+                        font.weight:
+                            index === root.currentIndex
+                                ? Font.Medium
+                                : Font.Normal
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration:
+                                    Motion.MotionTokens.quick
+
+                                easing.type:
+                                    Motion.Easing.standard
+                            }
+                        }
+                    }
+
+                    TapHandler {
+                        enabled:
+                            root.enabled
+
+                        acceptedButtons:
+                            Qt.LeftButton
+
+                        onTapped: {
+                            if (root.currentIndex === index)
+                                return
+
+                            root.currentIndex = index
+                            root.selected(index)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/controls/Slider.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../../motion" as Motion
+
+Item {
+    id: root
+
+    signal moved(real value)
+    signal valueCommitted(real value)
+
+    property real value: 0.0
+    property real from: 0.0
+    property real to: 1.0
+
+    property real stepSize: 0.0
+
+    property bool enabled: true
+
+    property real trackHeight: 6
+    property real handleSize: 18
+
+    property color trackColor:
+        ShellTheme.Theme.colors.surfaceContainerHigh
+
+    property color fillColor:
+        ShellTheme.Theme.colors.primary
+
+    property color handleColor:
+        ShellTheme.Theme.colors.onPrimary
+
+    readonly property bool pressed:
+        dragArea.pressed
+
+    readonly property bool hovered:
+        dragArea.containsMouse
+
+    readonly property real normalizedValue: {
+        const range = root.to - root.from
+
+        if (range <= 0)
+            return 0
+
+        return Math.max(
+            0,
+            Math.min(
+                1,
+                (root.value - root.from) / range
+            )
+        )
+    }
+
+    implicitWidth: 180
+
+    implicitHeight:
+        Math.max(
+            root.trackHeight,
+            root.handleSize
+        )
+
+    opacity:
+        root.enabled ? 1.0 : 0.45
+
+    Behavior on opacity {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    /*
+     * TRACK
+     */
+    Rectangle {
+        id: track
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            verticalCenter: parent.verticalCenter
+        }
+
+        height:
+            root.trackHeight
+
+        radius:
+            ShellTheme.Theme.radius.pill
+
+        color:
+            root.trackColor
+    }
+
+    /*
+     * ACTIVE FILL
+     */
+    Rectangle {
+        anchors {
+            left: track.left
+            top: track.top
+            bottom: track.bottom
+        }
+
+        width:
+            track.width * root.normalizedValue
+
+        radius:
+            ShellTheme.Theme.radius.pill
+
+        color:
+            root.fillColor
+    }
+
+    /*
+     * HANDLE
+     */
+    Rectangle {
+        id: handle
+
+        width:
+            root.handleSize
+
+        height:
+            root.handleSize
+
+        radius:
+            ShellTheme.Theme.radius.circle
+
+        color:
+            root.fillColor
+
+        x:
+            root.normalizedValue
+            * Math.max(0, root.width - width)
+
+        anchors.verticalCenter:
+            parent.verticalCenter
+
+        scale:
+            root.pressed
+                ? Motion.MotionTokens.compactPressScale
+                : root.hovered
+                    ? Motion.MotionTokens.hoverScale
+                    : 1.0
+
+        Behavior on scale {
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+
+        Behavior on x {
+            enabled:
+                !root.pressed
+
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.standard
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+
+        Rectangle {
+            anchors.centerIn: parent
+
+            width:
+                parent.width * 0.45
+
+            height:
+                width
+
+            radius:
+                ShellTheme.Theme.radius.circle
+
+            color:
+                root.handleColor
+        }
+    }
+
+    MouseArea {
+        id: dragArea
+
+        anchors.fill: parent
+
+        enabled:
+            root.enabled
+
+        hoverEnabled:
+            true
+
+        cursorShape:
+            root.enabled
+                ? Qt.PointingHandCursor
+                : Qt.ArrowCursor
+
+        function updateValue(mouseX) {
+            const usableWidth =
+                Math.max(1, root.width)
+
+            let normalized =
+                mouseX / usableWidth
+
+            normalized =
+                Math.max(
+                    0,
+                    Math.min(1, normalized)
+                )
+
+            let newValue =
+                root.from
+                + normalized
+                * (root.to - root.from)
+
+            /*
+             * Optional stepping.
+             */
+            if (root.stepSize > 0) {
+                newValue =
+                    Math.round(
+                        (newValue - root.from)
+                        / root.stepSize
+                    )
+                    * root.stepSize
+                    + root.from
+            }
+
+            newValue =
+                Math.max(
+                    root.from,
+                    Math.min(root.to, newValue)
+                )
+
+            root.value = newValue
+            root.moved(newValue)
+        }
+
+        onPressed:
+            updateValue(mouse.x)
+
+        onPositionChanged: {
+            if (pressed)
+                updateValue(mouse.x)
+        }
+
+        onReleased:
+            root.valueCommitted(root.value)
+    }
+}
+
+
+================================================================================
+FILE: components/controls/SwipeContainer.qml
+================================================================================
+import QtQuick
+
+import "../../motion" as Motion
+
+Item {
+    id: root
+
+    default property alias content:
+        contentRow.data
+
+    property int currentIndex: 0
+
+    property int pageCount:
+        contentRow.children.length
+
+    property bool enabled: true
+
+    property real swipeThreshold: width * 0.18
+    property real velocityThreshold: 700
+
+    signal pageChanged(int index)
+
+    clip: true
+
+    function clampIndex(index) {
+        if (root.pageCount <= 0)
+            return 0
+
+        return Math.max(
+            0,
+            Math.min(
+                root.pageCount - 1,
+                index
+            )
+        )
+    }
+
+    function goToPage(index) {
+        const nextIndex =
+            root.clampIndex(index)
+
+        if (nextIndex === root.currentIndex)
+            return
+
+        root.currentIndex =
+            nextIndex
+
+        root.pageChanged(
+            nextIndex
+        )
+    }
+
+    function nextPage() {
+        goToPage(
+            root.currentIndex + 1
+        )
+    }
+
+    function previousPage() {
+        goToPage(
+            root.currentIndex - 1
+        )
+    }
+
+    Item {
+        id: viewport
+
+        anchors.fill: parent
+
+        Row {
+            id: contentRow
+
+            height:
+                parent.height
+
+            x:
+                -root.currentIndex * root.width
+                + dragOffset
+
+            property real dragOffset: 0
+
+            Behavior on x {
+                enabled:
+                    !dragHandler.active
+
+                NumberAnimation {
+                    duration:
+                        Motion.MotionTokens.spatial
+
+                    easing.type:
+                        Motion.Easing.emphasized
+                }
+            }
+        }
+    }
+
+    DragHandler {
+        id: dragHandler
+
+        enabled:
+            root.enabled
+            && root.pageCount > 1
+
+        target: null
+
+        xAxis.enabled: true
+        yAxis.enabled: false
+
+        onActiveChanged: {
+            if (active)
+                return
+
+            const distance =
+                contentRow.dragOffset
+
+            const velocity =
+                centroid.velocity.x
+
+            let nextIndex =
+                root.currentIndex
+
+            if (
+                distance <= -root.swipeThreshold
+                || velocity <= -root.velocityThreshold
+            ) {
+                nextIndex++
+            } else if (
+                distance >= root.swipeThreshold
+                || velocity >= root.velocityThreshold
+            ) {
+                nextIndex--
+            }
+
+            contentRow.dragOffset = 0
+
+            root.goToPage(
+                nextIndex
+            )
+        }
+
+        onTranslationChanged: {
+            let offset =
+                translation.x
+
+            /*
+             * Add resistance at the first/last page
+             * rather than allowing unrestricted dragging.
+             */
+            if (
+                root.currentIndex === 0
+                && offset > 0
+            ) {
+                offset *= 0.25
+            }
+
+            if (
+                root.currentIndex
+                    === root.pageCount - 1
+                && offset < 0
+            ) {
+                offset *= 0.25
+            }
+
+            contentRow.dragOffset =
+                offset
+        }
+    }
+
+    onCurrentIndexChanged: {
+        const correctedIndex =
+            clampIndex(currentIndex)
+
+        if (correctedIndex !== currentIndex) {
+            currentIndex =
+                correctedIndex
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/layout/Divider.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+
+Rectangle {
+    id: root
+
+    enum Orientation {
+        Horizontal,
+        Vertical
+    }
+
+    property int orientation:
+        Divider.Horizontal
+
+    property color dividerColor:
+        ShellTheme.Theme.colors.outlineVariant
+
+    property real thickness: 1
+
+    color:
+        dividerColor
+
+    implicitWidth:
+        orientation === Divider.Horizontal
+            ? 1
+            : thickness
+
+    implicitHeight:
+        orientation === Divider.Horizontal
+            ? thickness
+            : 1
+}
+
+
+================================================================================
+FILE: components/layout/PanelHeader.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../buttons" as Buttons
+
+Item {
+    id: root
+
+    signal backRequested()
+    signal closeRequested()
+
+    property string title: ""
+    property string subtitle: ""
+
+    property bool showBackButton: false
+    property bool showCloseButton: true
+
+    property string backGlyph: "󰁍"
+    property string closeGlyph: "󰅖"
+
+    property real horizontalPadding:
+        ShellTheme.Theme.spacing.medium
+
+    property real verticalPadding:
+        ShellTheme.Theme.spacing.small
+
+    implicitWidth:
+        headerRow.implicitWidth
+        + root.horizontalPadding * 2
+
+    implicitHeight:
+        Math.max(
+            titleColumn.implicitHeight,
+            actionsRow.implicitHeight
+        )
+        + root.verticalPadding * 2
+
+    Row {
+        id: headerRow
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            verticalCenter: parent.verticalCenter
+        }
+
+        spacing:
+            ShellTheme.Theme.spacing.small
+
+        Buttons.IconButton {
+            visible:
+                root.showBackButton
+
+            glyph:
+                root.backGlyph
+
+            tooltipText:
+                "Back"
+
+            onClicked:
+                root.backRequested()
+        }
+
+        Column {
+            id: titleColumn
+
+            width:
+                Math.max(
+                    0,
+                    parent.width
+                    - actionsRow.width
+                    - (root.showBackButton
+                        ? ShellTheme.Theme.spacing.large + 36
+                        : 0)
+                )
+
+            spacing:
+                ShellTheme.Theme.spacing.xSmall
+
+            Text {
+                width:
+                    parent.width
+
+                text:
+                    root.title
+
+                color:
+                    ShellTheme.Theme.colors.onSurface
+
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.titleLarge
+
+                font.weight:
+                    Font.DemiBold
+
+                elide:
+                    Text.ElideRight
+            }
+
+            Text {
+                width:
+                    parent.width
+
+                visible:
+                    root.subtitle.length > 0
+
+                text:
+                    root.subtitle
+
+                color:
+                    ShellTheme.Theme.colors.onSurfaceVariant
+
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.bodyMedium
+
+                elide:
+                    Text.ElideRight
+            }
+        }
+
+        Item {
+            width:
+                Math.max(
+                    0,
+                    root.width
+                    - titleColumn.width
+                    - actionsRow.width
+                    - (root.showBackButton ? 36 : 0)
+                )
+
+            height:
+                1
+        }
+
+        Row {
+            id: actionsRow
+
+            spacing:
+                ShellTheme.Theme.spacing.xSmall
+
+            Buttons.IconButton {
+                visible:
+                    root.showCloseButton
+
+                glyph:
+                    root.closeGlyph
+
+                tooltipText:
+                    "Close"
+
+                onClicked:
+                    root.closeRequested()
+            }
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/layout/Spacer.qml
+================================================================================
+import QtQuick
+
+Item {
+    id: root
+
+    property bool horizontal: true
+    property real size: 0
+    property bool expanding: false
+
+    implicitWidth:
+        horizontal
+            ? (expanding ? 0 : size)
+            : 1
+
+    implicitHeight:
+        horizontal
+            ? 1
+            : (expanding ? 0 : size)
+}
+
+
+================================================================================
+FILE: components/layout/Surface.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../visual" as Visual
+
+Item {
+    id: root
+
+    default property alias content:
+        contentItem.data
+
+    property color backgroundColor:
+        ShellTheme.Theme.colors.surfaceContainer
+
+    property color borderColor:
+        ShellTheme.Theme.colors.outlineVariant
+
+    property real borderWidth: 1
+
+    property real radius:
+        ShellTheme.Theme.radius.panel
+
+    property int shadowLevel:
+        Visual.Shadow.Medium
+
+    property bool clipContent: true
+
+    implicitWidth:
+        contentItem.implicitWidth
+
+    implicitHeight:
+        contentItem.implicitHeight
+
+    Visual.Shadow {
+        anchors.fill: surface
+
+        level:
+            root.shadowLevel
+
+        radius:
+            root.radius
+    }
+
+    Rectangle {
+        id: surface
+
+        anchors.fill: parent
+
+        radius:
+            root.radius
+
+        color:
+            root.backgroundColor
+
+        border.width:
+            root.borderWidth
+
+        border.color:
+            root.borderColor
+
+        clip:
+            root.clipContent
+
+        Item {
+            id: contentItem
+
+            anchors.fill: parent
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/lists/RecordingList.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+import "../cards" as Cards
+
+Item {
+    id: root
+
+    property var model: []
+
+    property string emptyText:
+        "No recordings yet"
+
+    property real cardSpacing:
+        ShellTheme.Theme.spacing.small
+
+    property real contentMargin:
+        ShellTheme.Theme.spacing.small
+
+    signal playRequested(int index, var item)
+    signal deleteRequested(int index, var item)
+
+    readonly property int itemCount:
+        root.model ? root.model.length : 0
+
+    Flickable {
+        id: flickable
+
+        anchors.fill: parent
+
+        clip: true
+
+        contentWidth:
+            width
+
+        contentHeight:
+            contentColumn.implicitHeight
+            + root.contentMargin * 2
+
+        boundsBehavior:
+            Flickable.StopAtBounds
+
+        Column {
+            id: contentColumn
+
+            x:
+                root.contentMargin
+
+            y:
+                root.contentMargin
+
+            width:
+                Math.max(
+                    0,
+                    flickable.width
+                    - root.contentMargin * 2
+                )
+
+            spacing:
+                root.cardSpacing
+
+            Repeater {
+                model:
+                    root.model
+
+                delegate: Cards.RecordingCard {
+                    required property int index
+                    required property var modelData
+
+                    width:
+                        contentColumn.width
+
+                    title:
+                        modelData && modelData.title !== undefined
+                            ? String(modelData.title)
+                            : ""
+
+                    subtitle:
+                        modelData && modelData.subtitle !== undefined
+                            ? String(modelData.subtitle)
+                            : ""
+
+                    duration:
+                        modelData && modelData.duration !== undefined
+                            ? String(modelData.duration)
+                            : ""
+
+                    playing:
+                        modelData && modelData.playing === true
+
+                    enabled:
+                        !modelData
+                        || modelData.enabled === undefined
+                        || modelData.enabled === true
+
+                    onPlayRequested:
+                        root.playRequested(
+                            index,
+                            modelData
+                        )
+
+                    onDeleteRequested:
+                        root.deleteRequested(
+                            index,
+                            modelData
+                        )
+                }
+            }
+        }
+    }
+
+    Text {
+        anchors.centerIn: parent
+
+        visible:
+            root.itemCount === 0
+
+        text:
+            root.emptyText
+
+        color:
+            ShellTheme.Theme.colors.onSurfaceVariant
+
+        font.family:
+            ShellTheme.Theme.typography.fontFamily
+
+        font.pixelSize:
+            ShellTheme.Theme.typography.bodyMedium
+
+        horizontalAlignment:
+            Text.AlignHCenter
+
+        verticalAlignment:
+            Text.AlignVCenter
+    }
+}
+
+
+================================================================================
+FILE: components/media/AnimatedImagePreview.qml
+================================================================================
+import QtQuick
+
+Item {
+    id: root
+
+    property url source: ""
+
+    property bool playing: true
+    property bool visiblePlaybackOnly: true
+
+    property int fillMode:
+        Image.PreserveAspectCrop
+
+    property bool smooth: true
+
+    implicitWidth: 320
+    implicitHeight: 180
+
+    AnimatedImage {
+        id: animatedImage
+
+        anchors.fill: parent
+
+        source:
+            root.source
+
+        fillMode:
+            root.fillMode
+
+        smooth:
+            root.smooth
+
+        asynchronous:
+            true
+
+        cache:
+            true
+
+        playing:
+            root.playing
+            && (
+                !root.visiblePlaybackOnly
+                || root.visible
+            )
+    }
+}
+
+
+================================================================================
+FILE: components/media/MediaPreview.qml
+================================================================================
+import QtQuick
+
+import "../media" as Media
+
+Item {
+    id: root
+
+    enum MediaType {
+        StaticImage,
+        AnimatedImage,
+        Video
+    }
+
+    property int mediaType:
+        MediaPreview.StaticImage
+
+    property url source: ""
+
+    property bool playing: true
+    property bool muted: true
+    property bool loop: true
+
+    property int fillMode:
+        Image.PreserveAspectCrop
+
+    implicitWidth: 320
+    implicitHeight: 180
+
+    Image {
+        anchors.fill: parent
+
+        visible:
+            root.mediaType === MediaPreview.StaticImage
+
+        source:
+            root.source
+
+        fillMode:
+            root.fillMode
+
+        smooth:
+            true
+
+        mipmap:
+            true
+
+        asynchronous:
+            true
+
+        cache:
+            true
+    }
+
+    Media.AnimatedImagePreview {
+        anchors.fill: parent
+
+        visible:
+            root.mediaType === MediaPreview.AnimatedImage
+
+        source:
+            root.source
+
+        playing:
+            root.playing
+
+        fillMode:
+            root.fillMode
+    }
+
+    Media.VideoPreview {
+        anchors.fill: parent
+
+        visible:
+            root.mediaType === MediaPreview.Video
+
+        source:
+            root.source
+
+        playing:
+            root.playing
+
+        muted:
+            root.muted
+
+        loop:
+            root.loop
+    }
+}
+
+
+================================================================================
+FILE: components/media/VideoPreview.qml
+================================================================================
+import QtQuick
+import QtMultimedia
+
+Item {
+    id: root
+
+    property url source: ""
+
+    property bool playing: true
+    property bool muted: true
+    property bool loop: true
+    property bool visiblePlaybackOnly: true
+
+    implicitWidth: 320
+    implicitHeight: 180
+
+    MediaPlayer {
+        id: player
+
+        source:
+            root.source
+
+        audioOutput:
+            audioOutput
+
+        videoOutput:
+            videoOutput
+
+        loops:
+            root.loop
+                ? MediaPlayer.Infinite
+                : 1
+
+        onSourceChanged: {
+            if (
+                root.playing
+                && (
+                    !root.visiblePlaybackOnly
+                    || root.visible
+                )
+            ) {
+                play()
+            }
+        }
+    }
+
+    AudioOutput {
+        id: audioOutput
+
+        muted:
+            root.muted
+    }
+
+    VideoOutput {
+        id: videoOutput
+
+        anchors.fill: parent
+
+        fillMode:
+            VideoOutput.PreserveAspectCrop
+    }
+
+    function updatePlayback() {
+        if (
+            root.playing
+            && (
+                !root.visiblePlaybackOnly
+                || root.visible
+            )
+        ) {
+            player.play()
+        } else {
+            player.pause()
+        }
+    }
+
+    onPlayingChanged:
+        updatePlayback()
+
+    onVisibleChanged:
+        updatePlayback()
+
+    Component.onCompleted:
+        updatePlayback()
+}
+
+
+================================================================================
+FILE: components/visual/Avatar.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+
+Item {
+    id: root
+
+    property url source: ""
+    property real avatarSize: 40
+
+    property color fallbackColor:
+        ShellTheme.Theme.colors.surfaceContainerHigh
+
+    property color fallbackTextColor:
+        ShellTheme.Theme.colors.onSurface
+
+    property string fallbackText: ""
+
+    implicitWidth:
+        avatarSize
+
+    implicitHeight:
+        avatarSize
+
+    Rectangle {
+        anchors.fill: parent
+
+        radius:
+            ShellTheme.Theme.radius.circle
+
+        color:
+            root.fallbackColor
+
+        clip:
+            true
+
+        Image {
+            anchors.fill: parent
+
+            visible:
+                root.source.toString().length > 0
+
+            source:
+                root.source
+
+            fillMode:
+                Image.PreserveAspectCrop
+
+            smooth:
+                true
+
+            mipmap:
+                true
+        }
+
+        Text {
+            anchors.centerIn: parent
+
+            visible:
+                root.source.toString().length === 0
+                && root.fallbackText.length > 0
+
+            text:
+                root.fallbackText
+
+            color:
+                root.fallbackTextColor
+
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                root.avatarSize * 0.38
+
+            font.weight:
+                Font.DemiBold
+        }
+    }
+}
+
+
+================================================================================
+FILE: components/visual/Badge.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+
+Item {
+    id: root
+
+    property string text: ""
+
+    property color backgroundColor:
+        ShellTheme.Theme.colors.primary
+
+    property color textColor:
+        ShellTheme.Theme.colors.onPrimary
+
+    property real minimumSize: 16
+
+    property real horizontalPadding:
+        ShellTheme.Theme.spacing.xSmall
+
+    readonly property bool hasText:
+        root.text.length > 0
+
+    implicitWidth:
+        Math.max(
+            minimumSize,
+            label.implicitWidth
+                + horizontalPadding * 2
+        )
+
+    implicitHeight:
+        minimumSize
+
+    Rectangle {
+        anchors.fill: parent
+
+        radius:
+            ShellTheme.Theme.radius.pill
+
+        color:
+            root.backgroundColor
+    }
+
+    Text {
+        id: label
+
+        anchors.centerIn: parent
+
+        text:
+            root.text
+
+        color:
+            root.textColor
+
+        font.family:
+            ShellTheme.Theme.typography.fontFamily
+
+        font.pixelSize:
+            ShellTheme.Theme.typography.labelSmall
+
+        font.weight:
+            Font.DemiBold
+    }
+}
+
+
+================================================================================
+FILE: components/visual/Icon.qml
+================================================================================
+import QtQuick
+
+import "../../theme" as ShellTheme
+
+Item {
+    id: root
+
+    property string source: ""
+    property string glyph: ""
+
+    property color color:
+        ShellTheme.Theme.colors.onSurface
+
+    property color disabledColor:
+        ShellTheme.Theme.colors.onSurfaceVariant
+
+    property real iconSize: 20
+
+    property bool disabled: false
+
+    readonly property color effectiveColor:
+        disabled ? disabledColor : color
+
+    implicitWidth:
+        iconSize
+
+    implicitHeight:
+        iconSize
+
+    /*
+     * Font-glyph renderer.
+     *
+     * Use this for Nerd Font / symbol glyphs.
+     */
+    Text {
+        anchors.centerIn: parent
+
+        visible:
+            root.glyph.length > 0
+
+        text:
+            root.glyph
+
+        color:
+            root.effectiveColor
+
+        font.family:
+            ShellTheme.Theme.typography.iconFontFamily
+
+        font.pixelSize:
+            root.iconSize
+
+        horizontalAlignment:
+            Text.AlignHCenter
+
+        verticalAlignment:
+            Text.AlignVCenter
+    }
+
+    /*
+     * Image / SVG renderer.
+     *
+     * Used when an explicit source path or URL is supplied.
+     */
+    Image {
+        anchors.centerIn: parent
+
+        width:
+            root.iconSize
+
+        height:
+            root.iconSize
+
+        visible:
+            root.glyph.length === 0
+            && root.source.length > 0
+
+        source:
+            root.source
+
+        fillMode:
+            Image.PreserveAspectFit
+
+        smooth:
+            true
+
+        mipmap:
+            true
+    }
+}
+
+
+================================================================================
+FILE: components/visual/Shadow.qml
+================================================================================
+import QtQuick
+import QtQuick.Effects
+
+import "../../theme" as ShellTheme
+
+Item {
+    id: root
+
+    enum Level {
+        None,
+        Low,
+        Medium,
+        High
+    }
+
+    property int level: Shadow.Low
+
+    property real radius:
+        ShellTheme.Theme.radius.card
+
+    property bool shadowVisible:
+        level !== Shadow.None
+
+    readonly property real shadowOpacity: {
+        switch (level) {
+        case Shadow.Low:
+            return ShellTheme.Theme.shadows.lowOpacity
+
+        case Shadow.Medium:
+            return ShellTheme.Theme.shadows.mediumOpacity
+
+        case Shadow.High:
+            return ShellTheme.Theme.shadows.highOpacity
+
+        default:
+            return ShellTheme.Theme.shadows.noneOpacity
+        }
+    }
+
+    readonly property real shadowBlur: {
+        switch (level) {
+        case Shadow.Low:
+            return ShellTheme.Theme.shadows.lowBlur
+
+        case Shadow.Medium:
+            return ShellTheme.Theme.shadows.mediumBlur
+
+        case Shadow.High:
+            return ShellTheme.Theme.shadows.highBlur
+
+        default:
+            return ShellTheme.Theme.shadows.noneBlur
+        }
+    }
+
+    readonly property real shadowOffsetX: {
+        switch (level) {
+        case Shadow.Low:
+            return ShellTheme.Theme.shadows.lowOffsetX
+
+        case Shadow.Medium:
+            return ShellTheme.Theme.shadows.mediumOffsetX
+
+        case Shadow.High:
+            return ShellTheme.Theme.shadows.highOffsetX
+
+        default:
+            return ShellTheme.Theme.shadows.noneOffsetX
+        }
+    }
+
+    readonly property real shadowOffsetY: {
+        switch (level) {
+        case Shadow.Low:
+            return ShellTheme.Theme.shadows.lowOffsetY
+
+        case Shadow.Medium:
+            return ShellTheme.Theme.shadows.mediumOffsetY
+
+        case Shadow.High:
+            return ShellTheme.Theme.shadows.highOffsetY
+
+        default:
+            return ShellTheme.Theme.shadows.noneOffsetY
+        }
+    }
+
+    RectangularShadow {
+        anchors.fill: parent
+
+        visible:
+            root.shadowVisible
+
+        radius:
+            root.radius
+
+        blur:
+            root.shadowBlur
+
+        offset.x:
+            root.shadowOffsetX
+
+        offset.y:
+            root.shadowOffsetY
+
+        color:
+            Qt.rgba(
+                ShellTheme.Theme.shadows.color.r,
+                ShellTheme.Theme.shadows.color.g,
+                ShellTheme.Theme.shadows.color.b,
+                root.shadowOpacity
+            )
+    }
+}
+

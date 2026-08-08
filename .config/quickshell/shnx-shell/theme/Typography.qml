@@ -3,6 +3,8 @@ import QtQuick
 QtObject {
     readonly property string fontFamily: "Inter"
     readonly property string monospaceFamily: "JetBrains Mono"
+    readonly property string iconFontFamily:
+    "Symbols Nerd Font Mono"
 
     readonly property int weightLight: Font.Light
     readonly property int weightRegular: Font.Normal

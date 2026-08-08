@@ -1,13 +1,19 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io
+
 import qs.theme as ShellTheme
+
+import "../../components/visual" as Visual
+import "../../motion" as Motion
 
 Item {
     id: root
 
-    implicitWidth: metricsRow.implicitWidth
-    implicitHeight: 108
+    implicitWidth:
+        metricsRow.implicitWidth
+
+    implicitHeight: 104
 
     property real cpuUsage: 0
     property real ramUsage: 0
@@ -16,36 +22,73 @@ Item {
     property real previousCpuTotal: 0
     property real previousCpuIdle: 0
 
+    /*
+     * ------------------------------------------------------------
+     * METRIC STRIP
+     * ------------------------------------------------------------
+     */
+
     RowLayout {
         id: metricsRow
 
-        anchors.fill: parent
-        spacing: 8
+        anchors.fill:
+            parent
 
-        CircularMetric {
+        spacing:
+            ShellTheme.Theme.spacing.small
+
+        MetricItem {
             Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            title: "CPU"
-            iconText: ""
-            value: root.cpuUsage
+            title:
+                "CPU"
+
+            glyph:
+                ""
+
+            value:
+                root.cpuUsage
         }
 
-        CircularMetric {
+        MetricItem {
             Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            title: "RAM"
-            iconText: ""
-            value: root.ramUsage
+            title:
+                "RAM"
+
+            glyph:
+                ""
+
+            value:
+                root.ramUsage
         }
 
-        CircularMetric {
+        MetricItem {
             Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            title: "Disk"
-            iconText: "󰋊"
-            value: root.diskUsage
+            title:
+                "Disk"
+
+            glyph:
+                "󰋊"
+
+            value:
+                root.diskUsage
         }
     }
+
+    /*
+     * ------------------------------------------------------------
+     * EXISTING METRICS COLLECTION
+     * ------------------------------------------------------------
+     *
+     * Keep this logic unchanged for now.
+     * Backend ownership can be moved into a service later,
+     * after the visual Profile redesign is stable.
+     */
 
     Timer {
         interval: 2000
@@ -102,7 +145,8 @@ Item {
 
         stderr: StdioCollector {
             onStreamFinished: {
-                const message = text.trim()
+                const message =
+                    text.trim()
 
                 if (message.length > 0) {
                     console.warn(
@@ -114,27 +158,48 @@ Item {
         }
     }
 
+    /*
+     * ------------------------------------------------------------
+     * METRICS PARSER
+     * ------------------------------------------------------------
+     */
+
     function parseMetrics(output) {
         let cpuTotal = 0
         let cpuIdle = 0
         let ram = 0
         let disk = 0
 
-        const lines = output.split("\n")
+        const lines =
+            output.split("\n")
 
-        for (let index = 0; index < lines.length; index++) {
-            const line = lines[index]
-            const separatorIndex = line.indexOf("=")
+        for (
+            let index = 0;
+            index < lines.length;
+            index++
+        ) {
+            const line =
+                lines[index]
+
+            const separatorIndex =
+                line.indexOf("=")
 
             if (separatorIndex < 0)
                 continue
 
             const key =
-                line.substring(0, separatorIndex)
+                line.substring(
+                    0,
+                    separatorIndex
+                )
 
             const value =
                 Number(
-                    line.substring(separatorIndex + 1).trim()
+                    line
+                        .substring(
+                            separatorIndex + 1
+                        )
+                        .trim()
                 )
 
             switch (key) {
@@ -156,97 +221,160 @@ Item {
             }
         }
 
-        if (previousCpuTotal > 0) {
+        if (root.previousCpuTotal > 0) {
             const totalDelta =
-                cpuTotal - previousCpuTotal
+                cpuTotal
+                - root.previousCpuTotal
 
             const idleDelta =
-                cpuIdle - previousCpuIdle
+                cpuIdle
+                - root.previousCpuIdle
 
             if (totalDelta > 0) {
-                cpuUsage =
+                root.cpuUsage =
                     Math.max(
                         0,
                         Math.min(
                             100,
                             (
                                 1
-                                - idleDelta / totalDelta
+                                - idleDelta
+                                    / totalDelta
                             ) * 100
                         )
                     )
             }
         }
 
-        previousCpuTotal = cpuTotal
-        previousCpuIdle = cpuIdle
+        root.previousCpuTotal =
+            cpuTotal
 
-        ramUsage =
+        root.previousCpuIdle =
+            cpuIdle
+
+        root.ramUsage =
             Math.max(
                 0,
-                Math.min(100, ram)
+                Math.min(
+                    100,
+                    ram
+                )
             )
 
-        diskUsage =
+        root.diskUsage =
             Math.max(
                 0,
-                Math.min(100, disk)
+                Math.min(
+                    100,
+                    disk
+                )
             )
     }
 
-    component CircularMetric: Item {
+    /*
+     * ------------------------------------------------------------
+     * METRIC ITEM
+     * ------------------------------------------------------------
+     */
+
+    component MetricItem: Item {
         id: metricRoot
 
         property string title: ""
-        property string iconText: ""
+        property string glyph: ""
         property real value: 0
 
-        implicitWidth: 76
-        implicitHeight: 108
+        readonly property real progress:
+            Math.max(
+                0,
+                Math.min(
+                    1,
+                    metricRoot.value / 100
+                )
+            )
+
+        implicitWidth: 92
+        implicitHeight: 104
 
         Column {
-            anchors.centerIn: parent
-            spacing: 5
+            anchors.centerIn:
+                parent
 
+            spacing:
+                ShellTheme.Theme.spacing.xSmall
+
+            /*
+             * Circular progress indicator
+             */
             Item {
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.horizontalCenter:
+                    parent.horizontalCenter
 
-                width: 62
-                height: 62
+                width: 58
+                height: 58
 
                 Canvas {
                     id: metricCanvas
 
-                    anchors.fill: parent
+                    anchors.fill:
+                        parent
 
-                    property real progress:
-                        Math.max(
-                            0,
-                            Math.min(
-                                1,
-                                metricRoot.value / 100
-                            )
-                        )
+                    property real animatedProgress:
+                        metricRoot.progress
 
-                    onProgressChanged: requestPaint()
+                    onAnimatedProgressChanged:
+                        requestPaint()
 
-                    Component.onCompleted: requestPaint()
+                    onWidthChanged:
+                        requestPaint()
+
+                    onHeightChanged:
+                        requestPaint()
+
+                    Component.onCompleted:
+                        requestPaint()
+
+                    Behavior on animatedProgress {
+                        NumberAnimation {
+                            duration:
+                                Motion.MotionTokens.standard
+
+                            easing.type:
+                                Motion.Easing.standard
+                        }
+                    }
 
                     onPaint: {
-                        const ctx = getContext("2d")
+                        const ctx =
+                            getContext("2d")
 
                         ctx.reset()
 
-                        const centerX = width / 2
-                        const centerY = height / 2
-                        const radius =
-                            Math.min(width, height) / 2 - 5
+                        const centerX =
+                            width / 2
 
+                        const centerY =
+                            height / 2
+
+                        const radius =
+                            Math.min(
+                                width,
+                                height
+                            ) / 2 - 5
+
+                        /*
+                         * Background ring
+                         */
                         ctx.lineWidth = 5
                         ctx.lineCap = "round"
 
                         ctx.beginPath()
-                        ctx.strokeStyle = ShellTheme.Theme.colors.surfaceContainerHighest.toString()
+
+                        ctx.strokeStyle =
+                            ShellTheme.Theme.colors
+                                .surfaceContainerHighest
+                                .toString()
+
                         ctx.arc(
                             centerX,
                             centerY,
@@ -254,10 +382,19 @@ Item {
                             0,
                             Math.PI * 2
                         )
+
                         ctx.stroke()
 
+                        /*
+                         * Active ring
+                         */
                         ctx.beginPath()
-                        ctx.strokeStyle = ShellTheme.Theme.colors.primary.toString()
+
+                        ctx.strokeStyle =
+                            ShellTheme.Theme.colors
+                                .primary
+                                .toString()
+
                         ctx.arc(
                             centerX,
                             centerY,
@@ -266,44 +403,74 @@ Item {
                             -Math.PI / 2
                                 + Math.PI
                                 * 2
-                                * progress
+                                * animatedProgress
                         )
+
                         ctx.stroke()
                     }
                 }
 
-                Text {
-                    anchors.centerIn: parent
+                Visual.Icon {
+                    anchors.centerIn:
+                        parent
 
-                    text: metricRoot.iconText
-                    color: ShellTheme.Theme.colors.on_surface
+                    glyph:
+                        metricRoot.glyph
 
-                    font.pixelSize: ShellTheme.Theme.typography.titleSmall
-                    font.family:
-                        "JetBrainsMono Nerd Font"
+                    iconSize:
+                        ShellTheme.Theme.typography.titleSmall
+
+                    color:
+                        ShellTheme.Theme.colors.on_surface
                 }
             }
 
+            /*
+             * Percentage
+             */
             Text {
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.horizontalCenter:
+                    parent.horizontalCenter
 
                 text:
-                    Math.round(metricRoot.value) + "%"
+                    Math.round(
+                        metricRoot.value
+                    ) + "%"
 
-                color: ShellTheme.Theme.colors.on_surface
+                color:
+                    ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: ShellTheme.Theme.typography.labelMedium
-                font.weight: Font.DemiBold
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.labelMedium
+
+                font.weight:
+                    Font.DemiBold
             }
 
+            /*
+             * Label
+             */
             Text {
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.horizontalCenter:
+                    parent.horizontalCenter
 
-                text: metricRoot.title
-                color: ShellTheme.Theme.colors.on_surface_variant
+                text:
+                    metricRoot.title
 
-                font.pixelSize: ShellTheme.Theme.typography.labelSmall
-                font.weight: Font.Medium
+                color:
+                    ShellTheme.Theme.colors.on_surface_variant
+
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.labelSmall
+
+                font.weight:
+                    Font.Medium
             }
         }
     }

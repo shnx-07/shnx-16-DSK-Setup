@@ -1,8 +1,16 @@
 import QtQuick
+
 import qs.theme as ShellTheme
 
-Rectangle {
+import "../../components/buttons" as Buttons
+import "../../components/visual" as Visual
+import "../../motion" as Motion
+
+Item {
     id: root
+
+    signal toggled()
+    signal detailRequested()
 
     property string iconText: ""
     property string title: ""
@@ -12,198 +20,218 @@ Rectangle {
     property bool available: true
     property bool showDetailButton: false
 
-    signal toggled()
-    signal detailRequested()
+    implicitWidth: 210
+    implicitHeight: 66
 
-    implicitWidth: 200
-    implicitHeight: 74
-
-    radius: ShellTheme.Theme.radius.card
-
-    color: {
-        if (!available)
-            return ShellTheme.Theme.colors.surfaceContainerLowest
-
-        if (mouseArea.pressed)
-            return active
-                ? ShellTheme.Theme.colors.primaryContainer
-                : ShellTheme.Theme.colors.surfaceContainerHigh
-
-        if (mouseArea.containsMouse)
-            return active
-                ? ShellTheme.Theme.colors.primaryContainer
-                : ShellTheme.Theme.colors.surfaceContainer
-
-        return active
-            ? ShellTheme.Theme.colors.primaryContainer
-            : ShellTheme.Theme.colors.surfaceContainerLow
-    }
-
-    border.width: 1
-
-    border.color: {
-        if (!available)
-            return ShellTheme.Theme.colors.outlineVariant
-
-        if (active)
-            return ShellTheme.Theme.colors.primary
-
-        return mouseArea.containsMouse
-            ? ShellTheme.Theme.colors.outline
-            : ShellTheme.Theme.colors.outlineVariant
-    }
+    readonly property bool hovered:
+        tileMouseArea.containsMouse
 
     opacity:
-        available
+        root.available
             ? 1.0
-            : 0.48
+            : 0.42
 
-    Behavior on color {
-        ColorAnimation {
-            duration: 130
-        }
-    }
-
-    Behavior on border.color {
-        ColorAnimation {
-            duration: 130
-        }
-    }
-
-    Behavior on scale {
+    Behavior on opacity {
         NumberAnimation {
-            duration: 90
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
-    scale:
-        mouseArea.pressed
-            ? 0.98
-            : 1.0
+    Rectangle {
+        id: background
 
-    Row {
         anchors.fill: parent
-        anchors.leftMargin: 14
-        anchors.rightMargin: 10
 
-        spacing: 11
+        radius:
+            ShellTheme.Theme.radius.control
 
-        Rectangle {
-            anchors.verticalCenter: parent.verticalCenter
+        color: {
+            if (!root.available)
+                return ShellTheme.Theme.colors.surfaceContainerLowest
 
-            width: 42
-            height: 42
-            radius: width / 2
+            if (root.active)
+                return ShellTheme.Theme.colors.primaryContainer
 
-            color:
-                root.active
-                    ? ShellTheme.Theme.colors.on_primary_container
-                    : ShellTheme.Theme.colors.surfaceContainerHighest
+            if (root.hovered)
+                return ShellTheme.Theme.colors.surfaceContainerHigh
 
-            Text {
-                anchors.centerIn: parent
+            return ShellTheme.Theme.colors.surfaceContainer
+        }
 
-                text: root.iconText
+        border.width: 1
+
+        border.color: {
+            if (root.active)
+                return ShellTheme.Theme.colors.primary
+
+            if (root.hovered)
+                return ShellTheme.Theme.colors.outline
+
+            return ShellTheme.Theme.colors.outlineVariant
+        }
+
+        Behavior on color {
+            ColorAnimation {
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+
+        Behavior on border.color {
+            ColorAnimation {
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+
+        Row {
+            anchors {
+                fill: parent
+                margins:
+                    ShellTheme.Theme.spacing.medium
+            }
+
+            spacing:
+                ShellTheme.Theme.spacing.medium
+
+            Visual.Icon {
+                id: icon
+
+                anchors.verticalCenter:
+                    parent.verticalCenter
+
+                glyph:
+                    root.iconText
+
+                iconSize: 21
 
                 color:
                     root.active
-                        ? ShellTheme.Theme.colors.primaryContainer
+                        ? ShellTheme.Theme.colors.onPrimaryContainer
                         : ShellTheme.Theme.colors.on_surface
-
-                font.pixelSize: 19
-                font.family: "JetBrainsMono Nerd Font"
-            }
-        }
-
-        Column {
-            anchors.verticalCenter: parent.verticalCenter
-
-            width:
-                parent.width
-                - 42
-                - detailButton.width
-                - parent.spacing * 2
-                - 24
-
-            spacing: 4
-
-            Text {
-                width: parent.width
-
-                text: root.title
-                color: ShellTheme.Theme.colors.on_surface
-
-                font.pixelSize: ShellTheme.Theme.typography.bodySmall
-                font.weight: Font.DemiBold
-
-                elide: Text.ElideRight
             }
 
-            Text {
-                width: parent.width
+            Column {
+                width:
+                    Math.max(
+                        0,
+                        parent.width
+                        - icon.width
+                        - detailButton.width
+                        - parent.spacing * 2
+                    )
 
-                text: root.subtitle
-                color: ShellTheme.Theme.colors.on_surface_variant
+                anchors.verticalCenter:
+                    parent.verticalCenter
 
-                font.pixelSize: ShellTheme.Theme.typography.labelSmall
+                spacing:
+                    ShellTheme.Theme.spacing.xSmall
 
-                elide: Text.ElideRight
-            }
-        }
+                Text {
+                    width:
+                        parent.width
 
-        Item {
-          id: detailButton
-            
-            z:2
+                    text:
+                        root.title
 
-            anchors.verticalCenter: parent.verticalCenter
+                    color:
+                        root.active
+                            ? ShellTheme.Theme.colors.onPrimaryContainer
+                            : ShellTheme.Theme.colors.on_surface
 
-            width:
-                root.showDetailButton
-                    ? 26
-                    : 0
+                    font.family:
+                        ShellTheme.Theme.typography.fontFamily
 
-            height: 32
-            visible: root.showDetailButton
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.bodySmall
 
-            Text {
-                anchors.centerIn: parent
+                    font.weight:
+                        Font.DemiBold
 
-                text: "›"
-                color: ShellTheme.Theme.colors.on_surface_variant
-
-                font.pixelSize: 19
-                font.weight: Font.Medium
-            }
-
-            MouseArea {
-              anchors.fill: parent
-
-                z: 2
-
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-
-                onClicked: function(mouse) {
-                    mouse.accepted = true
-                    root.detailRequested()
+                    elide:
+                        Text.ElideRight
                 }
+
+                Text {
+                    width:
+                        parent.width
+
+                    visible:
+                        root.subtitle.length > 0
+
+                    text:
+                        root.subtitle
+
+                    color:
+                        root.active
+                            ? ShellTheme.Theme.colors.onPrimaryContainer
+                            : ShellTheme.Theme.colors.on_surface_variant
+
+                    font.family:
+                        ShellTheme.Theme.typography.fontFamily
+
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.labelSmall
+
+                    elide:
+                        Text.ElideRight
+                }
+            }
+
+            Buttons.IconButton {
+                id: detailButton
+
+                anchors.verticalCenter:
+                    parent.verticalCenter
+
+                visible:
+                    root.showDetailButton
+
+                buttonSize: 28
+                iconSize: 14
+
+                glyph:
+                    "󰅂"
+
+                iconColor:
+                    root.active
+                        ? ShellTheme.Theme.colors.onPrimaryContainer
+                        : ShellTheme.Theme.colors.on_surface_variant
+
+                tooltipText:
+                    "Details"
+
+                onClicked:
+                    root.detailRequested()
             }
         }
     }
 
     MouseArea {
-        id: mouseArea
+        id: tileMouseArea
 
         anchors.fill: parent
 
-        z:0
+        enabled:
+            root.available
 
-        enabled: root.available
         hoverEnabled: true
 
+        acceptedButtons:
+            Qt.LeftButton
+
         cursorShape:
-            enabled
+            root.available
                 ? Qt.PointingHandCursor
                 : Qt.ArrowCursor
 

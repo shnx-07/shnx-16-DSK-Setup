@@ -1,6 +1,8 @@
 import QtQuick
+
 import qs.core as Core
 import qs.theme as ShellTheme
+import qs.motion as Motion
 
 Rectangle {
     id: root
@@ -10,43 +12,67 @@ Rectangle {
     readonly property var bluetooth:
         Core.ServiceRegistry.bluetooth
 
-    implicitWidth: contentRow.implicitWidth + 20
-    implicitHeight: 32
+    implicitWidth:
+        contentRow.implicitWidth + 20
 
-    radius: ShellTheme.Theme.radius.button
+    implicitHeight:
+        32
 
-    color: mouseArea.pressed
-        ? ShellTheme.Theme.colors.pressedOverlay
-        : mouseArea.containsMouse
-            ? ShellTheme.Theme.colors.hoverOverlay
-            : ShellTheme.Theme.colors.surfaceContainer
+    antialiasing:
+        false
 
-    border.width: 1
+    radius:
+        ShellTheme.Theme.radius.button
 
-    border.color: mouseArea.containsMouse
-        ? ShellTheme.Theme.colors.outline
-        : ShellTheme.Theme.colors.outlineVariant
+    color:
+        mouseArea.pressed
+            ? ShellTheme.Theme.colors.pressedOverlay
+            : mouseArea.containsMouse
+                ? ShellTheme.Theme.colors.hoverOverlay
+                : ShellTheme.Theme.colors.surfaceContainer
+
+    border.width:
+        0
+
+    scale:
+        mouseArea.pressed
+            ? Motion.MotionTokens.compactPressScale
+            : mouseArea.containsMouse
+                ? Motion.MotionTokens.hoverScale
+                : 1.0
 
     Behavior on color {
         ColorAnimation {
-            duration: 120
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
-    Behavior on border.color {
-        ColorAnimation {
-            duration: 120
+    Behavior on scale {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
     Row {
         id: contentRow
 
-        anchors.centerIn: parent
-        spacing: 7
+        anchors.centerIn:
+            parent
+
+        spacing:
+            7
 
         Text {
-            text: bluetooth.icon
+            text:
+                bluetooth.icon
 
             color: {
                 if (!bluetooth.available || !bluetooth.enabled)
@@ -58,11 +84,13 @@ Rectangle {
                 return ShellTheme.Theme.colors.on_surface
             }
 
-            font.pixelSize: 17
+            font.pixelSize:
+                17
         }
 
         Text {
-            visible: bluetooth.connected
+            visible:
+                bluetooth.connected
 
             text: {
                 if (bluetooth.connectedDeviceCount > 1)
@@ -71,18 +99,28 @@ Rectangle {
                 return bluetooth.primaryDeviceName
             }
 
-            width: visible
-                ? Math.min(implicitWidth, 120)
-                : 0
+            width:
+                visible
+                    ? Math.min(implicitWidth, 120)
+                    : 0
 
-            color: ShellTheme.Theme.colors.on_surface
+            color:
+                ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: ShellTheme.Theme.typography.labelMedium
-            font.weight: Font.DemiBold
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelMedium
 
-            elide: Text.ElideRight
-            maximumLineCount: 1
-            wrapMode: Text.NoWrap
+            font.weight:
+                Font.DemiBold
+
+            elide:
+                Text.ElideRight
+
+            maximumLineCount:
+                1
+
+            wrapMode:
+                Text.NoWrap
         }
 
         Text {
@@ -90,22 +128,33 @@ Rectangle {
                 bluetooth.connectedDeviceCount === 1
                 && bluetooth.primaryDeviceHasBattery
 
-            text: bluetooth.primaryDeviceBattery + "%"
+            text:
+                bluetooth.primaryDeviceBattery + "%"
 
-            color: ShellTheme.Theme.colors.on_surface_variant
+            color:
+                ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: ShellTheme.Theme.typography.labelSmall
-            font.weight: Font.Medium
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelSmall
+
+            font.weight:
+                Font.Medium
         }
     }
 
     MouseArea {
         id: mouseArea
 
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        anchors.fill:
+            parent
 
-        onClicked: root.clicked()
+        hoverEnabled:
+            true
+
+        cursorShape:
+            Qt.PointingHandCursor
+
+        onClicked:
+            root.clicked()
     }
 }

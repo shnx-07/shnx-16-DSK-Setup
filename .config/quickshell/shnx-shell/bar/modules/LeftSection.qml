@@ -1,17 +1,25 @@
 import QtQuick
+
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Item {
     id: root
 
-    implicitWidth: contentRow.implicitWidth
-    implicitHeight: 32
+    implicitWidth:
+        contentRow.implicitWidth
+
+    implicitHeight:
+        32
 
     Row {
         id: contentRow
 
-        anchors.fill: parent
-        spacing: 8
+        anchors.fill:
+            parent
+
+        spacing:
+            ShellTheme.Theme.spacing.small
 
         ArchButton {
             id: archButton
@@ -23,8 +31,10 @@ Item {
             }
         }
 
-        WorkspaceIndicator {}
+        WorkspaceIndicator {
+        }
 
-        ActiveWindowIndicator {}
+        ActiveWindowIndicator {
+        }
     }
 }

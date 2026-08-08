@@ -1,60 +1,90 @@
 import QtQuick
-
-import Quickshell
-import Quickshell.Widgets
+import QtQuick.Controls
 
 import qs.theme as ShellTheme
+import qs.motion as Motion
+
+import qs.components.visual as Visual
 
 Item {
     id: root
 
     property string route: ""
     property string label: ""
-    property string iconName: ""
+    property string glyph: ""
 
     property bool selected: false
     property bool active: false
 
     signal hovered()
     signal activated()
+
     implicitWidth: 58
     implicitHeight: 58
 
-    readonly property bool containsMouse: mouseArea.containsMouse
-    readonly property bool highlighted: selected || containsMouse
+    readonly property bool containsMouse:
+        mouseArea.containsMouse
 
-    scale: mouseArea.pressed
-        ? 0.92
-        : highlighted
-            ? 1.08
-            : 1.0
+    readonly property bool highlighted:
+        root.selected || root.containsMouse
 
-    y: highlighted ? -3 : 0
+    /*
+     * ------------------------------------------------------------
+     * ITEM MOTION
+     * ------------------------------------------------------------
+     */
+
+    scale:
+        mouseArea.pressed
+            ? Motion.MotionTokens.compactPressScale
+            : root.highlighted
+                ? Motion.MotionTokens.emphasizedHoverScale
+                : 1.0
+
+    y:
+        root.highlighted
+            ? -Motion.MotionTokens.smallOffset
+            : 0
 
     Behavior on scale {
         NumberAnimation {
-            duration: 140
-            easing.type: Easing.OutCubic
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
     Behavior on y {
         NumberAnimation {
-            duration: 140
-            easing.type: Easing.OutCubic
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
-    Rectangle {
-        anchors.centerIn: parent
+    /*
+     * ------------------------------------------------------------
+     * HOVER / SELECTION SURFACE
+     * ------------------------------------------------------------
+     */
 
-        width: 48
-        height: 48
-        radius: ShellTheme.Theme.radius.large
+    Rectangle {
+        anchors.centerIn:
+            parent
+
+        width: 44
+        height: 44
+
+        radius:
+            ShellTheme.Theme.radius.large
 
         color: {
             if (root.selected)
-                return ShellTheme.Theme.colors.primaryContainer
+                return ShellTheme.Theme.colors.surfaceContainerHigh
 
             if (root.containsMouse)
                 return ShellTheme.Theme.colors.surfaceContainerHigh
@@ -62,115 +92,162 @@ Item {
             return "transparent"
         }
 
-        opacity: root.highlighted ? 1.0 : 0.0
-
-        border.width: root.active ? 1 : 0
-        border.color: ShellTheme.Theme.colors.primary
+        opacity:
+            root.highlighted
+                ? 1.0
+                : 0.0
 
         Behavior on color {
             ColorAnimation {
-                duration: 140
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
             }
         }
 
         Behavior on opacity {
             NumberAnimation {
-                duration: 120
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
             }
         }
     }
 
-    IconImage {
-        anchors.centerIn: parent
+    /*
+     * ------------------------------------------------------------
+     * ICON
+     * ------------------------------------------------------------
+     */
 
-        width: 27
-        height: 27
+    Visual.Icon {
+        anchors.centerIn:
+            parent
 
-        source: Quickshell.iconPath(root.iconName, true)
+        glyph:
+            root.glyph
 
-        asynchronous: true
-        smooth: true
+        iconSize:
+            24
 
-        opacity: root.enabled ? 1.0 : 0.38
+        color:
+            root.selected || root.active
+                ? ShellTheme.Theme.colors.primary
+                : ShellTheme.Theme.colors.on_surface
+
+        disabled:
+            !root.enabled
     }
+
+    /*
+     * ------------------------------------------------------------
+     * ACTIVE INDICATOR
+     * ------------------------------------------------------------
+     */
 
     Rectangle {
         anchors {
-            horizontalCenter: parent.horizontalCenter
-            bottom: parent.bottom
-            bottomMargin: 1
+            horizontalCenter:
+                parent.horizontalCenter
+
+            bottom:
+                parent.bottom
+
+            bottomMargin:
+                Motion.MotionTokens.tinyOffset
         }
 
-        width: 4
-        height: 4
-        radius: ShellTheme.Theme.radius.circle
+        width:
+            root.active
+                ? 12
+                : 0
 
-        color: ShellTheme.Theme.colors.primary
-        visible: root.active
-    }
+        height: 3
 
-    Rectangle {
-        anchors {
-            horizontalCenter: parent.horizontalCenter
-            bottom: parent.top
-            bottomMargin: 10
+        radius:
+            ShellTheme.Theme.radius.pill
+
+        color:
+            ShellTheme.Theme.colors.primary
+
+        opacity:
+            root.active
+                ? 1.0
+                : 0.0
+
+        Behavior on width {
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.standard
+
+                easing.type:
+                    Motion.Easing.standard
+            }
         }
-
-        width: tooltipText.implicitWidth + 18
-        height: 30
-        radius: ShellTheme.Theme.radius.small
-
-        color: ShellTheme.Theme.colors.surfaceContainerHighest
-
-        border.width: 1
-        border.color: ShellTheme.Theme.colors.outlineVariant
-
-        visible: root.containsMouse
-        opacity: root.containsMouse ? 1.0 : 0.0
-        scale: root.containsMouse ? 1.0 : 0.94
 
         Behavior on opacity {
             NumberAnimation {
-                duration: 120
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
             }
-        }
-
-        Behavior on scale {
-            NumberAnimation {
-                duration: 120
-                easing.type: Easing.OutCubic
-            }
-        }
-
-        Text {
-            id: tooltipText
-
-            anchors.centerIn: parent
-
-            text: root.label
-
-            color: ShellTheme.Theme.colors.on_surface
-
-            font.family: ShellTheme.Theme.typography.fontFamily
-            font.pixelSize: ShellTheme.Theme.typography.labelSmall
-            font.weight: Font.Medium
         }
     }
+
+    /*
+     * ------------------------------------------------------------
+     * INTERACTION
+     * ------------------------------------------------------------
+     */
 
     MouseArea {
         id: mouseArea
 
-        anchors.fill: parent
+        anchors.fill:
+            parent
 
-        enabled: root.enabled
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        enabled:
+            root.enabled
 
-        onEntered: root.hovered()
+        hoverEnabled:
+            true
+
+        cursorShape:
+            root.enabled
+                ? Qt.PointingHandCursor
+                : Qt.ArrowCursor
+
+        onEntered:
+            root.hovered()
+
         onClicked: {
             Qt.callLater(function() {
                 root.activated()
             })
         }
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * TOOLTIP
+     * ------------------------------------------------------------
+     */
+
+    ToolTip {
+        visible:
+            root.containsMouse
+            && root.label.length > 0
+
+        text:
+            root.label
+
+        delay:
+            500
     }
 }

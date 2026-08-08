@@ -1,62 +1,77 @@
 import QtQuick
-import qs.core as Core
-import "../../theme" as ShellTheme
 
-Rectangle {
+import "../../theme" as ShellTheme
+import "../../motion" as Motion
+import "../buttons" as Buttons
+import "../visual" as Visual
+
+BaseCard {
     id: root
 
     required property var notification
 
-    readonly property var notificationService:
-        Core.ServiceRegistry.notifications
+    property bool unread: false
 
-    readonly property bool unread:
-        notification
-        && notificationService.isUnread(
-            notification.id
-        )
+    signal dismissRequested(var notification)
+    signal actionRequested(var notification, var action)
 
     readonly property bool hasImage:
-        notification
-        && notification.image
-        && notification.image.length > 0
+        root.notification
+        && root.notification.image
+        && root.notification.image.length > 0
 
     readonly property bool hasBody:
-        notification
-        && notification.body
-        && notification.body.length > 0
+        root.notification
+        && root.notification.body
+        && root.notification.body.length > 0
 
     readonly property bool hasActions:
-        notification
-        && notification.actions
-        && notification.actions.length > 0
+        root.notification
+        && root.notification.actions
+        && root.notification.actions.length > 0
 
-    implicitHeight: contentColumn.implicitHeight + 28
+    readonly property bool hovered:
+        cardMouseArea.containsMouse
 
-    radius: ShellTheme.Theme.radius.card
+    implicitWidth: 360
 
-    color: unread
-        ? ShellTheme.Theme.colors.surfaceContainerHigh
-        : cardMouseArea.containsMouse
-            ? ShellTheme.Theme.colors.hoverOverlay
-            : ShellTheme.Theme.colors.surfaceContainer
+    implicitHeight:
+        contentColumn.implicitHeight
+        + ShellTheme.Theme.spacing.medium * 2
 
-    border.width: 1
-    border.color: unread
-        ? ShellTheme.Theme.colors.primary
-        : cardMouseArea.containsMouse
-            ? ShellTheme.Theme.colors.outline
-            : ShellTheme.Theme.colors.outlineVariant
+    backgroundColor:
+        root.unread
+            ? ShellTheme.Theme.colors.surfaceContainerHigh
+            : root.hovered
+                ? ShellTheme.Theme.colors.hoverOverlay
+                : ShellTheme.Theme.colors.surfaceContainer
 
-    Behavior on color {
+    borderColor:
+        root.unread
+            ? ShellTheme.Theme.colors.primary
+            : root.hovered
+                ? ShellTheme.Theme.colors.outline
+                : ShellTheme.Theme.colors.outlineVariant
+
+    borderWidth: 1
+
+    Behavior on backgroundColor {
         ColorAnimation {
-            duration: 120
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
-    Behavior on border.color {
+    Behavior on borderColor {
         ColorAnimation {
-            duration: 120
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
@@ -64,46 +79,75 @@ Rectangle {
         id: cardMouseArea
 
         anchors.fill: parent
+
         hoverEnabled: true
-        acceptedButtons: Qt.NoButton
+
+        acceptedButtons:
+            Qt.NoButton
     }
 
     Column {
         id: contentColumn
 
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.top
 
-        anchors.margins: 14
-        spacing: 11
+            margins:
+                ShellTheme.Theme.spacing.medium
+        }
 
+        spacing:
+            ShellTheme.Theme.spacing.small
+
+        /*
+         * HEADER
+         */
         Row {
-            width: parent.width
-            spacing: 11
+            width:
+                parent.width
 
+            spacing:
+                ShellTheme.Theme.spacing.small
+
+            /*
+             * APPLICATION ICON
+             */
             Rectangle {
                 width: 38
                 height: 38
 
-                radius: ShellTheme.Theme.radius.button
+                radius:
+                    ShellTheme.Theme.radius.button
 
-                color: ShellTheme.Theme.colors.surfaceContainerHigh
+                color:
+                    ShellTheme.Theme.colors.surfaceContainerHigh
 
                 border.width: 1
-                border.color: ShellTheme.Theme.colors.outlineVariant
+
+                border.color:
+                    ShellTheme.Theme.colors.outlineVariant
+
+                clip: true
 
                 Image {
-                    anchors.fill: parent
-                    anchors.margins: 5
+                    anchors {
+                        fill: parent
+                        margins: 5
+                    }
 
-                    visible: root.hasImage
+                    visible:
+                        root.hasImage
 
-                    source: root.hasImage
-                        ? root.notification.image
-                        : ""
+                    source:
+                        root.hasImage
+                            ? root.notification.image
+                            : ""
 
-                    fillMode: Image.PreserveAspectCrop
+                    fillMode:
+                        Image.PreserveAspectCrop
+
                     asynchronous: true
                     cache: true
 
@@ -112,205 +156,221 @@ Rectangle {
                 }
 
                 Text {
-                    anchors.centerIn: parent
+                    anchors.centerIn:
+                        parent
 
-                    visible: !root.hasImage
+                    visible:
+                        !root.hasImage
 
                     text: {
                         const appName =
                             root.notification
-                                .appName || "?"
+                            && root.notification.appName
+                                ? String(root.notification.appName)
+                                : "?"
 
                         return appName.length > 0
-                            ? appName
-                                .charAt(0)
-                                .toUpperCase()
+                            ? appName.charAt(0).toUpperCase()
                             : "?"
                     }
 
-                    color: ShellTheme.Theme.colors.on_surface
+                    color:
+                        ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: ShellTheme.Theme.typography.titleSmall
-                    font.weight: Font.Bold
+                    font.family:
+                        ShellTheme.Theme.typography.fontFamily
+
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.titleSmall
+
+                    font.weight:
+                        Font.Bold
                 }
             }
 
+            /*
+             * APPLICATION + SUMMARY
+             */
             Column {
                 width:
-                    parent.width
-                    - 38
-                    - dismissButton.width
-                    - parent.spacing * 2
+                    Math.max(
+                        0,
+                        parent.width
+                        - 38
+                        - dismissButton.width
+                        - parent.spacing * 2
+                    )
 
                 anchors.verticalCenter:
                     parent.verticalCenter
 
-                spacing: 3
+                spacing:
+                    ShellTheme.Theme.spacing.xSmall
 
                 Text {
-                    width: parent.width
+                    width:
+                        parent.width
 
                     text:
-                        root.notification.appName
-                        || "Application"
+                        root.notification
+                        && root.notification.appName
+                            ? root.notification.appName
+                            : "Application"
 
-                    color: ShellTheme.Theme.colors.on_surface_variant
-                    elide: Text.ElideRight
+                    color:
+                        ShellTheme.Theme.colors.on_surface_variant
 
-                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
-                    font.weight: Font.DemiBold
+                    elide:
+                        Text.ElideRight
+
+                    font.family:
+                        ShellTheme.Theme.typography.fontFamily
+
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.labelSmall
+
+                    font.weight:
+                        Font.DemiBold
                 }
 
                 Text {
-                    width: parent.width
+                    width:
+                        parent.width
 
                     text:
-                        root.notification.summary
-                        || "Notification"
+                        root.notification
+                        && root.notification.summary
+                            ? root.notification.summary
+                            : "Notification"
 
-                    color: ShellTheme.Theme.colors.on_surface
-                    elide: Text.ElideRight
+                    color:
+                        ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
-                    font.weight: Font.DemiBold
+                    elide:
+                        Text.ElideRight
+
+                    font.family:
+                        ShellTheme.Theme.typography.fontFamily
+
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.bodySmall
+
+                    font.weight:
+                        root.unread
+                            ? Font.Bold
+                            : Font.DemiBold
                 }
             }
 
-            Rectangle {
+            /*
+             * DISMISS
+             */
+            Buttons.IconButton {
                 id: dismissButton
-
-                width: 30
-                height: 30
 
                 anchors.verticalCenter:
                     parent.verticalCenter
 
-                radius: ShellTheme.Theme.radius.button
+                buttonSize: 30
+                iconSize: 15
 
-                color: dismissMouseArea.pressed
-                    ? ShellTheme.Theme.colors.errorContainer
-                    : dismissMouseArea.containsMouse
-                        ? ShellTheme.Theme.colors.errorContainer
-                        : "transparent"
+                glyph:
+                    "󰅖"
 
-                border.width:
-                    dismissMouseArea.containsMouse
-                        ? 1
-                        : 0
+                iconColor:
+                    ShellTheme.Theme.colors.error
 
-                border.color: ShellTheme.Theme.colors.error
+                hoverColor:
+                    ShellTheme.Theme.colors.errorContainer
 
-                Text {
-                    anchors.centerIn: parent
+                pressedColor:
+                    ShellTheme.Theme.colors.errorContainer
 
-                    text: "󰅖"
-                    color: ShellTheme.Theme.colors.error
+                tooltipText:
+                    "Dismiss"
 
-                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
-                }
-
-                MouseArea {
-                    id: dismissMouseArea
-
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-
-                    onClicked: {
-                        root.notificationService.dismiss(
-                            root.notification
-                        )
-                    }
-                }
+                onClicked:
+                    root.dismissRequested(
+                        root.notification
+                    )
             }
         }
 
+        /*
+         * BODY
+         */
         Text {
-            width: parent.width
+            width:
+                parent.width
 
-            visible: root.hasBody
+            visible:
+                root.hasBody
 
-            text: root.notification.body || ""
+            text:
+                root.notification
+                && root.notification.body
+                    ? root.notification.body
+                    : ""
 
-            color: ShellTheme.Theme.colors.on_surface_variant
+            color:
+                ShellTheme.Theme.colors.on_surface_variant
 
-            wrapMode: Text.Wrap
+            wrapMode:
+                Text.Wrap
+
             maximumLineCount: 4
-            elide: Text.ElideRight
 
-            // The service does not advertise markup support,
-            // so render notification bodies as plain text.
-            textFormat: Text.PlainText
+            elide:
+                Text.ElideRight
 
-            font.pixelSize: ShellTheme.Theme.typography.labelMedium
+            textFormat:
+                Text.PlainText
+
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelMedium
+
             lineHeight: 1.15
         }
 
+        /*
+         * ACTIONS
+         */
         Flow {
-            width: parent.width
+            width:
+                parent.width
 
-            visible: root.hasActions
+            visible:
+                root.hasActions
 
-            spacing: 7
+            spacing:
+                ShellTheme.Theme.spacing.small
 
             Repeater {
-                model: root.hasActions
-                    ? root.notification.actions
-                    : []
+                model:
+                    root.hasActions
+                        ? root.notification.actions
+                        : []
 
-                delegate: Rectangle {
-                    id: actionButton
-
+                delegate: Buttons.PillButton {
                     required property var modelData
 
-                    implicitWidth:
-                        actionLabel.implicitWidth + 20
+                    variant:
+                        Buttons.PillButton.Primary
 
-                    implicitHeight: 30
+                    text:
+                        modelData
+                        && modelData.text
+                            ? modelData.text
+                            : "Open"
 
-                    radius: ShellTheme.Theme.radius.button
-
-                    color: actionMouseArea.pressed
-                        ? ShellTheme.Theme.colors.primaryHover
-                        : actionMouseArea.containsMouse
-                            ? ShellTheme.Theme.colors.primaryHover
-                            : ShellTheme.Theme.colors.primary
-
-                    border.width: 1
-                    border.color:
-                        actionMouseArea.containsMouse
-                            ? ShellTheme.Theme.colors.outline
-                            : ShellTheme.Theme.colors.outlineVariant
-
-                    Text {
-                        id: actionLabel
-
-                        anchors.centerIn: parent
-
-                        text:
-                            actionButton.modelData.text
-                            || "Open"
-
-                        color: ShellTheme.Theme.colors.on_primary
-
-                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
-                        font.weight: Font.DemiBold
-                    }
-
-                    MouseArea {
-                        id: actionMouseArea
-
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape:
-                            Qt.PointingHandCursor
-
-                        onClicked: {
-                            actionButton
-                                .modelData
-                                .invoke()
-                        }
-                    }
+                    onClicked:
+                        root.actionRequested(
+                            root.notification,
+                            modelData
+                        )
                 }
             }
         }

@@ -1,108 +1,223 @@
 import QtQuick
 import QtQuick.Layouts
+
 import qs.core as Core
 import qs.theme as ShellTheme
+
+import "../../components/visual" as Visual
 
 Item {
     id: root
 
     implicitWidth: 210
-    implicitHeight: infoColumn.implicitHeight
+    implicitHeight:
+        infoColumn.implicitHeight
 
     readonly property var profile:
         Core.ServiceRegistry.profile
 
+    readonly property string displayName:
+        root.profile
+        ? (
+            root.profile.displayNameLabel
+            || root.profile.effectiveDisplayName
+            || root.profile.displayName
+            || ""
+        )
+        : ""
+
+    readonly property string username:
+        root.profile
+        && root.profile.usernameLabel
+            ? root.profile.usernameLabel
+            : ""
+
     ColumnLayout {
         id: infoColumn
 
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
+        anchors {
+            left: parent.left
+            right: parent.right
+            verticalCenter: parent.verticalCenter
+        }
 
-        spacing: 5
+        spacing:
+            ShellTheme.Theme.spacing.xSmall
 
+        /*
+         * --------------------------------------------------------
+         * USER IDENTITY
+         * --------------------------------------------------------
+         */
 
         Text {
             Layout.fillWidth: true
 
-            text: (root.profile && (root.profile.displayNameLabel || root.profile.effectiveDisplayName || root.profile.displayName)) ? (root.profile.displayNameLabel || root.profile.effectiveDisplayName || root.profile.displayName) : ""
-            color: ShellTheme.Theme.colors.on_surface
+            text:
+                root.displayName
 
-            font.pixelSize: ShellTheme.Theme.typography.headlineSmall
-            font.weight: Font.DemiBold
+            color:
+                ShellTheme.Theme.colors.on_surface
 
-            elide: Text.ElideRight
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.headlineSmall
+
+            font.weight:
+                Font.DemiBold
+
+            elide:
+                Text.ElideRight
         }
 
         Text {
             Layout.fillWidth: true
 
-            text: (root.profile && root.profile.usernameLabel) ? root.profile.usernameLabel : ""
-            color: ShellTheme.Theme.colors.on_surface_variant
+            text:
+                root.username
 
-            font.pixelSize: ShellTheme.Theme.typography.bodySmall
-            elide: Text.ElideRight
+            color:
+                ShellTheme.Theme.colors.on_surface_variant
+
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.bodySmall
+
+            elide:
+                Text.ElideRight
         }
 
         Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: 5
+
+            Layout.preferredHeight:
+                ShellTheme.Theme.spacing.xSmall
+        }
+
+        /*
+         * --------------------------------------------------------
+         * SYSTEM IDENTITY
+         * --------------------------------------------------------
+         */
+
+        InfoRow {
+            glyph: "󰌢"
+
+            value:
+                root.profile
+                && root.profile.hostnameLabel
+                    ? root.profile.hostnameLabel
+                    : ""
         }
 
         InfoRow {
-            iconText: "󰌢"
-            valueText: (root.profile && root.profile.hostnameLabel) ? root.profile.hostnameLabel : ""
+            glyph: "󰣇"
+
+            value:
+                root.profile
+                && root.profile.distributionLabel
+                    ? root.profile.distributionLabel
+                    : ""
         }
 
         InfoRow {
-            iconText: "󰣇"
-            valueText: (root.profile && root.profile.distributionLabel) ? root.profile.distributionLabel : ""
+            glyph: ""
+
+            value:
+                root.profile
+                && root.profile.sessionLabel
+                    ? root.profile.sessionLabel
+                    : ""
         }
 
         InfoRow {
-            iconText: ""
-            valueText: (root.profile && root.profile.sessionLabel) ? root.profile.sessionLabel : ""
+            glyph: "󰌽"
+
+            value:
+                root.profile
+                && root.profile.kernelLabel
+                    ? root.profile.kernelLabel
+                    : ""
         }
 
         InfoRow {
-            iconText: "󰌽"
-            valueText: (root.profile && root.profile.kernelLabel) ? root.profile.kernelLabel : ""
-        }
+            glyph: "󰔛"
 
-        InfoRow {
-            iconText: "󰔛"
-            valueText: (root.profile && root.profile.uptimeLabel) ? root.profile.uptimeLabel : ""
+            value:
+                root.profile
+                && root.profile.uptimeLabel
+                    ? root.profile.uptimeLabel
+                    : ""
         }
     }
 
+    /*
+     * ------------------------------------------------------------
+     * REUSABLE INFORMATION ROW
+     * ------------------------------------------------------------
+     */
+
     component InfoRow: RowLayout {
-        property string iconText: ""
-        property string valueText: ""
+        id: infoRow
+
+        property string glyph: ""
+        property string value: ""
 
         Layout.fillWidth: true
-        spacing: 8
 
-        Text {
+        spacing:
+            ShellTheme.Theme.spacing.small
+
+        Visual.Icon {
             Layout.preferredWidth: 18
+            Layout.preferredHeight: 18
 
-            text: parent.iconText
-            color: ShellTheme.Theme.colors.on_surface_variant
+            visible:
+                infoRow.glyph.length > 0
 
-            font.pixelSize: ShellTheme.Theme.typography.bodySmall
-            font.family: "JetBrainsMono Nerd Font"
+            glyph:
+                infoRow.glyph
 
-            horizontalAlignment: Text.AlignHCenter
+            iconSize:
+                ShellTheme.Theme.typography.bodySmall
+
+            color:
+                ShellTheme.Theme.colors.on_surface_variant
+        }
+
+        /*
+         * Preserve alignment when a row intentionally has
+         * no icon, such as the session label.
+         */
+        Item {
+            Layout.preferredWidth: 18
+            Layout.preferredHeight: 18
+
+            visible:
+                infoRow.glyph.length === 0
         }
 
         Text {
             Layout.fillWidth: true
 
-            text: parent.valueText
-            color: ShellTheme.Theme.colors.on_surface_variant
+            text:
+                infoRow.value
 
-            font.pixelSize: ShellTheme.Theme.typography.labelMedium
+            color:
+                ShellTheme.Theme.colors.on_surface_variant
 
-            elide: Text.ElideRight
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelMedium
+
+            elide:
+                Text.ElideRight
         }
     }
 }

@@ -100,8 +100,7 @@ Scope {
 
                                 route: modelData.route
                                 label: modelData.label
-                                iconName: modelData.icon
-
+                                glyph: modelData.glyph
                                 selected:
                                     Core.UtilityDockController.selectedIndex
                                     === index

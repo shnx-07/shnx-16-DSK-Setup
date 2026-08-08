@@ -114,7 +114,7 @@ Item {
             : root.compactHeight / 2
 
         color: ShellTheme.Theme.colors.background
-
+        antialiasing: false
         border.width: 0
         clip: true
 

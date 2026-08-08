@@ -10,14 +10,14 @@ Rectangle {
     implicitHeight: 32
 
     radius: ShellTheme.Theme.radius.button
-
+    antialiasing: false
     color: mouseArea.pressed
         ? ShellTheme.Theme.colors.pressedOverlay
         : mouseArea.containsMouse
             ? ShellTheme.Theme.colors.hoverOverlay
             : ShellTheme.Theme.colors.surfaceContainer
 
-    border.width: 1
+    border.width: 0
 
     border.color:
         mouseArea.containsMouse

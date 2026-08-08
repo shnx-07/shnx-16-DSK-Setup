@@ -1,280 +1,302 @@
 import QtQuick
+
 import qs.core as Core
 import qs.theme as ShellTheme
+
+import "../../components/visual" as Visual
+import "../../motion" as Motion
 
 Item {
     id: root
 
     implicitWidth: 420
-    implicitHeight: 72
+    implicitHeight: 42
 
     readonly property var audio:
         Core.ServiceRegistry.audio
 
-    property int barCount: 42
+    readonly property real visualLevel:
+        root.audio
+        && root.audio.available
+        && !root.audio.muted
+            ? Math.max(
+                0,
+                Math.min(
+                    1,
+                    root.audio.volume
+                )
+            )
+            : 0
 
-    Column {
+    Rectangle {
+        id: background
+
         anchors.fill: parent
-        spacing: 8
 
-        Row {
-            width: parent.width
-            height: 20
+        radius:
+            height / 2
 
-            spacing: 8
+        color:
+            ShellTheme.Theme.colors.surfaceContainer
 
-            Text {
-                id: volumeIcon
+        border.width: 1
 
-                width: 22
-                height: parent.height
+        border.color:
+            sliderMouseArea.containsMouse
+            || muteMouseArea.containsMouse
+                ? ShellTheme.Theme.colors.outline
+                : ShellTheme.Theme.colors.outlineVariant
 
-                text: root.audio.icon
-                color: ShellTheme.Theme.colors.on_surface
+        Behavior on border.color {
+            ColorAnimation {
+                duration:
+                    Motion.MotionTokens.quick
 
-                font.pixelSize: ShellTheme.Theme.typography.titleSmall
-                font.family: "JetBrainsMono Nerd Font"
-
-                verticalAlignment: Text.AlignVCenter
-
-                MouseArea {
-                    anchors.fill: parent
-
-                    cursorShape: Qt.PointingHandCursor
-
-                    onClicked: {
-                        root.audio.toggleMute()
-                    }
-                }
-            }
-
-            Text {
-                text: "Volume"
-                color: ShellTheme.Theme.colors.on_surface
-
-                font.pixelSize: ShellTheme.Theme.typography.bodySmall
-                font.weight: Font.Medium
-
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            Item {
-                width:
-                    parent.width
-                    - volumeIcon.width
-                    - volumeValue.width
-                    - 68
-
-                height: 1
-            }
-
-            Text {
-                id: volumeValue
-
-                text:
-                    root.audio.available
-                        ? root.audio.volumePercentage + "%"
-                        : "--"
-
-                color: ShellTheme.Theme.colors.on_surface_variant
-                font.pixelSize: ShellTheme.Theme.typography.labelMedium
-
-                verticalAlignment: Text.AlignVCenter
+                easing.type:
+                    Motion.Easing.standard
             }
         }
 
+        /*
+         * SPEAKER
+         */
         Item {
-            id: waveformSlider
+            id: iconArea
 
-            width: parent.width
-            height: 42
+            anchors {
+                left: parent.left
+                top: parent.top
+                bottom: parent.bottom
+            }
 
-            property real visualLevel:
-                root.audio.muted
-                    ? 0
-                    : root.audio.volume
+            width: 44
 
-            Row {
-                id: waveformRow
+            Visual.Icon {
+                anchors.centerIn: parent
+
+                glyph:
+                    root.audio
+                        ? root.audio.icon
+                        : "󰕿"
+
+                iconSize: 17
+
+                color:
+                    root.audio
+                    && root.audio.muted
+                        ? ShellTheme.Theme.colors.on_surface_variant
+                        : ShellTheme.Theme.colors.on_surface
+            }
+
+            MouseArea {
+                id: muteMouseArea
 
                 anchors.fill: parent
-                spacing: 3
 
-                Repeater {
-                    model: root.barCount
+                enabled:
+                    root.audio
+                    && root.audio.available
 
-                    Rectangle {
-                        required property int index
+                hoverEnabled: true
 
-                        width:
-                            (
-                                waveformRow.width
-                                - waveformRow.spacing
-                                * (root.barCount - 1)
-                            ) / root.barCount
+                cursorShape:
+                    enabled
+                        ? Qt.PointingHandCursor
+                        : Qt.ArrowCursor
 
-                        height: {
-                            if (root.audio.muted)
-                                return 3
+                onClicked: {
+                    root.audio.toggleMute()
+                }
+            }
+        }
 
-                            const baseWave =
-                                (
-                                    Math.sin(index * 0.82)
-                                    + Math.sin(index * 1.71) * 0.45
-                                    + 1.6
-                                ) / 3.05
+        /*
+         * PERCENTAGE
+         */
+        Text {
+            id: volumeValue
 
-                            const movement =
-                                waveformTimer.phase
+            anchors {
+                right: parent.right
+                rightMargin:
+                    ShellTheme.Theme.spacing.medium
 
-                            const animatedWave =
-                                (
-                                    Math.sin(
-                                        index * 0.68
-                                        + movement
-                                    )
-                                    + 1
-                                ) / 2
+                verticalCenter:
+                    parent.verticalCenter
+            }
 
-                            return 5
-                                + (
-                                    baseWave * 0.62
-                                    + animatedWave * 0.38
-                                ) * 28
-                        }
+            width: 42
 
-                        anchors.verticalCenter:
-                            parent.verticalCenter
+            text:
+                root.audio
+                && root.audio.available
+                    ? root.audio.volumePercentage + "%"
+                    : "--"
 
-                        radius:
-                            Math.min(width, height) / 2
+            color:
+                ShellTheme.Theme.colors.on_surface
 
-                        color: {
-                            const barProgress =
-                                (index + 1) / root.barCount
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
 
-                            return barProgress
-                                <= waveformSlider.visualLevel
-                                    ? ShellTheme.Theme.colors.primary
-                                    : ShellTheme.Theme.colors.surfaceContainerHighest
-                        }
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelSmall
 
-                        Behavior on height {
-                            NumberAnimation {
-                                duration: 110
-                            }
-                        }
+            font.weight:
+                Font.DemiBold
 
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: 100
-                            }
-                        }
+            horizontalAlignment:
+                Text.AlignRight
+
+            verticalAlignment:
+                Text.AlignVCenter
+        }
+
+        /*
+         * INTERACTIVE TRACK
+         */
+        Item {
+            id: sliderTrack
+
+            anchors {
+                left: iconArea.right
+
+                leftMargin:
+                    ShellTheme.Theme.spacing.xSmall
+
+                right:
+                    volumeValue.left
+
+                rightMargin:
+                    ShellTheme.Theme.spacing.medium
+
+                verticalCenter:
+                    parent.verticalCenter
+            }
+
+            height: 30
+
+            Rectangle {
+                anchors.fill: parent
+
+                radius:
+                    height / 2
+
+                color:
+                    ShellTheme.Theme.colors.surfaceContainerHighest
+            }
+
+            /*
+             * CURRENT VOLUME
+             */
+            Rectangle {
+                width:
+                    sliderTrack.width
+                    * root.visualLevel
+
+                height:
+                    sliderTrack.height
+
+                radius:
+                    height / 2
+
+                color:
+                    ShellTheme.Theme.colors.primary
+
+                Behavior on width {
+                    NumberAnimation {
+                        duration:
+                            sliderMouseArea.pressed
+                                ? 0
+                                : Motion.MotionTokens.quick
+
+                        easing.type:
+                            Motion.Easing.standard
                     }
                 }
             }
 
+            /*
+             * IMPORTANT:
+             * MouseArea now lives INSIDE sliderTrack.
+             */
             MouseArea {
                 id: sliderMouseArea
 
                 anchors.fill: parent
 
+                enabled:
+                    root.audio
+                    && root.audio.available
+
                 hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
+
+                cursorShape:
+                    enabled
+                        ? Qt.PointingHandCursor
+                        : Qt.ArrowCursor
 
                 onPressed: function(mouse) {
-                    root.setVolumeFromPosition(mouse.x)
+                    root.setVolumeFromPosition(
+                        mouse.x
+                    )
                 }
 
                 onPositionChanged: function(mouse) {
-                    if (pressed)
-                        root.setVolumeFromPosition(mouse.x)
+                    if (pressed) {
+                        root.setVolumeFromPosition(
+                            mouse.x
+                        )
+                    }
                 }
 
                 onWheel: function(wheel) {
-                    if (wheel.angleDelta.y > 0)
-                        root.audio.increaseVolume(0.03)
-                    else
-                        root.audio.decreaseVolume(0.03)
+                    if (wheel.angleDelta.y > 0) {
+                        root.audio.increaseVolume(
+                            0.03
+                        )
+                    } else {
+                        root.audio.decreaseVolume(
+                            0.03
+                        )
+                    }
 
                     wheel.accepted = true
                 }
             }
-
-            Rectangle {
-                x:
-                    Math.max(
-                        0,
-                        Math.min(
-                            parent.width - width,
-                            parent.width
-                            * waveformSlider.visualLevel
-                            - width / 2
-                        )
-                    )
-
-                anchors.verticalCenter:
-                    parent.verticalCenter
-
-                width: 13
-                height: 13
-                radius: width / 2
-
-                visible:
-                    root.audio.available
-                    && !root.audio.muted
-
-                color: ShellTheme.Theme.colors.on_surface
-
-                border.width: 2
-                border.color: ShellTheme.Theme.colors.outline
-
-                Behavior on x {
-                    NumberAnimation {
-                        duration:
-                            sliderMouseArea.pressed
-                                ? 0
-                                : 90
-                    }
-                }
-            }
-        }
-    }
-
-    Timer {
-        id: waveformTimer
-
-        property real phase: 0
-
-        interval: 90
-        repeat: true
-        running:
-            root.visible
-            && root.audio.available
-            && !root.audio.muted
-            && root.audio.volumePercentage > 0
-
-        onTriggered: {
-            phase += 0.5
         }
     }
 
     function setVolumeFromPosition(positionX) {
-        if (!audio.available)
+        if (
+            !root.audio
+            || !root.audio.available
+            || sliderTrack.width <= 0
+        ) {
             return
+        }
 
         const normalized =
             Math.max(
                 0,
                 Math.min(
                     1,
-                    positionX / waveformSlider.width
+                    positionX
+                    / sliderTrack.width
                 )
             )
 
-        audio.setVolume(normalized)
+        root.audio.setVolume(
+            normalized
+        )
 
-        if (audio.muted && normalized > 0)
-            audio.setMuted(false)
+        if (
+            root.audio.muted
+            && normalized > 0
+        ) {
+            root.audio.setMuted(
+                false
+            )
+        }
     }
 }

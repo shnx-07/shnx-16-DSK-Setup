@@ -1,28 +1,50 @@
 import QtQuick
-import Quickshell
+
 import qs.core as Core
 import qs.theme as ShellTheme
+
+import "../../components/visual" as Visual
+import "../../motion" as Motion
 
 Item {
     id: root
 
     implicitWidth: 112
-    implicitHeight: 68
+    implicitHeight: 112
 
     readonly property var profile:
         Core.ServiceRegistry.profile
 
+    readonly property bool hasAvatar:
+        Boolean(
+            root.profile
+            && (
+                root.profile.hasCustomAvatar
+                || root.profile.hasAvatar
+            )
+        )
+
     signal clicked()
+
+    /*
+     * ------------------------------------------------------------
+     * OUTER INTERACTION RING
+     * ------------------------------------------------------------
+     */
 
     Rectangle {
         id: outerRing
 
         anchors.fill: parent
 
-        radius: width / 2
-        color: ShellTheme.Theme.colors.surfaceContainerHigh
+        radius:
+            ShellTheme.Theme.radius.circle
+
+        color:
+            ShellTheme.Theme.colors.surfaceContainerHigh
 
         border.width: 1
+
         border.color:
             avatarMouseArea.containsMouse
                 ? ShellTheme.Theme.colors.outline
@@ -30,62 +52,44 @@ Item {
 
         Behavior on border.color {
             ColorAnimation {
-                duration: 140
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
             }
         }
 
-        Rectangle {
-            id: avatarMask
+        /*
+         * --------------------------------------------------------
+         * SHARED AVATAR RENDERER
+         * --------------------------------------------------------
+         */
 
-            anchors.centerIn: parent
+        Visual.Avatar {
+            anchors.centerIn:
+                parent
 
-            width: 98
-            height: 98
+            avatarSize: 98
 
-            radius: width / 2
-            clip: true
+            source:
+                root.hasAvatar
+                    ? "file://" + root.profile.avatarPath
+                    : ""
 
-            color: ShellTheme.Theme.colors.surfaceContainer
+            fallbackColor:
+                ShellTheme.Theme.colors.surfaceContainer
 
-            Image {
-                id: avatarImage
-
-                anchors.fill: parent
-
-                visible:
-                    Boolean(root.profile && (root.profile.hasCustomAvatar || root.profile.hasAvatar))
-                    && status !== Image.Error
-
-                source:
-                    (root.profile && (root.profile.hasCustomAvatar || root.profile.hasAvatar))
-                        ? "file://" + root.profile.avatarPath
-                        : ""
-
-                fillMode: Image.PreserveAspectCrop
-                asynchronous: true
-                cache: false
-                smooth: true
-            }
-
-            Text {
-                anchors.centerIn: parent
-
-                visible:
-                    !Boolean(root.profile && (root.profile.hasCustomAvatar || root.profile.hasAvatar))
-                    || avatarImage.status === Image.Error
-
-                text: ""
-
-                color: ShellTheme.Theme.colors.on_surface
-
-                font.pixelSize: 38
-                font.family: "JetBrainsMono Nerd Font"
-            }
-
-            
+            fallbackText:
+                ""
         }
     }
-    
+
+    /*
+     * ------------------------------------------------------------
+     * PROFILE ACTION
+     * ------------------------------------------------------------
+     */
 
     MouseArea {
         id: avatarMouseArea
@@ -93,22 +97,36 @@ Item {
         anchors.fill: parent
 
         hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+
+        cursorShape:
+            Qt.PointingHandCursor
 
         onClicked: {
             root.clicked()
-            root.profile.selectAvatar()
+
+            if (root.profile)
+                root.profile.selectAvatar()
         }
     }
 
+    /*
+     * ------------------------------------------------------------
+     * PRESS FEEDBACK
+     * ------------------------------------------------------------
+     */
+
     scale:
         avatarMouseArea.pressed
-            ? 0.97
+            ? Motion.MotionTokens.pressScale
             : 1.0
 
     Behavior on scale {
         NumberAnimation {
-            duration: 100
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 }

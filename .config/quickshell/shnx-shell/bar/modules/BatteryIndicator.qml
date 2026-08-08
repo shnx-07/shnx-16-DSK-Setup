@@ -1,6 +1,8 @@
 import QtQuick
+
 import qs.core as Core
 import qs.theme as ShellTheme
+import qs.motion as Motion
 
 Rectangle {
     id: root
@@ -10,37 +12,74 @@ Rectangle {
     readonly property var battery:
         Core.ServiceRegistry.battery
 
-    implicitWidth: contentRow.implicitWidth + 20
-    implicitHeight: 32
+    implicitWidth:
+        contentRow.implicitWidth + 20
 
-    radius: ShellTheme.Theme.radius.button
+    implicitHeight:
+        32
 
-    color: mouseArea.pressed
-        ? ShellTheme.Theme.colors.pressedOverlay
-        : mouseArea.containsMouse
-            ? ShellTheme.Theme.colors.hoverOverlay
-            : ShellTheme.Theme.colors.surfaceContainer
+    antialiasing:
+        false
 
-    border.width: 1
+    radius:
+        ShellTheme.Theme.radius.button
 
-    border.color: {
-        if (battery.critical)
-            return ShellTheme.Theme.colors.error
+    color:
+        mouseArea.pressed
+            ? ShellTheme.Theme.colors.pressedOverlay
+            : mouseArea.containsMouse
+                ? ShellTheme.Theme.colors.hoverOverlay
+                : ShellTheme.Theme.colors.surfaceContainer
 
-        if (mouseArea.containsMouse)
-            return ShellTheme.Theme.colors.outline
+    border.width:
+        battery.critical
+            ? 1
+            : 0
 
-        return ShellTheme.Theme.colors.outlineVariant
+    border.color:
+        battery.critical
+            ? ShellTheme.Theme.colors.error
+            : "transparent"
+
+    scale:
+        mouseArea.pressed
+            ? Motion.MotionTokens.compactPressScale
+            : mouseArea.containsMouse
+                ? Motion.MotionTokens.hoverScale
+                : 1.0
+
+    Behavior on color {
+        ColorAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Behavior on scale {
+        NumberAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
     }
 
     Row {
         id: contentRow
 
-        anchors.centerIn: parent
-        spacing: 7
+        anchors.centerIn:
+            parent
+
+        spacing:
+            7
 
         Text {
-            text: battery.icon
+            text:
+                battery.icon
 
             color: {
                 if (battery.critical)
@@ -55,28 +94,40 @@ Rectangle {
                 return ShellTheme.Theme.colors.on_surface
             }
 
-            font.pixelSize: 17
+            font.pixelSize:
+                17
         }
 
         Text {
-            text: battery.available
-                ? battery.percentage + "%"
-                : "--"
+            text:
+                battery.available
+                    ? battery.percentage + "%"
+                    : "--"
 
-            color: ShellTheme.Theme.colors.on_surface
+            color:
+                ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: ShellTheme.Theme.typography.labelMedium
-            font.weight: Font.DemiBold
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelMedium
+
+            font.weight:
+                Font.DemiBold
         }
     }
 
     MouseArea {
         id: mouseArea
 
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        anchors.fill:
+            parent
 
-        onClicked: root.clicked()
+        hoverEnabled:
+            true
+
+        cursorShape:
+            Qt.PointingHandCursor
+
+        onClicked:
+            root.clicked()
     }
 }

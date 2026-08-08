@@ -2,98 +2,109 @@ import QtQuick
 import QtQuick.Layouts
 
 import qs.theme as ShellTheme
+import qs.motion as Motion
+
+import qs.components.layout as Layout
+import qs.components.visual as Visual
 
 Item {
     id: root
 
     property bool expanded: false
-    property alias contentItem: contentRow
 
-    implicitWidth: contentRow.implicitWidth
-        + (ShellTheme.Theme.spacing.medium * 2)
+    property alias contentItem:
+        contentRow
 
-    implicitHeight: 68
+    implicitWidth:
+        contentRow.implicitWidth
+        + ShellTheme.Theme.spacing.medium * 2
 
-    opacity: expanded ? 1.0 : 0.0
-    scale: expanded ? 1.0 : 0.92
-    y: expanded ? 0 : 12
+    implicitHeight:
+        68
 
-    transformOrigin: Item.Bottom
+    /*
+     * ------------------------------------------------------------
+     * DOCK ENTRANCE / EXIT
+     * ------------------------------------------------------------
+     *
+     * Keep the dock motion spatial but restrained.
+     *
+     * No local millisecond values.
+     * No arbitrary scale values.
+     */
+
+    opacity:
+        root.expanded
+            ? 1.0
+            : 0.0
+
+    y:
+        root.expanded
+            ? 0
+            : Motion.MotionTokens.mediumOffset
 
     Behavior on opacity {
         NumberAnimation {
-            duration: 160
-            easing.type: Easing.OutCubic
-        }
-    }
+            duration:
+                Motion.MotionTokens.standard
 
-    Behavior on scale {
-        NumberAnimation {
-            duration: 180
-            easing.type: Easing.OutBack
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
     Behavior on y {
         NumberAnimation {
-            duration: 180
-            easing.type: Easing.OutCubic
+            duration:
+                Motion.MotionTokens.spatial
+
+            easing.type:
+                Motion.Easing.emphasized
         }
     }
 
-    Rectangle {
-        id: softShadow
+    /*
+     * ------------------------------------------------------------
+     * DOCK SURFACE
+     * ------------------------------------------------------------
+     *
+     * Generic visual treatment belongs to Layout.Surface.
+     *
+     * UtilityDockSurface owns only:
+     *
+     * - dock geometry
+     * - dock spacing
+     * - entrance / exit motion
+     * - dock content placement
+     */
 
-        anchors {
-            fill: dockBackground
-            margins: -5
-        }
+    Layout.Surface {
+    anchors.fill:
+        parent
 
-        z: -2
-        radius: dockBackground.radius + 5
+    backgroundColor:
+        ShellTheme.Theme.colors.surfaceContainer
 
-        color: ShellTheme.Theme.shadows.color
-        opacity: 0.16
-    }
+    borderWidth:
+        0
 
-    Rectangle {
-        id: dockBackground
+    radius:
+        ShellTheme.Theme.radius.large
 
-        anchors.fill: parent
+    shadowLevel:
+        Visual.Shadow.None
 
-        radius: ShellTheme.Theme.radius.xLarge
-
-        color: ShellTheme.Theme.colors.surfaceContainer
-
-        border.width: 1
-        border.color: Qt.rgba(
-            ShellTheme.Theme.colors.outlineVariant.r,
-            ShellTheme.Theme.colors.outlineVariant.g,
-            ShellTheme.Theme.colors.outlineVariant.b,
-            0.45
-        )
-    }
-
-    Rectangle {
-        anchors {
-            left: dockBackground.left
-            right: dockBackground.right
-            top: dockBackground.top
-            margins: 1
-        }
-
-        height: 1
-        radius: 1
-
-        color: ShellTheme.Theme.colors.on_surface
-        opacity: 0.08
-    }
+    clipContent:
+        false
 
     RowLayout {
         id: contentRow
 
-        anchors.centerIn: parent
+        anchors.centerIn:
+            parent
 
-        spacing: ShellTheme.Theme.spacing.xSmall
+        spacing:
+            ShellTheme.Theme.spacing.xSmall
     }
+}
 }

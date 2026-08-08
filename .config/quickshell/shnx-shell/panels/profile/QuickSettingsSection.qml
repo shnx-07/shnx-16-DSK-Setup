@@ -1,19 +1,20 @@
 import QtQuick
 import QtQuick.Layouts
+
 import qs.core as Core
 import qs.theme as ShellTheme
 
-Rectangle {
+Item {
     id: root
 
     implicitWidth: 448
-    implicitHeight: 340
+    implicitHeight: 320
 
-    radius: ShellTheme.Theme.radius.panel
-    color: ShellTheme.Theme.colors.surfaceContainerLow
-
-    border.width: 1
-    border.color: ShellTheme.Theme.colors.outlineVariant
+    /*
+     * ------------------------------------------------------------
+     * SERVICES
+     * ------------------------------------------------------------
+     */
 
     readonly property var network:
         Core.ServiceRegistry.network
@@ -22,36 +23,63 @@ Rectangle {
         Core.ServiceRegistry.bluetooth
 
     readonly property var battery:
-        Core.ServiceRegistry.battery
+    Core.ServiceRegistry.battery
+
+    readonly property var notifications:
+    Core.ServiceRegistry.notifications
+
+    readonly property var nightLight:
+        Core.ServiceRegistry.nightLight
+
+    readonly property var vpn:
+        Core.ServiceRegistry.vpn
 
     /*
-     * Temporary prototype states.
-     * These will later move into their appropriate services.
+     * ------------------------------------------------------------
+     * TEMPORARY STATES
+     * ------------------------------------------------------------
+     *
+     * Keep these exactly as local prototype states for now.
+     * We will wire real services in a separate pass.
      */
-    property bool dndEnabled: false
-    property bool nightLightEnabled: false
-    property bool vpnEnabled: false
+
     property bool airplaneModeEnabled: false
     property bool microphoneMuted: false
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
 
-        spacing: 12
+        spacing:
+            ShellTheme.Theme.spacing.medium
+
+        /*
+         * --------------------------------------------------------
+         * SECTION HEADER
+         * --------------------------------------------------------
+         */
 
         RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: 22
 
             Text {
-                text: "QUICK SETTINGS"
+                text:
+                    "QUICK SETTINGS"
 
-                color: ShellTheme.Theme.colors.on_surface_variant
+                color:
+                    ShellTheme.Theme.colors.on_surface_variant
 
-                font.pixelSize: ShellTheme.Theme.typography.labelSmall
-                font.weight: Font.DemiBold
-                font.letterSpacing: 1.2
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.labelSmall
+
+                font.weight:
+                    Font.DemiBold
+
+                font.letterSpacing:
+                    1.2
             }
 
             Item {
@@ -59,27 +87,50 @@ Rectangle {
             }
 
             Text {
-                text: "8 controls"
+                text:
+                    "8 controls"
 
-                color: ShellTheme.Theme.colors.on_surface_variant
-                font.pixelSize: ShellTheme.Theme.typography.labelSmall
+                color:
+                    ShellTheme.Theme.colors.on_surface_variant
+
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.labelSmall
             }
         }
+
+        /*
+         * --------------------------------------------------------
+         * QUICK SETTINGS GRID
+         * --------------------------------------------------------
+         */
 
         GridLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
             columns: 2
-            columnSpacing: 10
-            rowSpacing: 10
 
+            columnSpacing:
+                ShellTheme.Theme.spacing.small
+
+            rowSpacing:
+                ShellTheme.Theme.spacing.small
+
+            /*
+             * Wi-Fi
+             */
             QuickSettingTile {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                iconText: root.network.icon
-                title: "Wi-Fi"
+                iconText:
+                    root.network.icon
+
+                title:
+                    "Wi-Fi"
 
                 subtitle: {
                     if (!root.network.available)
@@ -116,12 +167,18 @@ Rectangle {
                 }
             }
 
+            /*
+             * Bluetooth
+             */
             QuickSettingTile {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                iconText: root.bluetooth.icon
-                title: "Bluetooth"
+                iconText:
+                    root.bluetooth.icon
+
+                title:
+                    "Bluetooth"
 
                 subtitle: {
                     if (!root.bluetooth.available)
@@ -130,13 +187,12 @@ Rectangle {
                     if (!root.bluetooth.enabled)
                         return "Off"
 
-                    if (root.bluetooth.connectedDeviceCount > 0) {
-                        return root.bluetooth.connectedDeviceCount
-                            + (
-                                root.bluetooth.connectedDeviceCount === 1
-                                    ? " connected"
-                                    : " connected"
-                            )
+                    if (
+                        root.bluetooth.connectedDeviceCount > 0
+                    ) {
+                        return root.bluetooth
+                            .connectedDeviceCount
+                            + " connected"
                     }
 
                     return root.bluetooth.stateName
@@ -163,78 +219,108 @@ Rectangle {
                 }
             }
 
+            /*
+             * Do Not Disturb
+             */
             QuickSettingTile {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
                 iconText:
-                    root.dndEnabled
+                    root.notifications.doNotDisturb
                         ? "󰂛"
                         : "󰂚"
 
-                title: "Do Not Disturb"
+                title:
+                    "Do Not Disturb"
 
                 subtitle:
-                    root.dndEnabled
-                        ? "Enabled"
-                        : "Off"
-
-                active: root.dndEnabled
-
-                onToggled: {
-                    root.dndEnabled =
-                        !root.dndEnabled
-                }
-            }
-
-            QuickSettingTile {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                iconText: "󰖔"
-                title: "Night Light"
-
-                subtitle:
-                    root.nightLightEnabled
+                    root.notifications.doNotDisturb
                         ? "Enabled"
                         : "Off"
 
                 active:
-                    root.nightLightEnabled
+                    root.notifications.doNotDisturb
 
                 onToggled: {
-                    root.nightLightEnabled =
-                        !root.nightLightEnabled
+                    root.notifications.toggleDoNotDisturb()
                 }
             }
 
+            /*
+             * Night Light
+             */
+            QuickSettingTile {
+                  Layout.fillWidth: true
+                  Layout.fillHeight: true
+
+                  iconText:
+                      "󰖔"
+
+                  title:
+                      "Night Light"
+
+                  subtitle:
+                      root.nightLight.enabled
+                          ? "Enabled"
+                          : "Off"
+
+                  active:
+                      root.nightLight.enabled
+
+                  onToggled: {
+                      root.nightLight.toggle()
+                  }
+              }
+
+            /*
+             * VPN
+             */
+            QuickSettingTile {
+                  Layout.fillWidth: true
+                  Layout.fillHeight: true
+
+                  iconText:
+                      "󰖂"
+
+                  title:
+                      "VPN"
+
+                  subtitle: {
+                      if (!root.vpn.hasProfile)
+                          return "No profile"
+
+                      if (root.vpn.isConnected)
+                          return root.vpn.connectionName.length > 0
+                              ? root.vpn.connectionName
+                              : "Connected"
+
+                      return "Disconnected"
+                  }
+
+                  active:
+                      root.vpn.isConnected
+
+                  available:
+                      root.vpn.hasProfile
+
+                  onToggled: {
+                      root.vpn.toggle()
+                  }
+              }
+
+            /*
+             * Airplane Mode
+             */
             QuickSettingTile {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                iconText: "󰖂"
-                title: "VPN"
+                iconText:
+                    "󰀝"
 
-                subtitle:
-                    root.vpnEnabled
-                        ? "Connected"
-                        : "Disconnected"
-
-                active:
-                    root.vpnEnabled
-
-                onToggled: {
-                    root.vpnEnabled =
-                        !root.vpnEnabled
-                }
-            }
-
-            QuickSettingTile {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                iconText: "󰀝"
-                title: "Airplane Mode"
+                title:
+                    "Airplane Mode"
 
                 subtitle:
                     root.airplaneModeEnabled
@@ -250,6 +336,9 @@ Rectangle {
                 }
             }
 
+            /*
+             * Microphone
+             */
             QuickSettingTile {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -259,7 +348,8 @@ Rectangle {
                         ? "󰍭"
                         : "󰍬"
 
-                title: "Microphone"
+                title:
+                    "Microphone"
 
                 subtitle:
                     root.microphoneMuted
@@ -275,6 +365,9 @@ Rectangle {
                 }
             }
 
+            /*
+             * Battery Saver
+             */
             QuickSettingTile {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -284,7 +377,8 @@ Rectangle {
                         ? "󰌪"
                         : "󰁹"
 
-                title: "Battery Saver"
+                title:
+                    "Battery Saver"
 
                 subtitle:
                     root.battery.powerSaverEnabled

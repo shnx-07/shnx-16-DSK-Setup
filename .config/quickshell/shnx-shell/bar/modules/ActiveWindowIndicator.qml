@@ -1,4 +1,5 @@
 import QtQuick
+
 import qs.core as Core
 import qs.theme as ShellTheme
 
@@ -11,49 +12,88 @@ Rectangle {
     readonly property bool hasActiveWindow:
         windowTitle.length > 0
 
-    readonly property int horizontalPadding: 12
-    readonly property int maximumWidth: 320
+    readonly property int horizontalPadding:
+        12
 
-    visible: hasActiveWindow
+    readonly property int maximumWidth:
+        320
 
-    implicitWidth: hasActiveWindow
-        ? Math.min(titleMetrics.advanceWidth + horizontalPadding * 2, maximumWidth)
-        : 0
+    visible:
+        hasActiveWindow
 
-    implicitHeight: 32
+    implicitWidth:
+        hasActiveWindow
+            ? Math.min(
+                titleMetrics.advanceWidth
+                    + horizontalPadding * 2,
+                maximumWidth
+            )
+            : 0
 
-    radius: ShellTheme.Theme.radius.button
-    color: ShellTheme.Theme.colors.surfaceContainer
+    implicitHeight:
+        32
 
-    border.width: 1
-    border.color: ShellTheme.Theme.colors.outlineVariant
+    antialiasing:
+        false
+
+    radius:
+        ShellTheme.Theme.radius.button
+
+    color:
+        ShellTheme.Theme.colors.surfaceContainer
+
+    border.width:
+        0
 
     TextMetrics {
         id: titleMetrics
 
-        text: root.windowTitle
-        font: titleText.font
+        text:
+            root.windowTitle
+
+        font:
+            titleText.font
     }
 
     Text {
         id: titleText
 
         anchors {
-            left: parent.left
-            right: parent.right
-            verticalCenter: parent.verticalCenter
-            leftMargin: root.horizontalPadding
-            rightMargin: root.horizontalPadding
+            left:
+                parent.left
+
+            right:
+                parent.right
+
+            verticalCenter:
+                parent.verticalCenter
+
+            leftMargin:
+                root.horizontalPadding
+
+            rightMargin:
+                root.horizontalPadding
         }
 
-        text: root.windowTitle
-        color: ShellTheme.Theme.colors.on_surface_variant
+        text:
+            root.windowTitle
 
-        font.pixelSize: ShellTheme.Theme.typography.labelMedium
-        font.weight: Font.Medium
+        color:
+            ShellTheme.Theme.colors.on_surface_variant
 
-        elide: Text.ElideRight
-        maximumLineCount: 1
-        wrapMode: Text.NoWrap
+        font.pixelSize:
+            ShellTheme.Theme.typography.labelMedium
+
+        font.weight:
+            Font.Medium
+
+        elide:
+            Text.ElideRight
+
+        maximumLineCount:
+            1
+
+        wrapMode:
+            Text.NoWrap
     }
 }

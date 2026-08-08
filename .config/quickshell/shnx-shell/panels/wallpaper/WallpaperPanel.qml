@@ -12,6 +12,9 @@ import "." as WallpaperParts
 PanelWindow {
     id: root
 
+    readonly property var wallpaperService:
+        Core.ServiceRegistry.wallpaper
+
     visible:
         Core.PanelController.wallpaperPanelOpen
 
@@ -76,10 +79,15 @@ PanelWindow {
 
 
         Text {
+            readonly property int wallpaperCount:
+                root.wallpaperService
+                    ? root.wallpaperService.wallpaperCount
+                    : 0
+
             text:
-                Core.ServiceRegistry.wallpaper.wallpaperCount
+                wallpaperCount
                 + (
-                    Core.ServiceRegistry.wallpaper.wallpaperCount === 1
+                    wallpaperCount === 1
                         ? " wallpaper"
                         : " wallpapers"
                 )
@@ -174,16 +182,24 @@ PanelWindow {
         if (!visible)
             return
 
-        if (
-            Core.ServiceRegistry.wallpaper.backendAvailable
-            && Core.ServiceRegistry.wallpaper.wallpaperCount === 0
-            && !Core.ServiceRegistry.wallpaper.loading
-        ) {
-            Core.ServiceRegistry.wallpaper.scanLibrary()
-        }
-
+        // Let the PanelWindow finish becoming visible before kicking off
+        // the asynchronous library scan. This avoids the first-open race
+        // where PathView was being populated while the window was still
+        // completing its initial Wayland scene setup.
         Qt.callLater(function() {
-            wallpaperCarousel.forceActiveFocus()
+            const service = root.wallpaperService
+
+            if (
+                service
+                && service.backendAvailable
+                && service.wallpaperCount === 0
+                && !service.loading
+            ) {
+                service.scanLibrary()
+            }
+
+            if (root.visible)
+                wallpaperCarousel.forceActiveFocus()
         })
     }
 
@@ -209,3 +225,4 @@ PanelWindow {
         }
     }
 }
+

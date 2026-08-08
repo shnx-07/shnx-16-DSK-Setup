@@ -15,6 +15,7 @@ Item {
     property bool current: false
     property bool applying: false
     property bool interactive: true
+    property real inverseShear: 0
 
     signal clicked()
 
@@ -33,18 +34,15 @@ Item {
 
     /*
      * ------------------------------------------------------------
-     * Local interaction motion only
+     * Very restrained interaction
      * ------------------------------------------------------------
-     *
-     * Large positioning / depth motion belongs to WallpaperCarousel.
      */
 
     scale:
         pressed
             ? Motion.MotionTokens.pressScale
-            : hovered && interactive
-                ? Motion.MotionTokens.hoverScale
-                : 1.0
+            : 1.0
+
 
     Motion.ScaleTransition on scale {
         duration:
@@ -55,21 +53,29 @@ Item {
     }
 
 
+    /*
+     * ------------------------------------------------------------
+     * Wallpaper card
+     * ------------------------------------------------------------
+     */
+
     Rectangle {
         id: cardSurface
 
         anchors.fill: parent
 
         radius:
-            ShellTheme.Theme.radius.xLarge
+            ShellTheme.Theme.radius.large
 
         clip: true
 
         color:
-            root.selected
-                ? ShellTheme.Theme.colors.surfaceContainerHigh
-                : ShellTheme.Theme.colors.surfaceContainerLow
+            ShellTheme.Theme.colors.surfaceContainerLow
 
+
+        /*
+         * Don't give every card a heavy border.
+         */
         border.width:
             root.selected || root.current
                 ? 1
@@ -81,17 +87,6 @@ Item {
                 : root.selected
                     ? ShellTheme.Theme.colors.outline
                     : "transparent"
-
-
-        Behavior on color {
-            ColorAnimation {
-                duration:
-                    Motion.MotionTokens.standard
-
-                easing.type:
-                    Motion.Easing.standard
-            }
-        }
 
 
         Behavior on border.color {
@@ -107,27 +102,104 @@ Item {
 
         /*
          * --------------------------------------------------------
-         * Poster preview
+         * Wallpaper itself
          * --------------------------------------------------------
          */
 
-        WallpaperParts.WallpaperMediaPreview {
-            id: mediaPreview
+        Item {
+            id: mediaViewport
 
             anchors.fill: parent
 
-            wallpaper:
-                root.wallpaper
+            clip: true
+
+
+            /*
+            * Make the preview wider than the card.
+            *
+            * Without this extra width, inverse-shearing creates
+            * empty triangular gaps on the edges.
+            */
+            Item {
+                id: correctedPreview
+
+                anchors.centerIn: parent
+
+                width:
+                    parent.width
+                    + parent.height
+                      * Math.abs(root.inverseShear)
+                    + 48
+
+                height:
+                    parent.height
+
+
+                /*
+                * Undo the shear applied by WallpaperCarousel.
+                *
+                * Card remains slanted.
+                * Wallpaper remains visually straight.
+                */
+                transform: Matrix4x4 {
+                    matrix:
+                        Qt.matrix4x4(
+                            1, root.inverseShear, 0, 0,
+                            0, 1,                 0, 0,
+                            0, 0,                 1, 0,
+                            0, 0,                 0, 1
+                        )
+                }
+
+
+                WallpaperParts.WallpaperMediaPreview {
+                    id: mediaPreview
+
+                    anchors.fill: parent
+
+                    wallpaper:
+                        root.wallpaper
+                }
+            }
         }
 
 
         /*
          * --------------------------------------------------------
-         * Selected emphasis
+         * Side-card dimming
          * --------------------------------------------------------
-         *
-         * Very subtle themed wash only.
-         * The carousel itself provides the real visual emphasis.
+         */
+
+        Rectangle {
+            anchors.fill: parent
+
+            radius:
+                cardSurface.radius
+
+            color:
+                root.selected
+                    ? "transparent"
+                    : Qt.rgba(
+                        0,
+                        0,
+                        0,
+                        0.18
+                    )
+
+
+            Behavior on color {
+                ColorAnimation {
+                    duration:
+                        Motion.MotionTokens.standard
+                }
+            }
+        }
+
+
+        /*
+         * --------------------------------------------------------
+         * Selected tint
+         * --------------------------------------------------------
          */
 
         Rectangle {
@@ -142,17 +214,15 @@ Item {
                         ShellTheme.Theme.colors.primary.r,
                         ShellTheme.Theme.colors.primary.g,
                         ShellTheme.Theme.colors.primary.b,
-                        0.045
+                        0.035
                     )
                     : "transparent"
+
 
             Behavior on color {
                 ColorAnimation {
                     duration:
                         Motion.MotionTokens.standard
-
-                    easing.type:
-                        Motion.Easing.standard
                 }
             }
         }
@@ -160,7 +230,7 @@ Item {
 
         /*
          * --------------------------------------------------------
-         * Hover layer
+         * Hover
          * --------------------------------------------------------
          */
 
@@ -171,9 +241,11 @@ Item {
                 cardSurface.radius
 
             color:
-                root.hovered && root.interactive
+                root.hovered
+                && root.interactive
                     ? ShellTheme.Theme.colors.hoverOverlay
                     : "transparent"
+
 
             Behavior on color {
                 ColorAnimation {
@@ -189,133 +261,7 @@ Item {
 
         /*
          * --------------------------------------------------------
-         * Bottom information surface
-         * --------------------------------------------------------
-         */
-
-        Rectangle {
-            id: infoSurface
-
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
-            }
-
-            height: 56
-
-            color:
-                Qt.rgba(
-                    ShellTheme.Theme.colors.surface.r,
-                    ShellTheme.Theme.colors.surface.g,
-                    ShellTheme.Theme.colors.surface.b,
-                    0.86
-                )
-
-
-            Row {
-                anchors {
-                    fill: parent
-
-                    leftMargin:
-                        ShellTheme.Theme.spacing.medium
-
-                    rightMargin:
-                        ShellTheme.Theme.spacing.medium
-                }
-
-                spacing:
-                    ShellTheme.Theme.spacing.small
-
-
-                Column {
-                    anchors.verticalCenter:
-                        parent.verticalCenter
-
-                    width:
-                        Math.max(
-                            0,
-                            parent.width
-                            - typeBadge.width
-                            - parent.spacing
-                        )
-
-                    spacing:
-                        ShellTheme.Theme.spacing.xxxSmall
-
-
-                    Text {
-                        width:
-                            parent.width
-
-                        text:
-                            root.wallpaper
-                            && root.wallpaper.name
-                                ? root.wallpaper.name
-                                : "Wallpaper"
-
-                        elide:
-                            Text.ElideRight
-
-                        color:
-                            ShellTheme.Theme.colors.on_surface
-
-                        font.family:
-                            ShellTheme.Theme.typography.fontFamily
-
-                        font.pixelSize:
-                            ShellTheme.Theme.typography.bodySmall
-
-                        font.weight:
-                            ShellTheme.Theme.typography.weightSemiBold
-                    }
-
-
-                    Text {
-                        width:
-                            parent.width
-
-                        visible:
-                            root.wallpaper
-                            && root.wallpaper.path
-
-                        text:
-                            root.wallpaper
-                            && root.wallpaper.path
-                                ? root.wallpaper.path
-                                : ""
-
-                        elide:
-                            Text.ElideLeft
-
-                        color:
-                            ShellTheme.Theme.colors.on_surface_variant
-
-                        font.family:
-                            ShellTheme.Theme.typography.fontFamily
-
-                        font.pixelSize:
-                            ShellTheme.Theme.typography.labelSmall
-                    }
-                }
-
-
-                WallpaperParts.WallpaperTypeBadge {
-                    id: typeBadge
-
-                    anchors.verticalCenter:
-                        parent.verticalCenter
-
-                    mediaType:
-                        root.mediaType
-                }
-            }
-        }
-
-
-        /*
-         * --------------------------------------------------------
-         * Current wallpaper indicator
+         * CURRENT badge
          * --------------------------------------------------------
          */
 
@@ -327,10 +273,10 @@ Item {
                 left: parent.left
 
                 topMargin:
-                    ShellTheme.Theme.spacing.medium
+                    ShellTheme.Theme.spacing.small
 
                 leftMargin:
-                    ShellTheme.Theme.spacing.medium
+                    ShellTheme.Theme.spacing.small
             }
 
             visible:
@@ -351,14 +297,23 @@ Item {
                 ShellTheme.Theme.colors.primaryContainer
 
 
+            transform: Matrix4x4 {
+                matrix:
+                    Qt.matrix4x4(
+                        1, root.inverseShear, 0, 0,
+                        0, 1,                 0, 0,
+                        0, 0,                 1, 0,
+                        0, 0,                 0, 1
+                    )
+            }
+
+
             Text {
                 id: currentLabel
 
-                anchors.centerIn:
-                    parent
+                anchors.centerIn: parent
 
-                text:
-                    "CURRENT"
+                text: "CURRENT"
 
                 color:
                     ShellTheme.Theme.colors.on_primary_container
@@ -380,7 +335,50 @@ Item {
 
         /*
          * --------------------------------------------------------
-         * Applying overlay
+         * Type badge
+         * --------------------------------------------------------
+         *
+         * Only show useful media information.
+         *
+         * Normal static wallpapers don't need an IMAGE label.
+         */
+
+        WallpaperParts.WallpaperTypeBadge {
+            id: typeBadge
+
+            anchors {
+                right: parent.right
+                bottom: parent.bottom
+
+                rightMargin:
+                    ShellTheme.Theme.spacing.small
+
+                bottomMargin:
+                    ShellTheme.Theme.spacing.small
+            }
+
+            visible:
+                root.mediaType !== "static"
+
+            mediaType:
+            root.mediaType
+
+
+            transform: Matrix4x4 {
+                matrix:
+                    Qt.matrix4x4(
+                        1, root.inverseShear, 0, 0,
+                        0, 1,                 0, 0,
+                        0, 0,                 1, 0,
+                        0, 0,                 0, 1
+                    )
+            }
+        }
+
+
+        /*
+         * --------------------------------------------------------
+         * Applying
          * --------------------------------------------------------
          */
 
@@ -408,6 +406,7 @@ Item {
                     ShellTheme.Theme.colors.scrim.b,
                     0.52
                 )
+
 
             Motion.FadeTransition on opacity {
                 duration:
@@ -467,14 +466,8 @@ Item {
 
     /*
      * ------------------------------------------------------------
-     * Pointer handling
+     * Pointer
      * ------------------------------------------------------------
-     *
-     * preventStealing stops PathView's press-vs-drag filter from
-     * swallowing the first click (which was forcing a second click
-     * to register). The onWheel handler explicitly declines the
-     * event so it bubbles up to WallpaperCarousel's WheelHandler
-     * instead of being silently absorbed by this MouseArea.
      */
 
     MouseArea {
@@ -488,7 +481,6 @@ Item {
             && !root.applying
 
         hoverEnabled: true
-        preventStealing: true
 
         cursorShape:
             enabled
@@ -497,10 +489,6 @@ Item {
 
         onClicked: {
             root.clicked()
-        }
-
-        onWheel: function(event) {
-            event.accepted = false
         }
     }
 }

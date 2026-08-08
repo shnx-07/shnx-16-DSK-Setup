@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -54,8 +55,8 @@ Item {
 
                         text: modelData
 
-                        color: "#777981"
-                        font.pixelSize: 10
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                         font.weight: Font.Medium
                     }
                 }
@@ -105,11 +106,11 @@ Item {
 
                         width: 28
                         height: 28
-                        radius: 9
+                        radius: ShellTheme.Theme.radius.button
 
                         visible: dayCell.isToday
 
-                        color: "#303238"
+                        color: ShellTheme.Theme.colors.primary
                     }
 
                     Text {
@@ -120,10 +121,10 @@ Item {
                         text: dayCell.dayNumber
 
                         color: dayCell.isToday
-                               ? "#f4f4f5"
-                               : "#c7c8cd"
+                               ? ShellTheme.Theme.colors.on_primary
+                               : ShellTheme.Theme.colors.on_surface_variant
 
-                        font.pixelSize: 12
+                        font.pixelSize: ShellTheme.Theme.typography.labelMedium
                         font.weight: dayCell.isToday
                                      ? Font.Medium
                                      : Font.Normal

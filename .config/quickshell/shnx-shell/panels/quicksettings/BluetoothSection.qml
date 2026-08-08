@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -242,21 +243,21 @@ Item {
 
         anchors.fill: parent
 
-        radius: 24
-        color: "#16181d"
+        radius: ShellTheme.Theme.radius.island
+        color: ShellTheme.Theme.colors.background
 
         border.width: 1
-        border.color: "#363a44"
+        border.color: ShellTheme.Theme.colors.outlineVariant
 
         Rectangle {
             anchors.fill: parent
             anchors.margins: 1
 
-            radius: 23
+            radius: ShellTheme.Theme.radius.island - 1
             color: "transparent"
 
             border.width: 1
-            border.color: "#17191e"
+            border.color: ShellTheme.Theme.colors.surfaceContainerLowest
         }
 
         Rectangle {
@@ -273,20 +274,20 @@ Item {
             height: 30
 
             z: 20
-            radius: 9
+            radius: ShellTheme.Theme.radius.button
 
             color:
                 closeMouse.containsMouse
-                    ? "#343740"
-                    : "#25282f"
+                    ? ShellTheme.Theme.colors.hoverOverlay
+                    : ShellTheme.Theme.colors.surfaceContainer
 
             Text {
                 anchors.centerIn: parent
 
                 text: "×"
-                color: "#d8dae0"
+                color: ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 20
+                font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                 font.weight: Font.Medium
             }
 
@@ -311,6 +312,7 @@ Item {
 
             spacing: 14
 
+            // Header
             RowLayout {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 38
@@ -324,17 +326,17 @@ Item {
 
                     Text {
                         text: "Bluetooth"
-                        color: "#f5f5f7"
+                        color: ShellTheme.Theme.colors.on_surface
 
-                        font.pixelSize: 22
+                        font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                         font.weight:
                             Font.DemiBold
                     }
 
                     Text {
                         text: bluetooth.stateName
-                        color: "#8f949f"
-                        font.pixelSize: 11
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     }
                 }
 
@@ -348,8 +350,8 @@ Item {
 
                     color:
                         bluetooth.enabled
-                            ? "#0a84ff"
-                            : "#444852"
+                            ? ShellTheme.Theme.colors.primary
+                            : ShellTheme.Theme.colors.surfaceContainerHighest
 
                     opacity:
                         bluetooth.available
@@ -374,7 +376,7 @@ Item {
                                 : 2
 
                         radius: width / 2
-                        color: "#ffffff"
+                        color: ShellTheme.Theme.colors.on_primary
 
                         Behavior on x {
                             NumberAnimation {
@@ -402,17 +404,18 @@ Item {
                 }
             }
 
+            // Bluetooth unavailable state
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
                 visible: !bluetooth.available
 
-                radius: 18
-                color: "#202329"
+                radius: ShellTheme.Theme.radius.large
+                color: ShellTheme.Theme.colors.surfaceContainer
 
                 border.width: 1
-                border.color: "#30343d"
+                border.color: ShellTheme.Theme.colors.outlineVariant
 
                 ColumnLayout {
                     anchors.centerIn: parent
@@ -432,15 +435,15 @@ Item {
                         Layout.preferredWidth: 64
                         Layout.preferredHeight: 64
 
-                        radius: 20
-                        color: "#2c3038"
+                        radius: ShellTheme.Theme.radius.panel
+                        color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                         Text {
                             anchors.centerIn: parent
 
                             text: "󰂲"
-                            color: "#8f949f"
-                            font.pixelSize: 31
+                            color: ShellTheme.Theme.colors.on_surface_variant
+                            font.pixelSize: ShellTheme.Theme.typography.displaySmall
                         }
                     }
 
@@ -450,12 +453,12 @@ Item {
                         text:
                             "Bluetooth Unavailable"
 
-                        color: "#f1f2f4"
+                        color: ShellTheme.Theme.colors.on_surface
 
                         horizontalAlignment:
                             Text.AlignHCenter
 
-                        font.pixelSize: 17
+                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
                         font.weight:
                             Font.DemiBold
                     }
@@ -466,7 +469,7 @@ Item {
                         text:
                             "No Bluetooth adapter was detected."
 
-                        color: "#8f949f"
+                        color: ShellTheme.Theme.colors.on_surface_variant
 
                         horizontalAlignment:
                             Text.AlignHCenter
@@ -474,11 +477,12 @@ Item {
                         wrapMode:
                             Text.WordWrap
 
-                        font.pixelSize: 11
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     }
                 }
             }
 
+            // Bluetooth off state
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -487,11 +491,11 @@ Item {
                     bluetooth.available
                     && !bluetooth.enabled
 
-                radius: 18
-                color: "#202329"
+                radius: ShellTheme.Theme.radius.large
+                color: ShellTheme.Theme.colors.surfaceContainer
 
                 border.width: 1
-                border.color: "#30343d"
+                border.color: ShellTheme.Theme.colors.outlineVariant
 
                 ColumnLayout {
                     anchors.centerIn: parent
@@ -511,15 +515,15 @@ Item {
                         Layout.preferredWidth: 64
                         Layout.preferredHeight: 64
 
-                        radius: 20
-                        color: "#2c3038"
+                        radius: ShellTheme.Theme.radius.panel
+                        color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                         Text {
                             anchors.centerIn: parent
 
                             text: "󰂲"
-                            color: "#8f949f"
-                            font.pixelSize: 31
+                            color: ShellTheme.Theme.colors.on_surface_variant
+                            font.pixelSize: ShellTheme.Theme.typography.displaySmall
                         }
                     }
 
@@ -527,12 +531,12 @@ Item {
                         Layout.fillWidth: true
 
                         text: "Bluetooth is Off"
-                        color: "#f1f2f4"
+                        color: ShellTheme.Theme.colors.on_surface
 
                         horizontalAlignment:
                             Text.AlignHCenter
 
-                        font.pixelSize: 17
+                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
                         font.weight:
                             Font.DemiBold
                     }
@@ -543,7 +547,7 @@ Item {
                         text:
                             "Turn on Bluetooth to connect accessories and nearby devices."
 
-                        color: "#8f949f"
+                        color: ShellTheme.Theme.colors.on_surface_variant
 
                         horizontalAlignment:
                             Text.AlignHCenter
@@ -551,7 +555,7 @@ Item {
                         wrapMode:
                             Text.WordWrap
 
-                        font.pixelSize: 11
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                         lineHeight: 1.25
                     }
 
@@ -560,12 +564,12 @@ Item {
                         Layout.preferredHeight: 36
                         Layout.topMargin: 4
 
-                        radius: 10
+                        radius: ShellTheme.Theme.radius.button
 
                         color:
                             enableMouse.containsMouse
-                                ? "#168cff"
-                                : "#0a84ff"
+                                ? ShellTheme.Theme.colors.primaryHover
+                                : ShellTheme.Theme.colors.primary
 
                         Text {
                             anchors.centerIn: parent
@@ -573,9 +577,9 @@ Item {
                             text:
                                 "Turn Bluetooth On"
 
-                            color: "#ffffff"
+                            color: ShellTheme.Theme.colors.on_primary
 
-                            font.pixelSize: 12
+                            font.pixelSize: ShellTheme.Theme.typography.labelMedium
                             font.weight:
                                 Font.DemiBold
                         }
@@ -598,6 +602,7 @@ Item {
                 }
             }
 
+            // Devices header row
             RowLayout {
                 Layout.fillWidth: true
 
@@ -615,9 +620,9 @@ Item {
                             ? "Devices"
                             : "Nearby Devices"
 
-                    color: "#8f949f"
+                    color: ShellTheme.Theme.colors.on_surface_variant
 
-                    font.pixelSize: 11
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     font.weight:
                         Font.DemiBold
 
@@ -629,19 +634,19 @@ Item {
                     Layout.preferredWidth: 30
                     Layout.preferredHeight: 30
 
-                    radius: 9
+                    radius: ShellTheme.Theme.radius.button
 
                     color:
                         discoveryMouse.containsMouse
-                            ? "#343740"
-                            : "#25282f"
+                            ? ShellTheme.Theme.colors.hoverOverlay
+                            : ShellTheme.Theme.colors.surfaceContainer
 
                     Text {
                         anchors.centerIn: parent
 
                         text: "󰑓"
-                        color: "#d8dae0"
-                        font.pixelSize: 15
+                        color: ShellTheme.Theme.colors.on_surface
+                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
 
                         RotationAnimation on rotation {
                             running:
@@ -679,6 +684,7 @@ Item {
                 }
             }
 
+            // Error message
             Text {
                 Layout.fillWidth: true
 
@@ -686,12 +692,13 @@ Item {
                     root.actionError.length > 0
 
                 text: root.actionError
-                color: "#ff453a"
+                color: ShellTheme.Theme.colors.error
 
-                font.pixelSize: 11
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 wrapMode: Text.WordWrap
             }
 
+            // Device list
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -700,11 +707,11 @@ Item {
                     bluetooth.available
                     && bluetooth.enabled
 
-                radius: 16
-                color: "#202329"
+                radius: ShellTheme.Theme.radius.card
+                color: ShellTheme.Theme.colors.surfaceContainer
 
                 border.width: 1
-                border.color: "#30343d"
+                border.color: ShellTheme.Theme.colors.outlineVariant
 
                 clip: true
 
@@ -732,7 +739,7 @@ Item {
                         width: deviceList.width
                         height: 58
 
-                        radius: 11
+                        radius: ShellTheme.Theme.radius.button
 
                         readonly property bool connected:
                             modelData
@@ -746,9 +753,9 @@ Item {
 
                         color:
                             deviceMouse.pressed
-                                ? "#363a43"
+                                ? ShellTheme.Theme.colors.pressedOverlay
                                 : deviceMouse.containsMouse
-                                    ? "#2d3038"
+                                    ? ShellTheme.Theme.colors.hoverOverlay
                                     : "transparent"
 
                         RowLayout {
@@ -764,12 +771,12 @@ Item {
                                 Layout.preferredWidth: 38
                                 Layout.preferredHeight: 38
 
-                                radius: 12
+                                radius: ShellTheme.Theme.radius.medium
 
                                 color:
                                     deviceDelegate.connected
-                                        ? "#0a84ff"
-                                        : "#2d3139"
+                                        ? ShellTheme.Theme.colors.primary
+                                        : ShellTheme.Theme.colors.surfaceContainerHigh
 
                                 Text {
                                     anchors.centerIn:
@@ -782,10 +789,10 @@ Item {
 
                                     color:
                                         deviceDelegate.connected
-                                            ? "#ffffff"
-                                            : "#d7d9de"
+                                            ? ShellTheme.Theme.colors.on_primary
+                                            : ShellTheme.Theme.colors.on_surface
 
-                                    font.pixelSize: 20
+                                    font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                                 }
                             }
 
@@ -801,9 +808,9 @@ Item {
                                             modelData
                                         )
 
-                                    color: "#f2f3f5"
+                                    color: ShellTheme.Theme.colors.on_surface
 
-                                    font.pixelSize: 13
+                                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
                                     font.weight:
                                         deviceDelegate.connected
                                             ? Font.DemiBold
@@ -821,10 +828,10 @@ Item {
 
                                     color:
                                         deviceDelegate.connected
-                                            ? "#30d158"
-                                            : "#858b96"
+                                            ? ShellTheme.Theme.colors.success
+                                            : ShellTheme.Theme.colors.on_surface_variant
 
-                                    font.pixelSize: 10
+                                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                                 }
                             }
 
@@ -834,9 +841,9 @@ Item {
                                     && !deviceDelegate.changing
 
                                 text: "✓"
-                                color: "#30d158"
+                                color: ShellTheme.Theme.colors.success
 
-                                font.pixelSize: 15
+                                font.pixelSize: ShellTheme.Theme.typography.titleSmall
                                 font.weight: Font.Bold
                             }
 
@@ -846,8 +853,8 @@ Item {
                                     && !deviceDelegate.changing
 
                                 text: "›"
-                                color: "#777d88"
-                                font.pixelSize: 22
+                                color: ShellTheme.Theme.colors.on_surface_variant
+                                font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                             }
 
                             Text {
@@ -855,8 +862,8 @@ Item {
                                     deviceDelegate.changing
 
                                 text: "󰑓"
-                                color: "#0a84ff"
-                                font.pixelSize: 15
+                                color: ShellTheme.Theme.colors.primary
+                                font.pixelSize: ShellTheme.Theme.typography.titleSmall
 
                                 RotationAnimation on rotation {
                                     running:
@@ -908,8 +915,8 @@ Item {
                                 ? "󰑓"
                                 : "󰂯"
 
-                        color: "#777d88"
-                        font.pixelSize: 25
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.displaySmall
 
                         RotationAnimation on rotation {
                             running:
@@ -933,12 +940,13 @@ Item {
                                 ? "Looking for devices…"
                                 : "No devices found"
 
-                        color: "#858b96"
-                        font.pixelSize: 11
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     }
                 }
             }
 
+            // Footer
             RowLayout {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 22
@@ -958,8 +966,8 @@ Item {
                                 : " devices"
                         )
 
-                    color: "#737984"
-                    font.pixelSize: 10
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
 
                 Text {
@@ -968,8 +976,8 @@ Item {
                             ? "Discovering…"
                             : "Discovery paused"
 
-                    color: "#737984"
-                    font.pixelSize: 10
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
             }
         }

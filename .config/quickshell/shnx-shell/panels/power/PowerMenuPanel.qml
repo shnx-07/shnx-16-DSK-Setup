@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import qs.core as Core
+import qs.theme as ShellTheme
 
 PanelWindow {
     id: root
@@ -87,7 +88,7 @@ PanelWindow {
             id: backdrop
 
             anchors.fill: parent
-            color: "#78080a0e"
+            color: ShellTheme.Theme.colors.scrim
 
             MouseArea {
                 anchors.fill: parent
@@ -230,9 +231,9 @@ PanelWindow {
                       parent.horizontalCenter
 
                   text: root.pendingLabel + "?"
-                  color: "#f3f4f6"
+                  color: ShellTheme.Theme.colors.on_surface
 
-                  font.pixelSize: 22
+                  font.pixelSize: ShellTheme.Theme.typography.headlineMedium
                   font.weight: Font.DemiBold
               }
 
@@ -247,8 +248,8 @@ PanelWindow {
                               ? "The system will restart immediately."
                               : "Your current desktop session will end."
 
-                  color: "#a7adb7"
-                  font.pixelSize: 12
+                  color: ShellTheme.Theme.colors.on_surface_variant
+                  font.pixelSize: ShellTheme.Theme.typography.labelMedium
               }
 
               Row {
@@ -260,24 +261,24 @@ PanelWindow {
                   Rectangle {
                       width: 150
                       height: 72
-                      radius: 20
+                      radius: ShellTheme.Theme.radius.panel
 
                       color: cancelMouse.pressed
-                          ? "#39404b"
+                          ? ShellTheme.Theme.colors.pressedOverlay
                           : cancelMouse.containsMouse
-                              ? "#303640"
-                              : "#d9252a32"
+                              ? ShellTheme.Theme.colors.hoverOverlay
+                              : ShellTheme.Theme.colors.surfaceContainer
 
                       border.width: 1
-                      border.color: "#535b67"
+                      border.color: ShellTheme.Theme.colors.outline
 
                       Text {
                           anchors.centerIn: parent
 
                           text: "Cancel"
-                          color: "#e4e7eb"
+                          color: ShellTheme.Theme.colors.on_surface
 
-                          font.pixelSize: 13
+                          font.pixelSize: ShellTheme.Theme.typography.bodySmall
                           font.weight: Font.DemiBold
                       }
 
@@ -296,18 +297,18 @@ PanelWindow {
                   Rectangle {
                       width: 150
                       height: 72
-                      radius: 20
+                      radius: ShellTheme.Theme.radius.panel
 
                       color: confirmMouse.pressed
-                          ? "#652d35"
+                          ? ShellTheme.Theme.colors.errorContainer
                           : confirmMouse.containsMouse
-                              ? "#522a31"
-                              : "#d9403340"
+                              ? ShellTheme.Theme.colors.errorContainer
+                              : ShellTheme.Theme.colors.errorContainer
 
                       border.width: 1
                       border.color: confirmMouse.containsMouse
-                          ? "#e07780"
-                          : "#95535b"
+                          ? ShellTheme.Theme.colors.error
+                          : ShellTheme.Theme.colors.errorContainer
 
                       Text {
                           anchors.centerIn: parent
@@ -318,9 +319,9 @@ PanelWindow {
                                   ? "Restart"
                                   : "Shut down"
 
-                          color: "#f2b7bd"
+                          color: ShellTheme.Theme.colors.on_error_container
 
-                          font.pixelSize: 13
+                          font.pixelSize: ShellTheme.Theme.typography.bodySmall
                           font.weight: Font.DemiBold
                       }
 
@@ -354,22 +355,22 @@ PanelWindow {
         width: 150
         height: 112
 
-        radius: 20
+        radius: ShellTheme.Theme.radius.panel
 
         color:
             actionMouseArea.pressed
             ? (
                 destructive
-                ? "#5a2c33"
-                : "#39404b"
+                ? ShellTheme.Theme.colors.errorContainer
+                : ShellTheme.Theme.colors.pressedOverlay
             )
             : actionMouseArea.containsMouse
                 ? (
                     destructive
-                    ? "#482a30"
-                    : "#303640"
+                    ? ShellTheme.Theme.colors.errorContainer
+                    : ShellTheme.Theme.colors.hoverOverlay
                 )
-                : "#d9252a32"
+                : ShellTheme.Theme.colors.surfaceContainer
 
         border.width: 1
 
@@ -377,13 +378,13 @@ PanelWindow {
             destructive
             ? (
                 actionMouseArea.containsMouse
-                ? "#d66f78"
-                : "#855058"
+                ? ShellTheme.Theme.colors.error
+                : ShellTheme.Theme.colors.errorContainer
             )
             : (
                 actionMouseArea.containsMouse
-                ? "#7b8594"
-                : "#535b67"
+                ? ShellTheme.Theme.colors.outline
+                : ShellTheme.Theme.colors.outlineVariant
             )
 
         Behavior on color {
@@ -423,10 +424,10 @@ PanelWindow {
 
                 color:
                     actionRoot.destructive
-                    ? "#ef8b94"
-                    : "#e4e7eb"
+                    ? ShellTheme.Theme.colors.error
+                    : ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 28
+                font.pixelSize: ShellTheme.Theme.typography.displaySmall
             }
 
             Text {
@@ -437,10 +438,10 @@ PanelWindow {
 
                 color:
                     actionRoot.destructive
-                    ? "#efb0b6"
-                    : "#d7dbe1"
+                    ? ShellTheme.Theme.colors.on_error_container
+                    : ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 12
+                font.pixelSize: ShellTheme.Theme.typography.bodySmall
                 font.weight: Font.DemiBold
             }
         }

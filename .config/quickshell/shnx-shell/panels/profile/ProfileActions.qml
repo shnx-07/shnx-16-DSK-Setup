@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -8,11 +9,11 @@ Rectangle {
     implicitWidth: 448
     implicitHeight: 68
 
-    radius: 18
-    color: "#a91b2027"
+    radius: ShellTheme.Theme.radius.large
+    color: ShellTheme.Theme.colors.surfaceContainerLow
 
     border.width: 1
-    border.color: "#1e2934"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     readonly property var system:
         Core.ServiceRegistry.system
@@ -78,7 +79,7 @@ Rectangle {
 
         implicitHeight: 44
 
-        radius: 14
+        radius: ShellTheme.Theme.radius.control
 
         opacity:
             enabled
@@ -87,19 +88,19 @@ Rectangle {
 
         color:
             !enabled
-                ? "#20262d"
+                ? ShellTheme.Theme.colors.surfaceContainerLowest
                 : actionMouseArea.pressed
-                    ? "#38424f"
+                    ? ShellTheme.Theme.colors.pressedOverlay
                     : actionMouseArea.containsMouse
-                        ? "#303945"
-                        : "#242b34"
+                        ? ShellTheme.Theme.colors.hoverOverlay
+                        : ShellTheme.Theme.colors.surfaceContainer
 
         border.width: 1
         border.color:
             enabled
             && actionMouseArea.containsMouse
-                ? "#4d5b6b"
-                : "#303944"
+                ? ShellTheme.Theme.colors.outline
+                : ShellTheme.Theme.colors.outlineVariant
 
         scale:
             enabled
@@ -125,17 +126,17 @@ Rectangle {
 
             Text {
                 text: actionButton.iconText
-                color: "#e5eaf0"
+                color: ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 16
+                font.pixelSize: ShellTheme.Theme.typography.titleSmall
                 font.family: "JetBrainsMono Nerd Font"
             }
 
             Text {
                 text: actionButton.labelText
-                color: "#c7ced7"
+                color: ShellTheme.Theme.colors.on_surface_variant
 
-                font.pixelSize: 11
+                font.pixelSize: ShellTheme.Theme.typography.labelMedium
                 font.weight: Font.Medium
             }
         }

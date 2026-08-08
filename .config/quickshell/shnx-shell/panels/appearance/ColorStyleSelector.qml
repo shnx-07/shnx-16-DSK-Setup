@@ -7,43 +7,47 @@ import qs.theme as ShellTheme
 Item {
     id: root
 
-    implicitWidth: selectorRow.implicitWidth
-    implicitHeight: selectorRow.implicitHeight
+    implicitWidth: 680
+    implicitHeight: 46
 
     readonly property string currentStyle:
         Core.ServiceRegistry.theme.colorStyle
 
-    RowLayout {
-        id: selectorRow
+    readonly property var styles: [
+        {
+            style: "preset",
+            label: "Preset"
+        },
+        {
+            style: "wallpaperAccents",
+            label: "Wallpaper Accents"
+        },
+        {
+            style: "wallpaperFull",
+            label: "Wallpaper Full"
+        }
+    ]
 
+    RowLayout {
         anchors.fill: parent
-        spacing: ShellTheme.Theme.spacing.medium
+
+        spacing:
+            ShellTheme.Theme.spacing.small
 
         Repeater {
-            model: [
-                {
-                    style: "preset",
-                    label: "Preset"
-                },
-                {
-                    style: "wallpaperAccents",
-                    label: "Wallpaper Accents"
-                },
-                {
-                    style: "wallpaperFull",
-                    label: "Wallpaper Full"
-                }
-            ]
+            model:
+                root.styles
 
             delegate: Rectangle {
                 id: styleButton
 
                 required property var modelData
 
-                Layout.preferredWidth: 170
-                Layout.preferredHeight: 56
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-                radius: ShellTheme.Theme.radius.control
+                radius:
+                    ShellTheme.Theme.radius.control
 
                 readonly property bool selected:
                     root.currentStyle === modelData.style
@@ -61,7 +65,8 @@ Item {
                     return ShellTheme.Theme.colors.surfaceContainerLow
                 }
 
-                border.width: selected ? 1 : 0
+                border.width:
+                    selected ? 1 : 0
 
                 border.color:
                     selected
@@ -77,7 +82,8 @@ Item {
                 Text {
                     anchors.centerIn: parent
 
-                    text: styleButton.modelData.label
+                    text:
+                        styleButton.modelData.label
 
                     color:
                         styleButton.selected
@@ -88,7 +94,7 @@ Item {
                         ShellTheme.Theme.typography.fontFamily
 
                     font.pixelSize:
-                        ShellTheme.Theme.typography.bodyMedium
+                        ShellTheme.Theme.typography.labelMedium
 
                     font.weight:
                         styleButton.selected
@@ -102,7 +108,9 @@ Item {
                     anchors.fill: parent
 
                     hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
+
+                    cursorShape:
+                        Qt.PointingHandCursor
 
                     onClicked: {
                         if (styleButton.selected)

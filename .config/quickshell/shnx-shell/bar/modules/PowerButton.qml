@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -8,18 +9,18 @@ Rectangle {
     implicitWidth: 38
     implicitHeight: 32
 
-    radius: 10
+    radius: ShellTheme.Theme.radius.button
 
     color: mouseArea.pressed
-        ? "#a8333e"
+        ? ShellTheme.Theme.colors.destructiveContainer
         : mouseArea.containsMouse
-            ? "#c94752"
-            : "#b83b46"
+            ? ShellTheme.Theme.colors.destructive
+            : ShellTheme.Theme.colors.errorContainer
 
     border.width: 1
     border.color: mouseArea.containsMouse
-        ? "#ff8a92"
-        : "#d85c66"
+        ? ShellTheme.Theme.colors.on_destructive_container
+        : ShellTheme.Theme.colors.error
 
     Behavior on color {
         ColorAnimation {
@@ -37,7 +38,7 @@ Rectangle {
         anchors.centerIn: parent
 
         text: "󰐥"
-        color: "#ffffff"
+        color: ShellTheme.Theme.colors.on_destructive
 
         font.pixelSize: 17
         font.weight: Font.DemiBold

@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -8,20 +9,20 @@ Rectangle {
     implicitWidth: 150
     implicitHeight: 108
 
-    radius: 17
+    radius: ShellTheme.Theme.radius.large
 
     color:
         mouseArea.pressed
-            ? "#384454"
+            ? ShellTheme.Theme.colors.pressedOverlay
             : mouseArea.containsMouse
-                ? "#303a48"
-                : "#28313d"
+                ? ShellTheme.Theme.colors.hoverOverlay
+                : ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
     border.color:
         mouseArea.containsMouse
-            ? "#607086"
-            : "#344151"
+            ? ShellTheme.Theme.colors.outline
+            : ShellTheme.Theme.colors.outlineVariant
 
     Behavior on color {
         ColorAnimation {
@@ -48,7 +49,7 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
 
             text: "󰀻"
-            color: "#eef2f7"
+            color: ShellTheme.Theme.colors.on_surface
 
             font.pixelSize: 29
             font.family: "JetBrainsMono Nerd Font"
@@ -58,9 +59,9 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
 
             text: "Applications"
-            color: "#eef2f7"
+            color: ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: 13
+            font.pixelSize: ShellTheme.Theme.typography.bodySmall
             font.weight: Font.DemiBold
         }
 
@@ -68,9 +69,9 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
 
             text: "Open launcher  ›"
-            color: "#99a5b5"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 10
+            font.pixelSize: ShellTheme.Theme.typography.labelSmall
         }
     }
 

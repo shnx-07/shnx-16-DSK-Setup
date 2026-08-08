@@ -82,7 +82,8 @@ Item {
                     color:
                         ShellTheme.Theme.colors.on_surface_variant
 
-                    font.pixelSize: 28
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.displaySmall
                 }
 
                 Text {

@@ -1,5 +1,6 @@
 import QtQuick
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -12,19 +13,19 @@ Rectangle {
     implicitWidth: contentRow.implicitWidth + 20
     implicitHeight: 32
 
-    radius: 10
+    radius: ShellTheme.Theme.radius.button
 
     color: mouseArea.pressed
-        ? "#343944"
+        ? ShellTheme.Theme.colors.pressedOverlay
         : mouseArea.containsMouse
-            ? "#2d323c"
-            : "#252932"
+            ? ShellTheme.Theme.colors.hoverOverlay
+            : ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
 
     border.color: mouseArea.containsMouse
-        ? "#596273"
-        : "#3b414d"
+        ? ShellTheme.Theme.colors.outline
+        : ShellTheme.Theme.colors.outlineVariant
 
     Behavior on color {
         ColorAnimation {
@@ -49,12 +50,12 @@ Rectangle {
 
             color: {
                 if (!bluetooth.available || !bluetooth.enabled)
-                    return "#8b909a"
+                    return ShellTheme.Theme.colors.disabled
 
                 if (bluetooth.connected)
-                    return "#86a9ff"
+                    return ShellTheme.Theme.colors.primary
 
-                return "#f2f3f5"
+                return ShellTheme.Theme.colors.on_surface
             }
 
             font.pixelSize: 17
@@ -74,9 +75,9 @@ Rectangle {
                 ? Math.min(implicitWidth, 120)
                 : 0
 
-            color: "#f2f3f5"
+            color: ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: 12
+            font.pixelSize: ShellTheme.Theme.typography.labelMedium
             font.weight: Font.DemiBold
 
             elide: Text.ElideRight
@@ -91,9 +92,9 @@ Rectangle {
 
             text: bluetooth.primaryDeviceBattery + "%"
 
-            color: "#b8bdc7"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 11
+            font.pixelSize: ShellTheme.Theme.typography.labelSmall
             font.weight: Font.Medium
         }
     }

@@ -1,5 +1,6 @@
 import QtQuick
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -12,18 +13,18 @@ Rectangle {
     implicitWidth: 38
     implicitHeight: 32
 
-    radius: 10
+    radius: ShellTheme.Theme.radius.button
 
     color: mouseArea.pressed
-        ? "#343944"
+        ? ShellTheme.Theme.colors.pressedOverlay
         : mouseArea.containsMouse
-            ? "#2d323c"
-            : "#252932"
+            ? ShellTheme.Theme.colors.hoverOverlay
+            : ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
     border.color: mouseArea.containsMouse
-        ? "#596273"
-        : "#3b414d"
+        ? ShellTheme.Theme.colors.outline
+        : ShellTheme.Theme.colors.outlineVariant
 
     Behavior on color {
         ColorAnimation {
@@ -47,8 +48,8 @@ Rectangle {
                 : "󰂜"
 
         color: notificationService.hasUnread
-            ? "#f2f3f5"
-            : "#c9cdd4"
+            ? ShellTheme.Theme.colors.on_surface
+            : ShellTheme.Theme.colors.on_surface_variant
 
         font.pixelSize: 17
         font.weight: Font.DemiBold
@@ -70,12 +71,12 @@ Rectangle {
 
         implicitHeight: 16
 
-        radius: 8
+        radius: ShellTheme.Theme.radius.pill
 
-        color: "#d64d59"
+        color: ShellTheme.Theme.colors.error
 
         border.width: 1
-        border.color: "#ff8a92"
+        border.color: ShellTheme.Theme.colors.on_error_container
 
         Text {
             id: badgeLabel
@@ -83,7 +84,7 @@ Rectangle {
             anchors.centerIn: parent
 
             text: notificationService.badgeText
-            color: "#ffffff"
+            color: ShellTheme.Theme.colors.on_error
 
             font.pixelSize: 9
             font.weight: Font.Bold

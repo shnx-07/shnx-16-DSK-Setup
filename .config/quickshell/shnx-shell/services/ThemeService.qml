@@ -82,10 +82,43 @@ QtObject {
      */
 
     readonly property var validAppearanceModes: [
-        "dark",
-        "light",
-        "gray"
-    ]
+      "dark",
+      "light",
+      "gray",
+
+      "catppuccinMocha",
+      "catppuccinMacchiato",
+
+      "gruvboxDark",
+      "gruvboxLight",
+
+      "nord",
+      "dracula",
+      "tokyoNight",
+
+      "rosePine",
+      "rosePineMoon",
+
+      "everforestDark",
+      "everforestLight",
+
+      "kanagawa",
+      "oneDark",
+
+      "solarizedDark",
+      "solarizedLight",
+
+      "monokai",
+
+      "materialDark",
+      "materialLight",
+
+      "ocean",
+      "forest",
+      "sunset",
+
+      "amoled"
+  ]
 
     readonly property var validColorStyles: [
         "preset",
@@ -596,11 +629,123 @@ QtObject {
         mode
     ) {
         switch (mode) {
+
         case "light":
             return ThemeSystem.Theme.lightPalette
 
         case "gray":
             return ThemeSystem.Theme.grayPalette
+
+
+        /*
+        * Catppuccin
+        */
+
+        case "catppuccinMocha":
+            return ThemeSystem.Theme.catppuccinMochaPalette
+
+        case "catppuccinMacchiato":
+            return ThemeSystem.Theme.catppuccinMacchiatoPalette
+
+
+        /*
+        * Gruvbox
+        */
+
+        case "gruvboxDark":
+            return ThemeSystem.Theme.gruvboxDarkPalette
+
+        case "gruvboxLight":
+            return ThemeSystem.Theme.gruvboxLightPalette
+
+
+        /*
+        * Popular presets
+        */
+
+        case "nord":
+            return ThemeSystem.Theme.nordPalette
+
+        case "dracula":
+            return ThemeSystem.Theme.draculaPalette
+
+        case "tokyoNight":
+            return ThemeSystem.Theme.tokyoNightPalette
+
+
+        /*
+        * Rose Pine
+        */
+
+        case "rosePine":
+            return ThemeSystem.Theme.rosePinePalette
+
+        case "rosePineMoon":
+            return ThemeSystem.Theme.rosePineMoonPalette
+
+
+        /*
+        * Everforest
+        */
+
+        case "everforestDark":
+            return ThemeSystem.Theme.everforestDarkPalette
+
+        case "everforestLight":
+            return ThemeSystem.Theme.everforestLightPalette
+
+
+        /*
+        * Other presets
+        */
+
+        case "kanagawa":
+            return ThemeSystem.Theme.kanagawaPalette
+
+        case "oneDark":
+            return ThemeSystem.Theme.oneDarkPalette
+
+        case "solarizedDark":
+            return ThemeSystem.Theme.solarizedDarkPalette
+
+        case "solarizedLight":
+            return ThemeSystem.Theme.solarizedLightPalette
+
+        case "monokai":
+            return ThemeSystem.Theme.monokaiPalette
+
+
+        /*
+        * Material
+        */
+
+        case "materialDark":
+            return ThemeSystem.Theme.materialDarkPalette
+
+        case "materialLight":
+            return ThemeSystem.Theme.materialLightPalette
+
+
+        /*
+        * Custom
+        */
+
+        case "ocean":
+            return ThemeSystem.Theme.oceanPalette
+
+        case "forest":
+            return ThemeSystem.Theme.forestPalette
+
+        case "sunset":
+            return ThemeSystem.Theme.sunsetPalette
+
+        case "amoled":
+            return ThemeSystem.Theme.amoledPalette
+
+
+        /*
+        * Default
+        */
 
         case "dark":
         default:
@@ -609,15 +754,86 @@ QtObject {
     }
 
 
-    function generatedPaletteForMode(
+    function appearanceFamilyForMode(
         mode
     ) {
         switch (mode) {
+
+        /*
+        * --------------------------------------------------------
+        * LIGHT FAMILY
+        * --------------------------------------------------------
+        */
+
         case "light":
-            return Generated.MatugenPalette.lightPalette
+
+        case "gruvboxLight":
+
+        case "everforestLight":
+
+        case "solarizedLight":
+
+        case "materialLight":
+            return "light"
+
+
+        /*
+        * --------------------------------------------------------
+        * DARK FAMILY
+        * --------------------------------------------------------
+        *
+        * Gray intentionally remains in the dark Matugen family.
+        */
 
         case "gray":
-            return Generated.MatugenPalette.darkPalette
+
+        case "catppuccinMocha":
+        case "catppuccinMacchiato":
+
+        case "gruvboxDark":
+
+        case "nord":
+        case "dracula":
+        case "tokyoNight":
+
+        case "rosePine":
+        case "rosePineMoon":
+
+        case "everforestDark":
+
+        case "kanagawa":
+        case "oneDark":
+
+        case "solarizedDark":
+
+        case "monokai":
+
+        case "materialDark":
+
+        case "ocean":
+        case "forest":
+        case "sunset":
+
+        case "amoled":
+
+        case "dark":
+        default:
+            return "dark"
+        }
+    }
+
+
+    function generatedPaletteForMode(
+        mode
+    ) {
+        const family =
+            appearanceFamilyForMode(
+                mode
+            )
+
+        switch (family) {
+        case "light":
+            return Generated.MatugenPalette.lightPalette
 
         case "dark":
         default:

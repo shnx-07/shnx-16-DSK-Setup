@@ -10,7 +10,7 @@ Text {
     text: shortcutText
     visible: shortcutText.length > 0
 
-    color: Theme.Theme.colors.onSurfaceVariant
+    color: Theme.Theme.colors.on_surface_variant
     font.family: Theme.Theme.typography.fontFamily
     font.pixelSize: Theme.Theme.typography.labelSmall
     font.weight: Font.Medium

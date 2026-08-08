@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -29,7 +30,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             radius: 1
-            color: "#25272d"
+            color: ShellTheme.Theme.colors.outlineVariant
         }
 
         CalendarSection {

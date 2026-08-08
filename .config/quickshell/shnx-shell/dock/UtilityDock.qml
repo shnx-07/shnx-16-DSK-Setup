@@ -112,7 +112,7 @@ Scope {
                                     Core.UtilityDockController.select(index)
                                 }
 
-                                onActivated: function(anchorItem) {
+                                onActivated: function() {
                                     Core.UtilityDockController.select(index)
 
                                     if (modelData.route === "wallpaper") {

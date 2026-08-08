@@ -1,5 +1,5 @@
 import QtQuick
-import "../../theme" as ThemeSystem
+import qs.theme as ThemeSystem
 
 Rectangle {
     id: root

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -7,11 +8,11 @@ Rectangle {
     implicitWidth: 448
     implicitHeight: 210
 
-    radius: 20
-    color: "#b51d222a"
+    radius: ShellTheme.Theme.radius.panel
+    color: ShellTheme.Theme.colors.surfaceContainerLow
 
     border.width: 1
-    border.color: "#202b36"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     clip: true
 

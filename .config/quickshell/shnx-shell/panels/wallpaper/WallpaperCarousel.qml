@@ -163,12 +163,31 @@ Item {
     }
 
 
+    /*
+     * Apply a wallpaper selected by index.
+     *
+     * Selection itself is handled by PathView's
+     * onCurrentIndexChanged handler.
+     *
+     * Keeping selection and application separate avoids
+     * duplicate selectionChanged traffic during a click.
+     */
     function activateIndex(index) {
         if (!wallpaperService)
             return
 
         if (wallpaperService.applying)
             return
+
+        if (!wallpaperService.library)
+            return
+
+        if (
+            index < 0
+            || index >= wallpaperService.library.length
+        ) {
+            return
+        }
 
         const wallpaper =
             wallpaperAt(index)
@@ -177,15 +196,19 @@ Item {
             return
 
         /*
-         * First bring clicked wallpaper smoothly into the center.
+         * Move the clicked wallpaper into the center.
+         *
+         * onCurrentIndexChanged owns selectWallpaper().
          */
-        coverFlow.currentIndex =
-            index
+        if (coverFlow.currentIndex !== index) {
+            coverFlow.currentIndex =
+                index
+        }
 
-        wallpaperService.selectWallpaper(
-            wallpaper
-        )
-
+        /*
+         * Apply only after the index/selection state has
+         * been established.
+         */
         wallpaperService.applyWallpaper(
             wallpaper
         )
@@ -390,12 +413,44 @@ Item {
                     !root.wallpaperService
                     || !root.wallpaperService.applying
 
-                onClicked: {
-                    root.forceActiveFocus()
 
-                    root.activateIndex(
+                /*
+                 * IMPORTANT:
+                 *
+                 * Do not manipulate PathView/current wallpaper
+                 * synchronously from inside the delegate's click
+                 * release.
+                 *
+                 * PathView may be moving/recycling delegates at the
+                 * same time. Capture the plain integer index first,
+                 * then activate it on the next event-loop turn.
+                 */
+                onClicked: {
+                    const clickedIndex =
                         delegateRoot.index
-                    )
+
+                    Qt.callLater(function() {
+                        if (!root.wallpaperService)
+                            return
+
+                        if (root.wallpaperService.applying)
+                            return
+
+                        if (
+                            clickedIndex < 0
+                            || !root.wallpaperService.library
+                            || clickedIndex
+                                >= root.wallpaperService.library.length
+                        ) {
+                            return
+                        }
+
+                        root.forceActiveFocus()
+
+                        root.activateIndex(
+                            clickedIndex
+                        )
+                    })
                 }
             }
         }
@@ -643,9 +698,15 @@ Item {
 
         /*
          * Browsing changes selection only.
+         *
+         * This is the single owner of selectWallpaper()
+         * for carousel index changes.
          */
         onCurrentIndexChanged: {
             if (root.syncingSelection)
+                return
+
+            if (!root.wallpaperService)
                 return
 
             const wallpaper =
@@ -668,6 +729,8 @@ Item {
             )
         }
     }
+
+
     Timer {
         id: wheelUnlockTimer
 
@@ -707,6 +770,7 @@ Item {
                 root.moveSelection(-1)
 
                 locked = true
+
                 wheelUnlockTimer.restart()
 
             } else if (
@@ -716,12 +780,15 @@ Item {
                 root.moveSelection(1)
 
                 locked = true
+
                 wheelUnlockTimer.restart()
             }
 
             event.accepted = true
         }
     }
+
+
     /*
      * ------------------------------------------------------------
      * Service synchronization

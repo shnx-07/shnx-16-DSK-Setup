@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -55,8 +56,8 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
 
                 text: root.monthTitle
-                color: "#f2f3f5"
-                font.pixelSize: 15
+                color: ShellTheme.Theme.colors.on_surface
+                font.pixelSize: ShellTheme.Theme.typography.titleSmall
                 font.weight: Font.Medium
             }
 
@@ -68,16 +69,16 @@ Item {
                 Rectangle {
                     width: 26
                     height: 26
-                    radius: 8
+                    radius: ShellTheme.Theme.radius.button
 
                     color: previousHover.hovered
-                        ? "#292b31"
+                        ? ShellTheme.Theme.colors.surfaceContainer
                         : "transparent"
 
                     Text {
                         anchors.centerIn: parent
                         text: "‹"
-                        color: "#d7d8dc"
+                        color: ShellTheme.Theme.colors.on_surface_variant
                         font.pixelSize: 20
                     }
 
@@ -94,20 +95,20 @@ Item {
                 Rectangle {
                     width: 44
                     height: 26
-                    radius: 8
+                    radius: ShellTheme.Theme.radius.button
 
                     visible: !root.showingCurrentMonth
                     enabled: visible
 
                     color: todayHover.hovered
-                        ? "#292b31"
-                        : "#222329"
+                        ? ShellTheme.Theme.colors.surfaceContainer
+                        : ShellTheme.Theme.colors.surfaceContainerHigh
 
                     Text {
                         anchors.centerIn: parent
                         text: "Today"
-                        color: "#c8c9ce"
-                        font.pixelSize: 10
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                         font.weight: Font.Medium
                     }
 
@@ -124,16 +125,16 @@ Item {
                 Rectangle {
                     width: 26
                     height: 26
-                    radius: 8
+                    radius: ShellTheme.Theme.radius.button
 
                     color: nextHover.hovered
-                        ? "#292b31"
+                        ? ShellTheme.Theme.colors.surfaceContainer
                         : "transparent"
 
                     Text {
                         anchors.centerIn: parent
                         text: "›"
-                        color: "#d7d8dc"
+                        color: ShellTheme.Theme.colors.on_surface_variant
                         font.pixelSize: 20
                     }
 

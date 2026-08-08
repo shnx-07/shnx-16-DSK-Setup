@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -20,7 +21,7 @@ Item {
             Text {
                 text: root.clockService.hourMinuteText
 
-                color: "#f4f4f5"
+                color: ShellTheme.Theme.colors.on_surface
                 font.pixelSize: 52
                 font.weight: Font.Medium
 
@@ -40,8 +41,8 @@ Item {
 
                     text: root.clockService.secondText
 
-                    color: "#8f9198"
-                    font.pixelSize: 16
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.titleSmall
                     font.weight: Font.Medium
 
                     font.features: {
@@ -54,8 +55,8 @@ Item {
 
                     text: root.clockService.periodText
 
-                    color: "#9f9198"
-                    font.pixelSize: 10
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     font.weight: Font.Medium
                 }
             }
@@ -66,9 +67,9 @@ Item {
 
             text: root.clockService.weekdayText
 
-            color: "#d8d8dc"
+            color: ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: 15
+            font.pixelSize: ShellTheme.Theme.typography.titleSmall
             font.weight: Font.Medium
         }
 
@@ -77,9 +78,9 @@ Item {
 
             text: root.clockService.fullDateText
 
-            color: "#9f9198"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 13
+            font.pixelSize: ShellTheme.Theme.typography.bodySmall
             font.weight: Font.Normal
         }
     }

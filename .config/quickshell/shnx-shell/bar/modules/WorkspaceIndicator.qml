@@ -1,5 +1,6 @@
 import QtQuick
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -7,12 +8,12 @@ Rectangle {
     implicitWidth: workspaceRow.implicitWidth + 8
     implicitHeight: 32
 
-    radius: 10
+    radius: ShellTheme.Theme.radius.button
 
-    color: "#252932"
+    color: ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
-    border.color: "#3b414d"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     Row {
         id: workspaceRow
@@ -45,17 +46,17 @@ Rectangle {
                 width: visible ? 30 : 0
                 height: 26
 
-                radius: 8
+                radius: ShellTheme.Theme.radius.small
 
                 color: {
                     if (urgent)
-                        return "#8c3b46"
+                        return ShellTheme.Theme.colors.errorContainer
 
                     if (selected)
-                        return "#596273"
+                        return ShellTheme.Theme.colors.surfaceContainerHighest
 
                     if (workspaceMouse.containsMouse)
-                        return "#343a45"
+                        return ShellTheme.Theme.colors.hoverOverlay
 
                     return "transparent"
                 }
@@ -67,10 +68,10 @@ Rectangle {
 
                 border.color: {
                     if (urgent)
-                        return "#d56a76"
+                        return ShellTheme.Theme.colors.error
 
                     if (selected)
-                        return "#aeb8ca"
+                        return ShellTheme.Theme.colors.outline
 
                     return "transparent"
                 }
@@ -95,10 +96,10 @@ Rectangle {
                         : ""
 
                     color: workspaceButton.selected
-                        ? "#ffffff"
-                        : "#c8cdd5"
+                        ? ShellTheme.Theme.colors.on_surface
+                        : ShellTheme.Theme.colors.on_surface_variant
 
-                    font.pixelSize: 12
+                    font.pixelSize: ShellTheme.Theme.typography.labelMedium
 
                     font.weight:
                         workspaceButton.selected

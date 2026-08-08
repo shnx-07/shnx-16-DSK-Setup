@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.core as Core
+import qs.theme as ShellTheme
 
 PopupWindow {
     id: root
@@ -40,11 +41,11 @@ PopupWindow {
 
         anchors.fill: parent
 
-        radius: 24
-        color: "#f016191f"
+        radius: ShellTheme.Theme.radius.island
+        color: ShellTheme.Theme.colors.surfaceContainerLowest
 
         border.width: 1
-        border.color: "#26313d"
+        border.color: ShellTheme.Theme.colors.outlineVariant
 
         Flickable {
             id: panelScroll
@@ -81,11 +82,11 @@ PopupWindow {
                     width: parent.width
                     height: 132
 
-                    radius: 20
-                    color: "#a91b2027"
+                    radius: ShellTheme.Theme.radius.panel
+                    color: ShellTheme.Theme.colors.surfaceContainerLow
 
                     border.width: 1
-                    border.color: "#1e2934"
+                    border.color: ShellTheme.Theme.colors.outlineVariant
 
                     RowLayout {
                         anchors.fill: parent
@@ -125,11 +126,11 @@ PopupWindow {
                     width: parent.width
                     height: 178
 
-                    radius: 20
-                    color: "#a91b2027"
+                    radius: ShellTheme.Theme.radius.panel
+                    color: ShellTheme.Theme.colors.surfaceContainerLow
 
                     border.width: 1
-                    border.color: "#1e2934"
+                    border.color: ShellTheme.Theme.colors.outlineVariant
 
                     Column {
                         anchors.fill: parent
@@ -140,9 +141,9 @@ PopupWindow {
                         Text {
                             text: "CONTROLS"
 
-                            color: "#7f8b9b"
+                            color: ShellTheme.Theme.colors.on_surface_variant
 
-                            font.pixelSize: 10
+                            font.pixelSize: ShellTheme.Theme.typography.labelSmall
                             font.weight: Font.DemiBold
                             font.letterSpacing: 1.2
                         }
@@ -156,7 +157,7 @@ PopupWindow {
                             width: parent.width
                             height: 1
 
-                            color: "#25303a"
+                            color: ShellTheme.Theme.colors.outlineVariant
                         }
 
                         BrightnessSlider {

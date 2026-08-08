@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -10,11 +11,11 @@ Rectangle {
     readonly property var battery:
         Core.ServiceRegistry.battery
 
-    color: "#171a20"
-    radius: 20
+    color: ShellTheme.Theme.colors.background
+    radius: ShellTheme.Theme.radius.panel
 
     border.width: 1
-    border.color: "#343944"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     function formatGraphTime(timestamp) {
         const date = new Date(timestamp)
@@ -46,16 +47,16 @@ Rectangle {
 
                 Text {
                     text: "Battery"
-                    color: "#f4f5f7"
+                    color: ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: 21
+                    font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                     font.weight: Font.DemiBold
                 }
 
                 Text {
                     text: battery.stateName
-                    color: "#9299a5"
-                    font.pixelSize: 12
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelMedium
                 }
             }
 
@@ -68,20 +69,20 @@ Rectangle {
                 width: 32
                 height: 32
 
-                radius: 10
+                radius: ShellTheme.Theme.radius.button
 
                 color: closeMouse.pressed
-                    ? "#3a404b"
+                    ? ShellTheme.Theme.colors.pressedOverlay
                     : closeMouse.containsMouse
-                        ? "#30353f"
-                        : "#252932"
+                        ? ShellTheme.Theme.colors.hoverOverlay
+                        : ShellTheme.Theme.colors.surfaceContainer
 
                 Text {
                     anchors.centerIn: parent
 
                     text: "󰅖"
-                    color: "#f4f5f7"
-                    font.pixelSize: 15
+                    color: ShellTheme.Theme.colors.on_surface
+                    font.pixelSize: ShellTheme.Theme.typography.titleSmall
                 }
 
                 MouseArea {
@@ -95,13 +96,14 @@ Rectangle {
                 }
             }
         }
+
         // Main status card
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 94
 
-            radius: 17
-            color: "#22262e"
+            radius: ShellTheme.Theme.radius.large
+            color: ShellTheme.Theme.colors.surfaceContainer
 
             RowLayout {
                 anchors {
@@ -116,15 +118,15 @@ Rectangle {
 
                     color: {
                         if (battery.critical)
-                            return "#ff757f"
+                            return ShellTheme.Theme.colors.error
 
                         if (battery.low)
-                            return "#efb66d"
+                            return ShellTheme.Theme.colors.warning
 
                         if (battery.charging)
-                            return "#72dc91"
+                            return ShellTheme.Theme.colors.success
 
-                        return "#f4f5f7"
+                        return ShellTheme.Theme.colors.on_surface
                     }
 
                     font.pixelSize: 38
@@ -138,9 +140,9 @@ Rectangle {
                             ? battery.percentage + "%"
                             : "--"
 
-                        color: "#ffffff"
+                        color: ShellTheme.Theme.colors.on_surface
 
-                        font.pixelSize: 30
+                        font.pixelSize: ShellTheme.Theme.typography.displaySmall
                         font.weight: Font.Bold
                     }
 
@@ -159,8 +161,8 @@ Rectangle {
                             return battery.stateName
                         }
 
-                        color: "#a4aab5"
-                        font.pixelSize: 12
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelMedium
                     }
                 }
 
@@ -178,9 +180,9 @@ Rectangle {
                             battery.powerUsage
                         )
 
-                        color: "#f4f5f7"
+                        color: ShellTheme.Theme.colors.on_surface
 
-                        font.pixelSize: 15
+                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
                         font.weight: Font.DemiBold
                     }
 
@@ -191,8 +193,8 @@ Rectangle {
                             ? "Charge rate"
                             : "Power usage"
 
-                        color: "#858c98"
-                        font.pixelSize: 11
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     }
                 }
             }
@@ -208,9 +210,9 @@ Rectangle {
 
                 Text {
                     text: "Battery level"
-                    color: "#f4f5f7"
+                    color: ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: 14
+                    font.pixelSize: ShellTheme.Theme.typography.bodyMedium
                     font.weight: Font.DemiBold
                 }
 
@@ -223,8 +225,8 @@ Rectangle {
                         ? "Collecting history"
                         : battery.usageSamples.length + " min"
 
-                    color: "#858c98"
-                    font.pixelSize: 11
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
             }
 
@@ -232,8 +234,8 @@ Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: 175
 
-                radius: 16
-                color: "#20242b"
+                radius: ShellTheme.Theme.radius.card
+                color: ShellTheme.Theme.colors.surfaceContainerLow
 
                 clip: true
 
@@ -265,7 +267,7 @@ Rectangle {
                         )
 
                         // Horizontal grid lines.
-                        context.strokeStyle = "#343a45"
+                        context.strokeStyle = ShellTheme.Theme.colors.outlineVariant.toString()
                         context.lineWidth = 1
 
                         for (let row = 0; row <= 4; row++) {
@@ -312,22 +314,42 @@ Rectangle {
                             if (battery.charging) {
                                 fillGradient.addColorStop(
                                     0,
-                                    "rgba(103, 217, 139, 0.34)"
+                                    Qt.rgba(
+                                        ShellTheme.Theme.colors.success.r,
+                                        ShellTheme.Theme.colors.success.g,
+                                        ShellTheme.Theme.colors.success.b,
+                                        0.34
+                                    ).toString()
                                 )
 
                                 fillGradient.addColorStop(
                                     1,
-                                    "rgba(103, 217, 139, 0.02)"
+                                    Qt.rgba(
+                                        ShellTheme.Theme.colors.success.r,
+                                        ShellTheme.Theme.colors.success.g,
+                                        ShellTheme.Theme.colors.success.b,
+                                        0.02
+                                    ).toString()
                                 )
                             } else {
                                 fillGradient.addColorStop(
                                     0,
-                                    "rgba(124, 168, 255, 0.34)"
+                                    Qt.rgba(
+                                        ShellTheme.Theme.colors.primary.r,
+                                        ShellTheme.Theme.colors.primary.g,
+                                        ShellTheme.Theme.colors.primary.b,
+                                        0.34
+                                    ).toString()
                                 )
 
                                 fillGradient.addColorStop(
                                     1,
-                                    "rgba(124, 168, 255, 0.02)"
+                                    Qt.rgba(
+                                        ShellTheme.Theme.colors.primary.r,
+                                        ShellTheme.Theme.colors.primary.g,
+                                        ShellTheme.Theme.colors.primary.b,
+                                        0.02
+                                    ).toString()
                                 )
                             }
 
@@ -367,8 +389,8 @@ Rectangle {
                         context.lineCap = "round"
 
                         context.strokeStyle = battery.charging
-                            ? "#67d98b"
-                            : "#7ca8ff"
+                            ? ShellTheme.Theme.colors.success.toString()
+                            : ShellTheme.Theme.colors.primary.toString()
 
                         for (let index = 0;
                                 index < samples.length;
@@ -404,8 +426,8 @@ Rectangle {
                         )
 
                         context.fillStyle = battery.charging
-                            ? "#78e397"
-                            : "#8ab2ff"
+                            ? ShellTheme.Theme.colors.success.toString()
+                            : ShellTheme.Theme.colors.primary.toString()
 
                         context.fill()
                     }
@@ -433,8 +455,8 @@ Rectangle {
                     anchors.centerIn: parent
 
                     text: "History will appear as samples are collected"
-                    color: "#777e8a"
-                    font.pixelSize: 11
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
 
                 Text {
@@ -461,8 +483,8 @@ Rectangle {
                         )
                     }
 
-                    color: "#727986"
-                    font.pixelSize: 9
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
 
                 Text {
@@ -494,9 +516,9 @@ Rectangle {
                         )
                     }
 
-                    color: "#727986"
-                    font.pixelSize: 9
-                } 
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
+                }
             }
         }
 
@@ -509,8 +531,8 @@ Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: 68
 
-                radius: 15
-                color: "#22262e"
+                radius: ShellTheme.Theme.radius.medium
+                color: ShellTheme.Theme.colors.surfaceContainer
 
                 Column {
                     anchors {
@@ -528,16 +550,16 @@ Rectangle {
                             ) + "%"
                             : "—"
 
-                        color: "#f4f5f7"
+                        color: ShellTheme.Theme.colors.on_surface
 
-                        font.pixelSize: 17
+                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
                         font.weight: Font.DemiBold
                     }
 
                     Text {
                         text: "Battery health"
-                        color: "#858c98"
-                        font.pixelSize: 11
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     }
                 }
             }
@@ -546,8 +568,8 @@ Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: 68
 
-                radius: 15
-                color: "#22262e"
+                radius: ShellTheme.Theme.radius.medium
+                color: ShellTheme.Theme.colors.surfaceContainer
 
                 Column {
                     anchors {
@@ -564,16 +586,16 @@ Rectangle {
                                 + " Wh"
                             : "—"
 
-                        color: "#f4f5f7"
+                        color: ShellTheme.Theme.colors.on_surface
 
-                        font.pixelSize: 17
+                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
                         font.weight: Font.DemiBold
                     }
 
                     Text {
                         text: "Current capacity"
-                        color: "#858c98"
-                        font.pixelSize: 11
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     }
                 }
             }
@@ -584,27 +606,27 @@ Rectangle {
             Layout.fillWidth: true
             implicitHeight: 58
 
-            radius: 16
+            radius: ShellTheme.Theme.radius.card
 
             color: saveBatteryMouse.pressed
                 ? battery.powerSaverEnabled
-                    ? "#315d40"
-                    : "#383e48"
+                    ? ShellTheme.Theme.colors.successContainer
+                    : ShellTheme.Theme.colors.pressedOverlay
                 : saveBatteryMouse.containsMouse
                     ? battery.powerSaverEnabled
-                        ? "#356746"
-                        : "#303640"
+                        ? ShellTheme.Theme.colors.successContainer
+                        : ShellTheme.Theme.colors.hoverOverlay
                     : battery.powerSaverEnabled
-                        ? "#2f593d"
-                        : "#292e36"
+                        ? ShellTheme.Theme.colors.successContainer
+                        : ShellTheme.Theme.colors.surfaceContainerLow
 
             border.width: 1
 
             border.color: battery.powerSaverEnabled
-                ? "#66d487"
+                ? ShellTheme.Theme.colors.success
                 : saveBatteryMouse.containsMouse
-                    ? "#596273"
-                    : "#424955"
+                    ? ShellTheme.Theme.colors.outline
+                    : ShellTheme.Theme.colors.outlineVariant
 
             RowLayout {
                 anchors {
@@ -619,10 +641,10 @@ Rectangle {
                     text: "󰌪"
 
                     color: battery.powerSaverEnabled
-                        ? "#72dd91"
-                        : "#e9ebef"
+                        ? ShellTheme.Theme.colors.on_success_container
+                        : ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: 20
+                    font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                 }
 
                 ColumnLayout {
@@ -631,9 +653,9 @@ Rectangle {
 
                     Text {
                         text: "Save Battery"
-                        color: "#f5f6f8"
+                        color: ShellTheme.Theme.colors.on_surface
 
-                        font.pixelSize: 13
+                        font.pixelSize: ShellTheme.Theme.typography.bodySmall
                         font.weight: Font.DemiBold
                     }
 
@@ -642,8 +664,8 @@ Rectangle {
                             ? "Power Saver is active"
                             : "Reduce system power consumption"
 
-                        color: "#9ba1ac"
-                        font.pixelSize: 10
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     }
                 }
 
@@ -654,15 +676,15 @@ Rectangle {
                     radius: height / 2
 
                     color: battery.powerSaverEnabled
-                        ? "#65d486"
-                        : "#555c68"
+                        ? ShellTheme.Theme.colors.success
+                        : ShellTheme.Theme.colors.surfaceContainerHighest
 
                     Rectangle {
                         width: 18
                         height: 18
 
                         radius: width / 2
-                        color: "#ffffff"
+                        color: ShellTheme.Theme.colors.on_surface
 
                         anchors.verticalCenter: parent.verticalCenter
 
@@ -693,4 +715,3 @@ Rectangle {
         }
     }
 }
-

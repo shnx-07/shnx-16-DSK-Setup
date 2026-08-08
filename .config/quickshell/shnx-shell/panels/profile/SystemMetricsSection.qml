@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -245,7 +246,7 @@ Item {
                         ctx.lineCap = "round"
 
                         ctx.beginPath()
-                        ctx.strokeStyle = "#29333e"
+                        ctx.strokeStyle = ShellTheme.Theme.colors.surfaceContainerHighest.toString()
                         ctx.arc(
                             centerX,
                             centerY,
@@ -256,7 +257,7 @@ Item {
                         ctx.stroke()
 
                         ctx.beginPath()
-                        ctx.strokeStyle = "#e1e8f0"
+                        ctx.strokeStyle = ShellTheme.Theme.colors.primary.toString()
                         ctx.arc(
                             centerX,
                             centerY,
@@ -275,9 +276,9 @@ Item {
                     anchors.centerIn: parent
 
                     text: metricRoot.iconText
-                    color: "#eef2f6"
+                    color: ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: 18
+                    font.pixelSize: ShellTheme.Theme.typography.titleSmall
                     font.family:
                         "JetBrainsMono Nerd Font"
                 }
@@ -289,9 +290,9 @@ Item {
                 text:
                     Math.round(metricRoot.value) + "%"
 
-                color: "#eef2f6"
+                color: ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 12
+                font.pixelSize: ShellTheme.Theme.typography.labelMedium
                 font.weight: Font.DemiBold
             }
 
@@ -299,9 +300,9 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 text: metricRoot.title
-                color: "#7f8b9b"
+                color: ShellTheme.Theme.colors.on_surface_variant
 
-                font.pixelSize: 9
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 font.weight: Font.Medium
             }
         }

@@ -437,7 +437,7 @@ Item {
                         ShellTheme.Theme.colors.on_surface
 
                     font.pixelSize:
-                        24
+                        ShellTheme.Theme.typography.headlineMedium
                 }
 
 

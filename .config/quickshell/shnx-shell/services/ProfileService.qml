@@ -53,8 +53,12 @@ QtObject {
             ? uptime
             : "Uptime unavailable"
 
+    readonly property string effectiveDisplayName: displayNameLabel
+
     readonly property bool hasCustomAvatar:
         avatarPath.length > 0
+
+    readonly property bool hasAvatar: hasCustomAvatar
 
     /*
      * All owner/system information is collected in one process.

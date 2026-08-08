@@ -1,5 +1,6 @@
 import QtQuick
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -30,10 +31,10 @@ Item {
 
                 color:
                     root.brightness.available
-                        ? "#e7ebf0"
-                        : "#66717f"
+                        ? ShellTheme.Theme.colors.on_surface
+                        : ShellTheme.Theme.colors.disabled
 
-                font.pixelSize: 16
+                font.pixelSize: ShellTheme.Theme.typography.titleSmall
                 font.family: "JetBrainsMono Nerd Font"
 
                 verticalAlignment: Text.AlignVCenter
@@ -44,10 +45,10 @@ Item {
 
                 color:
                     root.brightness.available
-                        ? "#e7ebf0"
-                        : "#66717f"
+                        ? ShellTheme.Theme.colors.on_surface
+                        : ShellTheme.Theme.colors.disabled
 
-                font.pixelSize: 13
+                font.pixelSize: ShellTheme.Theme.typography.bodySmall
                 font.weight: Font.Medium
 
                 verticalAlignment: Text.AlignVCenter
@@ -73,10 +74,10 @@ Item {
 
                 color:
                     root.brightness.available
-                        ? "#aab4c1"
-                        : "#66717f"
+                        ? ShellTheme.Theme.colors.on_surface_variant
+                        : ShellTheme.Theme.colors.disabled
 
-                font.pixelSize: 12
+                font.pixelSize: ShellTheme.Theme.typography.labelMedium
                 verticalAlignment: Text.AlignVCenter
             }
         }
@@ -96,7 +97,7 @@ Item {
                 height: 8
 
                 radius: height / 2
-                color: "#303a46"
+                color: ShellTheme.Theme.colors.surfaceContainerHighest
 
                 opacity:
                     root.brightness.available
@@ -111,7 +112,7 @@ Item {
                     height: parent.height
 
                     radius: height / 2
-                    color: "#d9e2ec"
+                    color: ShellTheme.Theme.colors.primary
 
                     Behavior on width {
                         NumberAnimation {
@@ -145,10 +146,10 @@ Item {
                     visible:
                         root.brightness.available
 
-                    color: "#f4f6f8"
+                    color: ShellTheme.Theme.colors.on_surface
 
                     border.width: 2
-                    border.color: "#566577"
+                    border.color: ShellTheme.Theme.colors.outline
 
                     Behavior on x {
                         NumberAnimation {

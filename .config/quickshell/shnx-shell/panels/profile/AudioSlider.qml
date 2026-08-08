@@ -1,5 +1,6 @@
 import QtQuick
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -29,9 +30,9 @@ Item {
                 height: parent.height
 
                 text: root.audio.icon
-                color: "#e7ebf0"
+                color: ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 16
+                font.pixelSize: ShellTheme.Theme.typography.titleSmall
                 font.family: "JetBrainsMono Nerd Font"
 
                 verticalAlignment: Text.AlignVCenter
@@ -49,9 +50,9 @@ Item {
 
             Text {
                 text: "Volume"
-                color: "#e7ebf0"
+                color: ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 13
+                font.pixelSize: ShellTheme.Theme.typography.bodySmall
                 font.weight: Font.Medium
 
                 verticalAlignment: Text.AlignVCenter
@@ -75,8 +76,8 @@ Item {
                         ? root.audio.volumePercentage + "%"
                         : "--"
 
-                color: "#aab4c1"
-                font.pixelSize: 12
+                color: ShellTheme.Theme.colors.on_surface_variant
+                font.pixelSize: ShellTheme.Theme.typography.labelMedium
 
                 verticalAlignment: Text.AlignVCenter
             }
@@ -154,8 +155,8 @@ Item {
 
                             return barProgress
                                 <= waveformSlider.visualLevel
-                                    ? "#e0e7ef"
-                                    : "#35404c"
+                                    ? ShellTheme.Theme.colors.primary
+                                    : ShellTheme.Theme.colors.surfaceContainerHighest
                         }
 
                         Behavior on height {
@@ -223,10 +224,10 @@ Item {
                     root.audio.available
                     && !root.audio.muted
 
-                color: "#f4f6f8"
+                color: ShellTheme.Theme.colors.on_surface
 
                 border.width: 2
-                border.color: "#59697b"
+                border.color: ShellTheme.Theme.colors.outline
 
                 Behavior on x {
                     NumberAnimation {

@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Column {
     id: root
@@ -12,9 +13,9 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
 
         text: "󰅖"
-        color: "#667281"
+        color: ShellTheme.Theme.colors.on_surface_variant
 
-        font.pixelSize: 34
+        font.pixelSize: ShellTheme.Theme.typography.displayMedium
         font.family: "JetBrainsMono Nerd Font"
     }
 
@@ -22,9 +23,9 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
 
         text: "No applications found"
-        color: "#c2cad4"
+        color: ShellTheme.Theme.colors.on_surface
 
-        font.pixelSize: 13
+        font.pixelSize: ShellTheme.Theme.typography.bodySmall
         font.weight: Font.DemiBold
     }
 
@@ -41,7 +42,7 @@ Column {
             return "No installed applications are available"
         }
 
-        color: "#788493"
-        font.pixelSize: 10
+        color: ShellTheme.Theme.colors.on_surface_variant
+        font.pixelSize: ShellTheme.Theme.typography.labelSmall
     }
 }

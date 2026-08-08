@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -19,13 +20,13 @@ Item {
         anchors.fill: parent
 
         radius: width / 2
-        color: "#252c35"
+        color: ShellTheme.Theme.colors.surfaceContainerHigh
 
         border.width: 1
         border.color:
             avatarMouseArea.containsMouse
-                ? "#71839a"
-                : "#465364"
+                ? ShellTheme.Theme.colors.outline
+                : ShellTheme.Theme.colors.outlineVariant
 
         Behavior on border.color {
             ColorAnimation {
@@ -44,7 +45,7 @@ Item {
             radius: width / 2
             clip: true
 
-            color: "#303844"
+            color: ShellTheme.Theme.colors.surfaceContainer
 
             Image {
                 id: avatarImage
@@ -52,11 +53,11 @@ Item {
                 anchors.fill: parent
 
                 visible:
-                    root.profile.hasAvatar
+                    Boolean(root.profile && (root.profile.hasCustomAvatar || root.profile.hasAvatar))
                     && status !== Image.Error
 
                 source:
-                    root.profile.hasAvatar
+                    (root.profile && (root.profile.hasCustomAvatar || root.profile.hasAvatar))
                         ? "file://" + root.profile.avatarPath
                         : ""
 
@@ -70,12 +71,12 @@ Item {
                 anchors.centerIn: parent
 
                 visible:
-                    !root.profile.hasAvatar
+                    !Boolean(root.profile && (root.profile.hasCustomAvatar || root.profile.hasAvatar))
                     || avatarImage.status === Image.Error
 
-                text: ""
+                text: ""
 
-                color: "#e8edf4"
+                color: ShellTheme.Theme.colors.on_surface
 
                 font.pixelSize: 38
                 font.family: "JetBrainsMono Nerd Font"
@@ -84,7 +85,6 @@ Item {
             
         }
     }
-
     
 
     MouseArea {

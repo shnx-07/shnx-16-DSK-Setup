@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -14,9 +15,9 @@ Item {
                 parent.horizontalCenter
 
             text: "󰂜"
-            color: "#8e949e"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 42
+            font.pixelSize: ShellTheme.Theme.typography.displayLarge
         }
 
         Text {
@@ -24,9 +25,9 @@ Item {
                 parent.horizontalCenter
 
             text: "No notifications"
-            color: "#f2f3f5"
+            color: ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: 16
+            font.pixelSize: ShellTheme.Theme.typography.titleMedium
             font.weight: Font.DemiBold
         }
 
@@ -35,9 +36,9 @@ Item {
                 parent.horizontalCenter
 
             text: "New notifications will appear here"
-            color: "#8e949e"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 12
+            font.pixelSize: ShellTheme.Theme.typography.labelMedium
         }
     }
 }

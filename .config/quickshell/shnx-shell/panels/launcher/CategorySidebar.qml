@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -11,11 +12,11 @@ Rectangle {
     implicitWidth: 154
     implicitHeight: 520
 
-    radius: 18
-    color: "#a91b2027"
+    radius: ShellTheme.Theme.radius.card
+    color: ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
-    border.color: "#1e2934"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     readonly property var categories: [
         {
@@ -64,9 +65,9 @@ Rectangle {
             Layout.preferredHeight: 22
 
             text: "CATEGORIES"
-            color: "#7f8b9b"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 10
+            font.pixelSize: ShellTheme.Theme.typography.labelSmall
             font.weight: Font.DemiBold
             font.letterSpacing: 1.2
 
@@ -109,21 +110,21 @@ Rectangle {
         signal clicked()
 
         implicitHeight: 48
-        radius: 14
+        radius: ShellTheme.Theme.radius.button
 
         color: {
             if (buttonMouseArea.pressed)
                 return selected
-                    ? "#465465"
-                    : "#303945"
+                    ? ShellTheme.Theme.colors.primaryHover
+                    : ShellTheme.Theme.colors.pressedOverlay
 
             if (buttonMouseArea.containsMouse)
                 return selected
-                    ? "#3d4a5a"
-                    : "#29313b"
+                    ? ShellTheme.Theme.colors.primaryHover
+                    : ShellTheme.Theme.colors.hoverOverlay
 
             return selected
-                ? "#354150"
+                ? ShellTheme.Theme.colors.primary
                 : "transparent"
         }
 
@@ -134,7 +135,7 @@ Rectangle {
 
         border.color:
             selected
-                ? "#596b81"
+                ? ShellTheme.Theme.colors.outline
                 : "transparent"
 
         scale:
@@ -170,8 +171,8 @@ Rectangle {
 
                 color:
                     buttonRoot.selected
-                        ? "#dce5ee"
-                        : "#2d3540"
+                        ? ShellTheme.Theme.colors.on_primary
+                        : ShellTheme.Theme.colors.surfaceContainerHigh
 
                 Text {
                     anchors.centerIn: parent
@@ -180,10 +181,10 @@ Rectangle {
 
                     color:
                         buttonRoot.selected
-                            ? "#252d36"
-                            : "#cbd3dc"
+                            ? ShellTheme.Theme.colors.primary
+                            : ShellTheme.Theme.colors.on_surface_variant
 
-                    font.pixelSize: 14
+                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
                     font.family:
                         "JetBrainsMono Nerd Font"
                 }
@@ -198,10 +199,10 @@ Rectangle {
 
                 color:
                     buttonRoot.selected
-                        ? "#f0f3f6"
-                        : "#aeb8c4"
+                        ? ShellTheme.Theme.colors.on_primary
+                        : ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 11
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 font.weight:
                     buttonRoot.selected
                         ? Font.DemiBold

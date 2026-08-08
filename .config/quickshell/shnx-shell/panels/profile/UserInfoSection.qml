@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -24,10 +25,10 @@ Item {
         Text {
             Layout.fillWidth: true
 
-            text: root.profile.effectiveDisplayName
-            color: "#f4f6f8"
+            text: (root.profile && (root.profile.displayNameLabel || root.profile.effectiveDisplayName || root.profile.displayName)) ? (root.profile.displayNameLabel || root.profile.effectiveDisplayName || root.profile.displayName) : ""
+            color: ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: 22
+            font.pixelSize: ShellTheme.Theme.typography.headlineSmall
             font.weight: Font.DemiBold
 
             elide: Text.ElideRight
@@ -36,10 +37,10 @@ Item {
         Text {
             Layout.fillWidth: true
 
-            text: root.profile.usernameLabel
-            color: "#9faaba"
+            text: (root.profile && root.profile.usernameLabel) ? root.profile.usernameLabel : ""
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 13
+            font.pixelSize: ShellTheme.Theme.typography.bodySmall
             elide: Text.ElideRight
         }
 
@@ -50,27 +51,27 @@ Item {
 
         InfoRow {
             iconText: "󰌢"
-            valueText: root.profile.hostnameLabel
+            valueText: (root.profile && root.profile.hostnameLabel) ? root.profile.hostnameLabel : ""
         }
 
         InfoRow {
             iconText: "󰣇"
-            valueText: root.profile.distributionLabel
+            valueText: (root.profile && root.profile.distributionLabel) ? root.profile.distributionLabel : ""
         }
 
         InfoRow {
-            iconText: ""
-            valueText: root.profile.sessionLabel
+            iconText: ""
+            valueText: (root.profile && root.profile.sessionLabel) ? root.profile.sessionLabel : ""
         }
 
         InfoRow {
             iconText: "󰌽"
-            valueText: root.profile.kernelLabel
+            valueText: (root.profile && root.profile.kernelLabel) ? root.profile.kernelLabel : ""
         }
 
         InfoRow {
             iconText: "󰔛"
-            valueText: root.profile.uptimeLabel
+            valueText: (root.profile && root.profile.uptimeLabel) ? root.profile.uptimeLabel : ""
         }
     }
 
@@ -85,9 +86,9 @@ Item {
             Layout.preferredWidth: 18
 
             text: parent.iconText
-            color: "#8793a3"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 13
+            font.pixelSize: ShellTheme.Theme.typography.bodySmall
             font.family: "JetBrainsMono Nerd Font"
 
             horizontalAlignment: Text.AlignHCenter
@@ -97,9 +98,9 @@ Item {
             Layout.fillWidth: true
 
             text: parent.valueText
-            color: "#aeb7c3"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 12
+            font.pixelSize: ShellTheme.Theme.typography.labelMedium
 
             elide: Text.ElideRight
         }

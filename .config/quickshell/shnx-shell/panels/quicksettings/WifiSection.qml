@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import qs.core as Core
 import QtQuick.Controls
 import Quickshell.Networking
+import qs.theme as ShellTheme
 
 Item {
   id: root
@@ -221,21 +222,21 @@ Item {
 
         anchors.fill: parent
 
-        radius: 24
-        color: "#16181d"
+        radius: ShellTheme.Theme.radius.island
+        color: ShellTheme.Theme.colors.background
 
         border.width: 1
-        border.color: "#363a44"
+        border.color: ShellTheme.Theme.colors.outlineVariant
 
         Rectangle {
             anchors.fill: parent
             anchors.margins: 1
 
-            radius: 23
+            radius: ShellTheme.Theme.radius.island - 1
             color: "transparent"
 
             border.width: 1
-            border.color: "#17191e"
+            border.color: ShellTheme.Theme.colors.surfaceContainerLowest
         }
 
         ColumnLayout {
@@ -259,15 +260,15 @@ Item {
 
                   Text {
                       text: "Wi-Fi"
-                      color: "#f5f5f7"
-                      font.pixelSize: 22
+                      color: ShellTheme.Theme.colors.on_surface
+                      font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                       font.weight: Font.DemiBold
                   }
 
                   Text {
                       text: network.stateName
-                      color: "#8f949f"
-                      font.pixelSize: 11
+                      color: ShellTheme.Theme.colors.on_surface_variant
+                      font.pixelSize: ShellTheme.Theme.typography.labelSmall
                   }
               }
 
@@ -281,8 +282,8 @@ Item {
                   radius: height / 2
 
                   color: network.wifiEnabled
-                      ? "#0a84ff"
-                      : "#444852"
+                      ? ShellTheme.Theme.colors.primary
+                      : ShellTheme.Theme.colors.surfaceContainerHighest
 
                   opacity:
                       network.available
@@ -306,7 +307,7 @@ Item {
                           : 2
 
                       radius: width / 2
-                      color: "#ffffff"
+                      color: ShellTheme.Theme.colors.on_primary
 
                       Behavior on x {
                           NumberAnimation {
@@ -341,11 +342,11 @@ Item {
 
                 visible: !network.available
 
-                radius: 16
-                color: "#202329"
+                radius: ShellTheme.Theme.radius.card
+                color: ShellTheme.Theme.colors.surfaceContainer
 
                 border.width: 1
-                border.color: "#30343d"
+                border.color: ShellTheme.Theme.colors.outlineVariant
 
                 RowLayout {
                     anchors {
@@ -359,15 +360,15 @@ Item {
                         Layout.preferredWidth: 46
                         Layout.preferredHeight: 46
 
-                        radius: 14
-                        color: "#2c3038"
+                        radius: ShellTheme.Theme.radius.control
+                        color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                         Text {
                             anchors.centerIn: parent
 
                             text: "󰤭"
-                            color: "#8f949f"
-                            font.pixelSize: 24
+                            color: ShellTheme.Theme.colors.on_surface_variant
+                            font.pixelSize: ShellTheme.Theme.typography.headlineMedium
                         }
                     }
 
@@ -377,9 +378,9 @@ Item {
 
                         Text {
                             text: "Wi-Fi unavailable"
-                            color: "#f1f2f4"
+                            color: ShellTheme.Theme.colors.on_surface
 
-                            font.pixelSize: 14
+                            font.pixelSize: ShellTheme.Theme.typography.bodyMedium
                             font.weight:
                                 Font.DemiBold
                         }
@@ -390,8 +391,8 @@ Item {
                             text:
                                 "No wireless network device was detected."
 
-                            color: "#8f949f"
-                            font.pixelSize: 11
+                            color: ShellTheme.Theme.colors.on_surface_variant
+                            font.pixelSize: ShellTheme.Theme.typography.labelSmall
                             wrapMode: Text.WordWrap
                         }
                     }
@@ -407,11 +408,11 @@ Item {
                     network.available
                     && !network.wifiHardwareEnabled
 
-                radius: 16
-                color: "#202329"
+                radius: ShellTheme.Theme.radius.card
+                color: ShellTheme.Theme.colors.surfaceContainer
 
                 border.width: 1
-                border.color: "#30343d"
+                border.color: ShellTheme.Theme.colors.outlineVariant
 
                 RowLayout {
                     anchors {
@@ -425,15 +426,15 @@ Item {
                         Layout.preferredWidth: 46
                         Layout.preferredHeight: 46
 
-                        radius: 14
-                        color: "#2c3038"
+                        radius: ShellTheme.Theme.radius.control
+                        color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                         Text {
                             anchors.centerIn: parent
 
                             text: "󰤭"
-                            color: "#ff9f0a"
-                            font.pixelSize: 24
+                            color: ShellTheme.Theme.colors.warning
+                            font.pixelSize: ShellTheme.Theme.typography.headlineMedium
                         }
                     }
 
@@ -445,9 +446,9 @@ Item {
                             text:
                                 "Wireless hardware disabled"
 
-                            color: "#f1f2f4"
+                            color: ShellTheme.Theme.colors.on_surface
 
-                            font.pixelSize: 14
+                            font.pixelSize: ShellTheme.Theme.typography.bodyMedium
                             font.weight:
                                 Font.DemiBold
                         }
@@ -458,8 +459,8 @@ Item {
                             text:
                                 "Enable the wireless device before turning on Wi-Fi."
 
-                            color: "#8f949f"
-                            font.pixelSize: 11
+                            color: ShellTheme.Theme.colors.on_surface_variant
+                            font.pixelSize: ShellTheme.Theme.typography.labelSmall
                             wrapMode: Text.WordWrap
                         }
                     }
@@ -476,11 +477,11 @@ Item {
                       && network.wifiHardwareEnabled
                       && !network.wifiEnabled
 
-                  radius: 18
-                  color: "#202329"
+                  radius: ShellTheme.Theme.radius.large
+                  color: ShellTheme.Theme.colors.surfaceContainer
 
                   border.width: 1
-                  border.color: "#30343d"
+                  border.color: ShellTheme.Theme.colors.outlineVariant
 
                   ColumnLayout {
                       anchors {
@@ -496,15 +497,15 @@ Item {
                         Layout.preferredWidth: 64
                         Layout.preferredHeight: 64
 
-                        radius: 20
-                        color: "#2c3038"
+                        radius: ShellTheme.Theme.radius.panel
+                        color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                         Text {
                             anchors.centerIn: parent
 
                             text: "󰤭"
-                            color: "#8f949f"
-                            font.pixelSize: 31
+                            color: ShellTheme.Theme.colors.on_surface_variant
+                            font.pixelSize: ShellTheme.Theme.typography.displaySmall
                         }
                     }
 
@@ -512,11 +513,11 @@ Item {
                         Layout.fillWidth: true
 
                         text: "Wi-Fi is Off"
-                        color: "#f1f2f4"
+                        color: ShellTheme.Theme.colors.on_surface
 
                         horizontalAlignment: Text.AlignHCenter
 
-                        font.pixelSize: 17
+                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
                         font.weight: Font.DemiBold
                     }
 
@@ -526,12 +527,12 @@ Item {
                         text:
                             "Turn on Wi-Fi to discover and connect to nearby networks."
 
-                        color: "#8f949f"
+                        color: ShellTheme.Theme.colors.on_surface_variant
 
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap
 
-                        font.pixelSize: 11
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                         lineHeight: 1.25
                     }
 
@@ -540,19 +541,19 @@ Item {
                         Layout.preferredHeight: 36
                         Layout.topMargin: 4
 
-                        radius: 10
+                        radius: ShellTheme.Theme.radius.button
 
                         color: enableMouse.containsMouse
-                            ? "#168cff"
-                            : "#0a84ff"
+                            ? ShellTheme.Theme.colors.primaryHover
+                            : ShellTheme.Theme.colors.primary
 
                         Text {
                             anchors.centerIn: parent
 
                             text: "Turn Wi-Fi On"
-                            color: "#ffffff"
+                            color: ShellTheme.Theme.colors.on_primary
 
-                            font.pixelSize: 12
+                            font.pixelSize: ShellTheme.Theme.typography.labelMedium
                             font.weight: Font.DemiBold
                         }
 
@@ -584,9 +585,9 @@ Item {
                 Text {
                     text: "Connected"
 
-                    color: "#8f949f"
+                    color: ShellTheme.Theme.colors.on_surface_variant
 
-                    font.pixelSize: 11
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     font.weight: Font.DemiBold
                     font.capitalization:
                         Font.AllUppercase
@@ -596,11 +597,11 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 86
 
-                    radius: 16
-                    color: "#22252c"
+                    radius: ShellTheme.Theme.radius.card
+                    color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                     border.width: 1
-                    border.color: "#3b404a"
+                    border.color: ShellTheme.Theme.colors.outlineVariant
 
                     RowLayout {
                         anchors {
@@ -614,8 +615,8 @@ Item {
                             Layout.preferredWidth: 50
                             Layout.preferredHeight: 50
 
-                            radius: 15
-                            color: "#0a84ff"
+                            radius: ShellTheme.Theme.radius.medium
+                            color: ShellTheme.Theme.colors.primary
 
                             Text {
                                 anchors.centerIn: parent
@@ -625,8 +626,8 @@ Item {
                                         network.signalStrength
                                     )
 
-                                color: "#ffffff"
-                                font.pixelSize: 25
+                                color: ShellTheme.Theme.colors.on_primary
+                                font.pixelSize: ShellTheme.Theme.typography.displaySmall
                             }
                         }
 
@@ -642,9 +643,9 @@ Item {
                                         ? network.ssid
                                         : "Connected network"
 
-                                color: "#f5f5f7"
+                                color: ShellTheme.Theme.colors.on_surface
 
-                                font.pixelSize: 15
+                                font.pixelSize: ShellTheme.Theme.typography.titleSmall
                                 font.weight:
                                     Font.DemiBold
 
@@ -656,8 +657,8 @@ Item {
                                     network.signalPercentage
                                     + "% signal"
 
-                                color: "#9ba0aa"
-                                font.pixelSize: 11
+                                color: ShellTheme.Theme.colors.on_surface_variant
+                                font.pixelSize: ShellTheme.Theme.typography.labelSmall
                             }
                         }
 
@@ -666,13 +667,13 @@ Item {
                             Layout.preferredHeight: 8
 
                             radius: 4
-                            color: "#30d158"
+                            color: ShellTheme.Theme.colors.success
                         }
                     }
                 }
             }
 
-            // DispanelSurfaceconnected notice
+            // Disconnected notice
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 62
@@ -682,11 +683,11 @@ Item {
                     && network.wifiEnabled
                     && !network.connected
 
-                radius: 14
-                color: "#202329"
+                radius: ShellTheme.Theme.radius.control
+                color: ShellTheme.Theme.colors.surfaceContainer
 
                 border.width: 1
-                border.color: "#30343d"
+                border.color: ShellTheme.Theme.colors.outlineVariant
 
                 RowLayout {
                     anchors {
@@ -700,15 +701,15 @@ Item {
                         Layout.preferredWidth: 36
                         Layout.preferredHeight: 36
 
-                        radius: 11
-                        color: "#2b2f37"
+                        radius: ShellTheme.Theme.radius.button
+                        color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                         Text {
                             anchors.centerIn: parent
 
                             text: "󰤯"
-                            color: "#ff9f0a"
-                            font.pixelSize: 20
+                            color: ShellTheme.Theme.colors.warning
+                            font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                         }
                     }
 
@@ -718,9 +719,9 @@ Item {
 
                         Text {
                             text: "Not connected"
-                            color: "#f1f2f4"
+                            color: ShellTheme.Theme.colors.on_surface
 
-                            font.pixelSize: 13
+                            font.pixelSize: ShellTheme.Theme.typography.bodySmall
                             font.weight:
                                 Font.DemiBold
                         }
@@ -729,8 +730,8 @@ Item {
                             text:
                                 "Choose a network below"
 
-                            color: "#8f949f"
-                            font.pixelSize: 10
+                            color: ShellTheme.Theme.colors.on_surface_variant
+                            font.pixelSize: ShellTheme.Theme.typography.labelSmall
                         }
                     }
                 }
@@ -751,9 +752,9 @@ Item {
 
                     text: "Other Networks"
 
-                    color: "#8f949f"
+                    color: ShellTheme.Theme.colors.on_surface_variant
 
-                    font.pixelSize: 11
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     font.weight: Font.DemiBold
                     font.capitalization:
                         Font.AllUppercase
@@ -763,11 +764,11 @@ Item {
                     Layout.preferredWidth: 30
                     Layout.preferredHeight: 30
 
-                    radius: 9
+                    radius: ShellTheme.Theme.radius.button
 
                     color: refreshMouse.containsMouse
-                        ? "#343740"
-                        : "#25282f"
+                        ? ShellTheme.Theme.colors.hoverOverlay
+                        : ShellTheme.Theme.colors.surfaceContainer
 
                     opacity:
                         root.refreshing
@@ -778,8 +779,8 @@ Item {
                         anchors.centerIn: parent
 
                         text: "󰑓"
-                        color: "#d8dae0"
-                        font.pixelSize: 15
+                        color: ShellTheme.Theme.colors.on_surface
+                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
 
                         RotationAnimation on rotation {
                             running: root.refreshing
@@ -821,11 +822,11 @@ Item {
                     network.available
                     && network.wifiEnabled
 
-                radius: 16
-                color: "#202329"
+                radius: ShellTheme.Theme.radius.card
+                color: ShellTheme.Theme.colors.surfaceContainer
 
                 border.width: 1
-                border.color: "#30343d"
+                border.color: ShellTheme.Theme.colors.outlineVariant
 
                 clip: true
 
@@ -853,13 +854,13 @@ Item {
                         width: networkList.width
                         height: 54
 
-                        radius: 11
+                        radius: ShellTheme.Theme.radius.button
 
                         color:
                             networkMouse.pressed
-                                ? "#363a43"
+                                ? ShellTheme.Theme.colors.pressedOverlay
                                 : networkMouse.containsMouse
-                                    ? "#2d3038"
+                                    ? ShellTheme.Theme.colors.hoverOverlay
                                     : "transparent"
 
                         readonly property real strength:
@@ -895,12 +896,12 @@ Item {
                                 Layout.preferredWidth: 36
                                 Layout.preferredHeight: 36
 
-                                radius: 11
+                                radius: ShellTheme.Theme.radius.button
 
                                 color:
                                     networkDelegate.isConnected
-                                        ? "#0a84ff"
-                                        : "#2d3139"
+                                        ? ShellTheme.Theme.colors.primary
+                                        : ShellTheme.Theme.colors.surfaceContainerHigh
 
                                 Text {
                                     anchors.centerIn: parent
@@ -912,10 +913,10 @@ Item {
 
                                     color:
                                         networkDelegate.isConnected
-                                            ? "#ffffff"
-                                            : "#d7d9de"
+                                            ? ShellTheme.Theme.colors.on_primary
+                                            : ShellTheme.Theme.colors.on_surface
 
-                                    font.pixelSize: 19
+                                    font.pixelSize: ShellTheme.Theme.typography.bodyMedium
                                 }
                             }
 
@@ -932,9 +933,9 @@ Item {
                                             ? modelData.name
                                             : "Hidden network"
 
-                                    color: "#f2f3f5"
+                                    color: ShellTheme.Theme.colors.on_surface
 
-                                    font.pixelSize: 13
+                                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
                                     font.weight:
                                         networkDelegate.isConnected
                                             ? Font.DemiBold
@@ -963,10 +964,10 @@ Item {
 
                                     color:
                                         networkDelegate.isConnected
-                                            ? "#30d158"
-                                            : "#858b96"
+                                            ? ShellTheme.Theme.colors.success
+                                            : ShellTheme.Theme.colors.on_surface_variant
 
-                                    font.pixelSize: 10
+                                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                                 }
                             }
 
@@ -976,9 +977,9 @@ Item {
                                   && !networkDelegate.isChanging
 
                                 text: "✓"
-                                color: "#30d158"
+                                color: ShellTheme.Theme.colors.success
 
-                                font.pixelSize: 15
+                                font.pixelSize: ShellTheme.Theme.typography.titleSmall
                                 font.weight: Font.Bold
                             }
 
@@ -992,19 +993,19 @@ Item {
                                   && !networkDelegate.isChanging
 
                               z: 5
-                              radius: 9
+                              radius: ShellTheme.Theme.radius.button
 
                               color:
                                   networkMenuMouse.containsMouse
-                                      ? "#424650"
+                                      ? ShellTheme.Theme.colors.hoverOverlay
                                       : "transparent"
 
                               Text {
                                   anchors.centerIn: parent
 
                                   text: "•••"
-                                  color: "#9ca1ac"
-                                  font.pixelSize: 12
+                                  color: ShellTheme.Theme.colors.on_surface_variant
+                                  font.pixelSize: ShellTheme.Theme.typography.labelMedium
                                   font.weight: Font.DemiBold
                               }
 
@@ -1029,16 +1030,16 @@ Item {
                                   && !networkDelegate.isChanging
 
                               text: "›"
-                              color: "#777d88"
-                              font.pixelSize: 22
+                              color: ShellTheme.Theme.colors.on_surface_variant
+                              font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                           }
 
                             Text {
                                 visible: networkDelegate.isChanging
 
                                 text: "󰑓"
-                                color: "#0a84ff"
-                                font.pixelSize: 15
+                                color: ShellTheme.Theme.colors.primary
+                                font.pixelSize: ShellTheme.Theme.typography.titleSmall
 
                                 RotationAnimation on rotation {
                                     running: networkDelegate.isChanging
@@ -1084,8 +1085,8 @@ Item {
                                 ? "󰑓"
                                 : "󰤯"
 
-                        color: "#777d88"
-                        font.pixelSize: 24
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.headlineMedium
 
                         RotationAnimation on rotation {
                             running: root.refreshing
@@ -1108,8 +1109,8 @@ Item {
                                 ? "Looking for networks…"
                                 : "No networks found"
 
-                        color: "#858b96"
-                        font.pixelSize: 11
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     }
                 }
             }
@@ -1134,8 +1135,8 @@ Item {
                                 : " networks"
                         )
 
-                    color: "#737984"
-                    font.pixelSize: 10
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
 
                 Text {
@@ -1144,8 +1145,8 @@ Item {
                             ? "Scanning…"
                             : "Scanning while open"
 
-                    color: "#737984"
-                    font.pixelSize: 10
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
             }
           }
@@ -1164,19 +1165,19 @@ Item {
             height: 30
 
             z: 10
-            radius: 9
+            radius: ShellTheme.Theme.radius.button
 
             color: closeMouse.containsMouse
-                ? "#343740"
-                : "#25282f"
+                ? ShellTheme.Theme.colors.hoverOverlay
+                : ShellTheme.Theme.colors.surfaceContainer
 
             Text {
                 anchors.centerIn: parent
 
                 text: "×"
-                color: "#d8dae0"
+                color: ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 20
+                font.pixelSize: ShellTheme.Theme.typography.headlineSmall
                 font.weight: Font.Medium
             }
 
@@ -1193,7 +1194,7 @@ Item {
           }
         
 
-
+        // Password prompt overlay
         Rectangle {
                     anchors.fill: parent
                     z: 50
@@ -1201,7 +1202,7 @@ Item {
                     visible: root.passwordPromptVisible
 
                     radius: panelSurface.radius
-                    color: "#b8000000"
+                    color: ShellTheme.Theme.colors.scrim
 
                     MouseArea {
                         anchors.fill: parent
@@ -1213,11 +1214,11 @@ Item {
                         width: parent.width - 40
                         height: 245
 
-                        radius: 20
-                        color: "#23262d"
+                        radius: ShellTheme.Theme.radius.panel
+                        color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                         border.width: 1
-                        border.color: "#3b404a"
+                        border.color: ShellTheme.Theme.colors.outlineVariant
 
                         ColumnLayout {
                             anchors {
@@ -1236,9 +1237,9 @@ Item {
 
                                     Text {
                                         text: "Enter Wi-Fi Password"
-                                        color: "#f5f5f7"
+                                        color: ShellTheme.Theme.colors.on_surface
 
-                                        font.pixelSize: 17
+                                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
                                         font.weight: Font.DemiBold
                                     }
 
@@ -1250,8 +1251,8 @@ Item {
                                                 ? root.selectedNetwork.name
                                                 : ""
 
-                                        color: "#9ba0aa"
-                                        font.pixelSize: 11
+                                        color: ShellTheme.Theme.colors.on_surface_variant
+                                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                                         elide: Text.ElideRight
                                     }
                                 }
@@ -1260,18 +1261,18 @@ Item {
                                     Layout.preferredWidth: 28
                                     Layout.preferredHeight: 28
 
-                                    radius: 9
+                                    radius: ShellTheme.Theme.radius.button
 
                                     color: passwordCloseMouse.containsMouse
-                                        ? "#3b3f48"
-                                        : "#30333a"
+                                        ? ShellTheme.Theme.colors.hoverOverlay
+                                        : ShellTheme.Theme.colors.surfaceContainer
 
                                     Text {
                                         anchors.centerIn: parent
 
                                         text: "×"
-                                        color: "#d8dae0"
-                                        font.pixelSize: 18
+                                        color: ShellTheme.Theme.colors.on_surface
+                                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
                                     }
 
                                     MouseArea {
@@ -1291,15 +1292,15 @@ Item {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 42
 
-                                radius: 11
+                                radius: ShellTheme.Theme.radius.button
 
-                                color: "#191b20"
+                                color: ShellTheme.Theme.colors.surfaceContainerLowest
 
                                 border.width: passwordField.activeFocus
                                     ? 1
                                     : 0
 
-                                border.color: "#0a84ff"
+                                border.color: ShellTheme.Theme.colors.primary
 
                                 TextInput {
                                     id: passwordField
@@ -1313,10 +1314,10 @@ Item {
                                     verticalAlignment:
                                         TextInput.AlignVCenter
 
-                                    color: "#f5f5f7"
-                                    selectionColor: "#0a84ff"
+                                    color: ShellTheme.Theme.colors.on_surface
+                                    selectionColor: ShellTheme.Theme.colors.primary
 
-                                    font.pixelSize: 13
+                                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
 
                                     echoMode:
                                         root.passwordVisible
@@ -1341,8 +1342,8 @@ Item {
                                     visible: passwordField.text.length === 0
 
                                     text: "Password"
-                                    color: "#6f7580"
-                                    font.pixelSize: 13
+                                    color: ShellTheme.Theme.colors.disabled
+                                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
                                 }
 
                                 Text {
@@ -1358,8 +1359,8 @@ Item {
                                             ? "󰈈"
                                             : "󰈉"
 
-                                    color: "#a5a9b2"
-                                    font.pixelSize: 17
+                                    color: ShellTheme.Theme.colors.on_surface_variant
+                                    font.pixelSize: ShellTheme.Theme.typography.titleSmall
 
                                     MouseArea {
                                         anchors.fill: parent
@@ -1382,9 +1383,9 @@ Item {
                                 visible: root.connectionError.length > 0
 
                                 text: root.connectionError
-                                color: "#ff453a"
+                                color: ShellTheme.Theme.colors.error
 
-                                font.pixelSize: 11
+                                font.pixelSize: ShellTheme.Theme.typography.labelSmall
                                 wrapMode: Text.WordWrap
                             }
 
@@ -1400,18 +1401,18 @@ Item {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 36
 
-                                    radius: 10
+                                    radius: ShellTheme.Theme.radius.button
                                     color: cancelMouse.containsMouse
-                                        ? "#393d46"
-                                        : "#30333a"
+                                        ? ShellTheme.Theme.colors.hoverOverlay
+                                        : ShellTheme.Theme.colors.surfaceContainer
 
                                     Text {
                                         anchors.centerIn: parent
 
                                         text: "Cancel"
-                                        color: "#e0e1e4"
+                                        color: ShellTheme.Theme.colors.on_surface
 
-                                        font.pixelSize: 12
+                                        font.pixelSize: ShellTheme.Theme.typography.labelMedium
                                         font.weight: Font.DemiBold
                                     }
 
@@ -1434,7 +1435,7 @@ Item {
                                               Layout.fillWidth: true
                                               Layout.preferredHeight: 36
 
-                                              radius: 10
+                                              radius: ShellTheme.Theme.radius.button
 
                                               enabled:
                                                   passwordField.text.length >= 8
@@ -1445,8 +1446,8 @@ Item {
                                         color:
                                             connectMouse.containsMouse
                                             && connectButton.enabled
-                                                ? "#168cff"
-                                                : "#0a84ff"
+                                                ? ShellTheme.Theme.colors.primaryHover
+                                                : ShellTheme.Theme.colors.primary
 
                                         function connectSelectedNetwork() {
                                             if (!connectButton.enabled
@@ -1470,27 +1471,27 @@ Item {
                                                     ? "Connecting…"
                                                       : "Connect"
 
-                                              color: "#ffffff"
+                                              color: ShellTheme.Theme.colors.on_primary
 
-                                              font.pixelSize: 12
+                                              font.pixelSize: ShellTheme.Theme.typography.labelMedium
                                               font.weight: Font.DemiBold
                                           }
 
                                           MouseArea {
                                               id: connectMouse
 
-                            anchors.fill: parent
-                            hoverEnabled: true
+                                anchors.fill: parent
+                                hoverEnabled: true
 
-                            enabled: connectButton.enabled
+                                enabled: connectButton.enabled
 
-                            cursorShape:
-                                enabled
-                                    ? Qt.PointingHandCursor
-                                    : Qt.ArrowCursor
+                                cursorShape:
+                                    enabled
+                                        ? Qt.PointingHandCursor
+                                        : Qt.ArrowCursor
 
-                            onClicked:
-                                connectButton.connectSelectedNetwork()
+                                onClicked:
+                                    connectButton.connectSelectedNetwork()
                         }
                     } 
                             }
@@ -1499,14 +1500,15 @@ Item {
                   }
 
 
-                Rectangle {
+        // Forget network overlay
+        Rectangle {
                 anchors.fill: parent
                 z: 60
 
                 visible: root.forgetPromptVisible
 
                 radius: panelSurface.radius
-                color: "#b8000000"
+                color: ShellTheme.Theme.colors.scrim
 
                 MouseArea {
                     anchors.fill: parent
@@ -1518,11 +1520,11 @@ Item {
                     width: parent.width - 52
                     height: 205
 
-                    radius: 20
-                    color: "#23262d"
+                    radius: ShellTheme.Theme.radius.panel
+                    color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                     border.width: 1
-                    border.color: "#3b404a"
+                    border.color: ShellTheme.Theme.colors.outlineVariant
 
                     ColumnLayout {
                         anchors {
@@ -1536,11 +1538,11 @@ Item {
                             Layout.fillWidth: true
 
                             text: "Forget This Network?"
-                            color: "#f5f5f7"
+                            color: ShellTheme.Theme.colors.on_surface
 
                             horizontalAlignment: Text.AlignHCenter
 
-                            font.pixelSize: 17
+                            font.pixelSize: ShellTheme.Theme.typography.titleSmall
                             font.weight: Font.DemiBold
                         }
 
@@ -1552,12 +1554,12 @@ Item {
                                     ? root.forgetNetwork.name
                                     : ""
 
-                            color: "#c3c6cc"
+                            color: ShellTheme.Theme.colors.on_surface_variant
 
                             horizontalAlignment: Text.AlignHCenter
                             elide: Text.ElideRight
 
-                            font.pixelSize: 13
+                            font.pixelSize: ShellTheme.Theme.typography.bodySmall
                             font.weight: Font.Medium
                         }
 
@@ -1567,12 +1569,12 @@ Item {
                             text:
                                 "The saved password and connection settings will be removed."
 
-                            color: "#8f949f"
+                            color: ShellTheme.Theme.colors.on_surface_variant
 
                             horizontalAlignment: Text.AlignHCenter
                             wrapMode: Text.WordWrap
 
-                            font.pixelSize: 11
+                            font.pixelSize: ShellTheme.Theme.typography.labelSmall
                         }
 
                         Item {
@@ -1587,20 +1589,20 @@ Item {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 36
 
-                                radius: 10
+                                radius: ShellTheme.Theme.radius.button
 
                                 color:
                                     forgetCancelMouse.containsMouse
-                                        ? "#393d46"
-                                        : "#30333a"
+                                        ? ShellTheme.Theme.colors.hoverOverlay
+                                        : ShellTheme.Theme.colors.surfaceContainer
 
                                 Text {
                                     anchors.centerIn: parent
 
                                     text: "Cancel"
-                                    color: "#e0e1e4"
+                                    color: ShellTheme.Theme.colors.on_surface
 
-                                    font.pixelSize: 12
+                                    font.pixelSize: ShellTheme.Theme.typography.labelMedium
                                     font.weight: Font.DemiBold
                                 }
 
@@ -1620,20 +1622,20 @@ Item {
                               Layout.fillWidth: true
                               Layout.preferredHeight: 36
 
-                              radius: 10
+                              radius: ShellTheme.Theme.radius.button
 
                                           color:
                                               forgetConfirmMouse.containsMouse
-                                                  ? "#ff5a52"
-                                                  : "#ff453a"
+                                                  ? ShellTheme.Theme.colors.errorHover
+                                                  : ShellTheme.Theme.colors.error
 
                                           Text {
                                               anchors.centerIn: parent
 
                                               text: "Forget"
-                                              color: "#ffffff"
+                                              color: ShellTheme.Theme.colors.on_error
 
-                                          font.pixelSize: 12
+                                          font.pixelSize: ShellTheme.Theme.typography.labelMedium
                                           font.weight: Font.DemiBold
                                       }
 

@@ -1,6 +1,7 @@
 import QtQuick
 import "../../core" as Core
 import "panelModules" as PanelModules
+import "../../theme" as ShellTheme
 
 Item {
     id: root
@@ -109,10 +110,10 @@ Item {
             : root.compactHeight
 
         radius: root.expanded
-            ? 28
+            ? ShellTheme.Theme.radius.island
             : root.compactHeight / 2
 
-        color: "#050608"
+        color: ShellTheme.Theme.colors.background
 
         border.width: 0
         clip: true

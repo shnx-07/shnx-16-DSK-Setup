@@ -1,5 +1,6 @@
 import QtQuick
 import qs.core as Core
+import "../../theme" as ShellTheme
 
 Rectangle {
     id: root
@@ -32,20 +33,20 @@ Rectangle {
 
     implicitHeight: contentColumn.implicitHeight + 28
 
-    radius: 14
+    radius: ShellTheme.Theme.radius.card
 
     color: unread
-        ? "#252d3a"
+        ? ShellTheme.Theme.colors.surfaceContainerHigh
         : cardMouseArea.containsMouse
-            ? "#23272f"
-            : "#1f232a"
+            ? ShellTheme.Theme.colors.hoverOverlay
+            : ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
     border.color: unread
-        ? "#566b8d"
+        ? ShellTheme.Theme.colors.primary
         : cardMouseArea.containsMouse
-            ? "#4d5563"
-            : "#343a45"
+            ? ShellTheme.Theme.colors.outline
+            : ShellTheme.Theme.colors.outlineVariant
 
     Behavior on color {
         ColorAnimation {
@@ -85,12 +86,12 @@ Rectangle {
                 width: 38
                 height: 38
 
-                radius: 11
+                radius: ShellTheme.Theme.radius.button
 
-                color: "#2d323c"
+                color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                 border.width: 1
-                border.color: "#414855"
+                border.color: ShellTheme.Theme.colors.outlineVariant
 
                 Image {
                     anchors.fill: parent
@@ -127,9 +128,9 @@ Rectangle {
                             : "?"
                     }
 
-                    color: "#f2f3f5"
+                    color: ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: 15
+                    font.pixelSize: ShellTheme.Theme.typography.titleSmall
                     font.weight: Font.Bold
                 }
             }
@@ -153,10 +154,10 @@ Rectangle {
                         root.notification.appName
                         || "Application"
 
-                    color: "#9da4af"
+                    color: ShellTheme.Theme.colors.on_surface_variant
                     elide: Text.ElideRight
 
-                    font.pixelSize: 10
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     font.weight: Font.DemiBold
                 }
 
@@ -167,10 +168,10 @@ Rectangle {
                         root.notification.summary
                         || "Notification"
 
-                    color: "#f2f3f5"
+                    color: ShellTheme.Theme.colors.on_surface
                     elide: Text.ElideRight
 
-                    font.pixelSize: 13
+                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
                     font.weight: Font.DemiBold
                 }
             }
@@ -184,12 +185,12 @@ Rectangle {
                 anchors.verticalCenter:
                     parent.verticalCenter
 
-                radius: 9
+                radius: ShellTheme.Theme.radius.button
 
                 color: dismissMouseArea.pressed
-                    ? "#493039"
+                    ? ShellTheme.Theme.colors.errorContainer
                     : dismissMouseArea.containsMouse
-                        ? "#382b31"
+                        ? ShellTheme.Theme.colors.errorContainer
                         : "transparent"
 
                 border.width:
@@ -197,15 +198,15 @@ Rectangle {
                         ? 1
                         : 0
 
-                border.color: "#6b4650"
+                border.color: ShellTheme.Theme.colors.error
 
                 Text {
                     anchors.centerIn: parent
 
                     text: "󰅖"
-                    color: "#d6a0aa"
+                    color: ShellTheme.Theme.colors.error
 
-                    font.pixelSize: 14
+                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
                 }
 
                 MouseArea {
@@ -231,7 +232,7 @@ Rectangle {
 
             text: root.notification.body || ""
 
-            color: "#c3c8d0"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
             wrapMode: Text.Wrap
             maximumLineCount: 4
@@ -241,7 +242,7 @@ Rectangle {
             // so render notification bodies as plain text.
             textFormat: Text.PlainText
 
-            font.pixelSize: 12
+            font.pixelSize: ShellTheme.Theme.typography.labelMedium
             lineHeight: 1.15
         }
 
@@ -267,19 +268,19 @@ Rectangle {
 
                     implicitHeight: 30
 
-                    radius: 9
+                    radius: ShellTheme.Theme.radius.button
 
                     color: actionMouseArea.pressed
-                        ? "#3c4656"
+                        ? ShellTheme.Theme.colors.primaryHover
                         : actionMouseArea.containsMouse
-                            ? "#343d4b"
-                            : "#2b323d"
+                            ? ShellTheme.Theme.colors.primaryHover
+                            : ShellTheme.Theme.colors.primary
 
                     border.width: 1
                     border.color:
                         actionMouseArea.containsMouse
-                            ? "#68778d"
-                            : "#46505f"
+                            ? ShellTheme.Theme.colors.outline
+                            : ShellTheme.Theme.colors.outlineVariant
 
                     Text {
                         id: actionLabel
@@ -290,9 +291,9 @@ Rectangle {
                             actionButton.modelData.text
                             || "Open"
 
-                        color: "#e3e6eb"
+                        color: ShellTheme.Theme.colors.on_primary
 
-                        font.pixelSize: 11
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                         font.weight: Font.DemiBold
                     }
 

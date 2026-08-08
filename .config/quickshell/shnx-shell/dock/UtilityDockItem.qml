@@ -16,7 +16,7 @@ Item {
     property bool active: false
 
     signal hovered()
-    signal activated(var anchorItem)
+    signal activated()
     implicitWidth: 58
     implicitHeight: 58
 
@@ -103,7 +103,7 @@ Item {
 
         width: 4
         height: 4
-        radius: 2
+        radius: ShellTheme.Theme.radius.circle
 
         color: ShellTheme.Theme.colors.primary
         visible: root.active
@@ -168,7 +168,9 @@ Item {
 
         onEntered: root.hovered()
         onClicked: {
-            root.activated(root)
+            Qt.callLater(function() {
+                root.activated()
+            })
         }
     }
 }

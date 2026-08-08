@@ -1,4 +1,5 @@
 import QtQuick
+import "../../theme" as ShellTheme
 
 Item {
     id: root
@@ -15,7 +16,7 @@ Item {
         anchors.fill: parent
 
         radius: height / 2
-        color: "#1b1c20"
+        color: ShellTheme.Theme.colors.surfaceContainerLowest
 
         Rectangle {
             id: selectionBackground
@@ -27,7 +28,7 @@ Item {
             y: 2
 
             radius: height / 2
-            color: "#303238"
+            color: ShellTheme.Theme.colors.surfaceContainerHigh
 
             Behavior on x {
                 NumberAnimation {
@@ -56,10 +57,10 @@ Item {
                         text: modelData
 
                         color: index === root.currentIndex
-                               ? "#f4f4f5"
-                               : "#92949b"
+                               ? ShellTheme.Theme.colors.on_surface
+                               : ShellTheme.Theme.colors.on_surface_variant
 
-                        font.pixelSize: 12
+                        font.pixelSize: ShellTheme.Theme.typography.labelMedium
                         font.weight: index === root.currentIndex
                                      ? Font.Medium
                                      : Font.Normal

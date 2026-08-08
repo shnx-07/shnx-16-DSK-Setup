@@ -1,5 +1,6 @@
 import QtQuick
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -21,11 +22,11 @@ Rectangle {
 
     implicitHeight: 32
 
-    radius: 10
-    color: "#252932"
+    radius: ShellTheme.Theme.radius.button
+    color: ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
-    border.color: "#3b414d"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     TextMetrics {
         id: titleMetrics
@@ -46,9 +47,9 @@ Rectangle {
         }
 
         text: root.windowTitle
-        color: "#d9dce3"
+        color: ShellTheme.Theme.colors.on_surface_variant
 
-        font.pixelSize: 12
+        font.pixelSize: ShellTheme.Theme.typography.labelMedium
         font.weight: Font.Medium
 
         elide: Text.ElideRight

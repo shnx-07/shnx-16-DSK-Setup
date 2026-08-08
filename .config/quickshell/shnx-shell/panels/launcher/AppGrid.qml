@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import Quickshell
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -11,11 +12,11 @@ Rectangle {
     implicitWidth: 540
     implicitHeight: 520
 
-    radius: 18
-    color: "#a91b2027"
+    radius: ShellTheme.Theme.radius.card
+    color: ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
-    border.color: "#1e2934"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     property int selectedIndex: 0
 

@@ -1,5 +1,6 @@
 import QtQuick
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -7,11 +8,11 @@ Rectangle {
     readonly property var weather:
         Core.ServiceRegistry.weather
 
-    color: "#181b21"
-    radius: 16
+    color: ShellTheme.Theme.colors.background
+    radius: ShellTheme.Theme.radius.card
 
     border.width: 1
-    border.color: "#343a45"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     MouseArea {
         anchors.fill: parent
@@ -40,10 +41,10 @@ Rectangle {
                     ? weather.location
                     : weather.locationQuery
 
-                color: "#f2f3f5"
+                color: ShellTheme.Theme.colors.on_surface
                 elide: Text.ElideRight
 
-                font.pixelSize: 14
+                font.pixelSize: ShellTheme.Theme.typography.bodyMedium
                 font.weight: Font.DemiBold
             }
 
@@ -52,9 +53,9 @@ Rectangle {
 
                 Text {
                     text: weather.temperatureText
-                    color: "#f2f3f5"
+                    color: ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: 40
+                    font.pixelSize: ShellTheme.Theme.typography.displayLarge
                     font.weight: Font.Light
                 }
 
@@ -68,14 +69,14 @@ Rectangle {
                             ? weather.condition
                             : "Weather unavailable"
 
-                        color: "#d7dae0"
-                        font.pixelSize: 13
+                        color: ShellTheme.Theme.colors.on_surface
+                        font.pixelSize: ShellTheme.Theme.typography.bodySmall
                     }
 
                     Text {
                         text: weather.highLowText
-                        color: "#9299a4"
-                        font.pixelSize: 11
+                        color: ShellTheme.Theme.colors.on_surface_variant
+                        font.pixelSize: ShellTheme.Theme.typography.labelSmall
                     }
                 }
             }
@@ -92,8 +93,8 @@ Rectangle {
                         )
                         + "%"
 
-                    color: "#aab0ba"
-                    font.pixelSize: 11
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
 
                 Text {
@@ -104,8 +105,8 @@ Rectangle {
                         )
                         + "%"
 
-                    color: "#aab0ba"
-                    font.pixelSize: 11
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
 
                 Text {
@@ -116,8 +117,8 @@ Rectangle {
                         )
                         + " km/h"
 
-                    color: "#aab0ba"
-                    font.pixelSize: 11
+                    color: ShellTheme.Theme.colors.on_surface_variant
+                    font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 }
             }
 
@@ -126,11 +127,11 @@ Rectangle {
 
                 text: weather.statusText
                 color: weather.stale
-                    ? "#d8ae62"
-                    : "#747b86"
+                    ? ShellTheme.Theme.colors.warning
+                    : ShellTheme.Theme.colors.disabled
 
                 elide: Text.ElideRight
-                font.pixelSize: 10
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
             }
         }
 
@@ -146,8 +147,8 @@ Rectangle {
                     : weather.conditionIcon
 
                 color: weather.available
-                    ? "#e5e7eb"
-                    : "#747b86"
+                    ? ShellTheme.Theme.colors.on_surface
+                    : ShellTheme.Theme.colors.disabled
 
                 font.pixelSize: 48
 

@@ -1,5 +1,6 @@
 import QtQuick
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -12,24 +13,24 @@ Rectangle {
     implicitWidth: contentRow.implicitWidth + 20
     implicitHeight: 32
 
-    radius: 10
+    radius: ShellTheme.Theme.radius.button
 
     color: mouseArea.pressed
-        ? "#343944"
+        ? ShellTheme.Theme.colors.pressedOverlay
         : mouseArea.containsMouse
-            ? "#2d323c"
-            : "#252932"
+            ? ShellTheme.Theme.colors.hoverOverlay
+            : ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
 
     border.color: {
         if (battery.critical)
-            return "#d56a76"
+            return ShellTheme.Theme.colors.error
 
         if (mouseArea.containsMouse)
-            return "#596273"
+            return ShellTheme.Theme.colors.outline
 
-        return "#3b414d"
+        return ShellTheme.Theme.colors.outlineVariant
     }
 
     Row {
@@ -43,15 +44,15 @@ Rectangle {
 
             color: {
                 if (battery.critical)
-                    return "#ff7b86"
+                    return ShellTheme.Theme.colors.error
 
                 if (battery.low)
-                    return "#e9b96e"
+                    return ShellTheme.Theme.colors.warning
 
                 if (battery.charging)
-                    return "#8bd49c"
+                    return ShellTheme.Theme.colors.success
 
-                return "#f2f3f5"
+                return ShellTheme.Theme.colors.on_surface
             }
 
             font.pixelSize: 17
@@ -62,9 +63,9 @@ Rectangle {
                 ? battery.percentage + "%"
                 : "--"
 
-            color: "#f2f3f5"
+            color: ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: 12
+            font.pixelSize: ShellTheme.Theme.typography.labelMedium
             font.weight: Font.DemiBold
         }
     }

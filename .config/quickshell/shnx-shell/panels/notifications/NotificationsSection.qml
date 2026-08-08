@@ -2,6 +2,7 @@ import QtQuick
 import qs.core as Core
 import QtQuick.Controls
 import QtQuick.Layouts
+import qs.theme as ShellTheme
 
 import "../../components/cards" as Cards
 
@@ -13,11 +14,11 @@ Rectangle {
     readonly property var notificationService:
         Core.ServiceRegistry.notifications
 
-    color: "#181b21"
-    radius: 16
+    color: ShellTheme.Theme.colors.background
+    radius: ShellTheme.Theme.radius.card
 
     border.width: 1
-    border.color: "#343a45"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     Item {
         id: header
@@ -38,9 +39,9 @@ Rectangle {
 
           Text {
               text: "Notifications"
-              color: "#f2f3f5"
+              color: ShellTheme.Theme.colors.on_surface
 
-              font.pixelSize: 17
+              font.pixelSize: ShellTheme.Theme.typography.titleMedium
               font.weight: Font.DemiBold
           }
 
@@ -53,11 +54,11 @@ Rectangle {
 
               implicitHeight: 20
 
-              radius: 10
-              color: "#292f39"
+              radius: ShellTheme.Theme.radius.button
+              color: ShellTheme.Theme.colors.surfaceContainerHigh
 
               border.width: 1
-              border.color: "#414956"
+              border.color: ShellTheme.Theme.colors.outlineVariant
 
               Text {
                   id: countLabel
@@ -67,9 +68,9 @@ Rectangle {
                   text:
                       notificationService.notificationCount
 
-                  color: "#aeb4bd"
+                  color: ShellTheme.Theme.colors.on_surface_variant
 
-                  font.pixelSize: 10
+                  font.pixelSize: ShellTheme.Theme.typography.labelSmall
                   font.weight: Font.DemiBold
               }
           }
@@ -84,23 +85,23 @@ Rectangle {
               implicitWidth: 32
               implicitHeight: 30
 
-              radius: 9
+              radius: ShellTheme.Theme.radius.button
 
               color:
                   notificationService.doNotDisturb
-                  ? "#46566f"
+                  ? ShellTheme.Theme.colors.primary
                   : dndMouseArea.pressed
-                      ? "#343944"
+                      ? ShellTheme.Theme.colors.pressedOverlay
                       : dndMouseArea.containsMouse
-                          ? "#2d323c"
-                          : "#252932"
+                          ? ShellTheme.Theme.colors.hoverOverlay
+                          : ShellTheme.Theme.colors.surfaceContainer
 
               border.width: 1
 
               border.color:
                   notificationService.doNotDisturb
-                  ? "#7184a3"
-                  : "#3b414d"
+                  ? ShellTheme.Theme.colors.outline
+                  : ShellTheme.Theme.colors.outlineVariant
 
               Text {
                   anchors.centerIn: parent
@@ -110,8 +111,11 @@ Rectangle {
                       ? "󰂛"
                       : "󰂚"
 
-                  color: "#f2f3f5"
-                  font.pixelSize: 16
+                  color:
+                      notificationService.doNotDisturb
+                      ? ShellTheme.Theme.colors.on_primary
+                      : ShellTheme.Theme.colors.on_surface
+                  font.pixelSize: ShellTheme.Theme.typography.titleSmall
               }
 
               MouseArea {
@@ -138,24 +142,24 @@ Rectangle {
                       .notificationCount > 0
 
               opacity: enabled ? 1 : 0.35
-              radius: 9
+              radius: ShellTheme.Theme.radius.button
 
               color: clearMouseArea.pressed
-                  ? "#343944"
+                  ? ShellTheme.Theme.colors.pressedOverlay
                   : clearMouseArea.containsMouse
-                      ? "#2d323c"
-                      : "#252932"
+                      ? ShellTheme.Theme.colors.hoverOverlay
+                      : ShellTheme.Theme.colors.surfaceContainer
 
               border.width: 1
-              border.color: "#3b414d"
+              border.color: ShellTheme.Theme.colors.outlineVariant
 
               Text {
                   anchors.centerIn: parent
 
                   text: "󰆴"
-                  color: "#f2f3f5"
+                  color: ShellTheme.Theme.colors.on_surface
 
-                  font.pixelSize: 15
+                  font.pixelSize: ShellTheme.Theme.typography.titleSmall
               }
 
               MouseArea {
@@ -177,24 +181,24 @@ Rectangle {
               implicitWidth: 32
               implicitHeight: 30
 
-              radius: 9
+              radius: ShellTheme.Theme.radius.button
 
               color: closeMouseArea.pressed
-                  ? "#343944"
+                  ? ShellTheme.Theme.colors.pressedOverlay
                   : closeMouseArea.containsMouse
-                      ? "#2d323c"
-                      : "#252932"
+                      ? ShellTheme.Theme.colors.hoverOverlay
+                      : ShellTheme.Theme.colors.surfaceContainer
 
               border.width: 1
-              border.color: "#3b414d"
+              border.color: ShellTheme.Theme.colors.outlineVariant
 
               Text {
                   anchors.centerIn: parent
 
                   text: "󰅖"
-                  color: "#f2f3f5"
+                  color: ShellTheme.Theme.colors.on_surface
 
-                  font.pixelSize: 15
+                  font.pixelSize: ShellTheme.Theme.typography.titleSmall
               }
 
               MouseArea {
@@ -223,7 +227,7 @@ Rectangle {
         anchors.topMargin: 10
 
         height: 1
-        color: "#343a45"
+        color: ShellTheme.Theme.colors.outlineVariant
     }
 
     EmptyNotifications {

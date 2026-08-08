@@ -6,65 +6,102 @@ import qs.theme as ShellTheme
 Item {
     id: root
 
-    implicitWidth: paletteRow.implicitWidth
-    implicitHeight: paletteRow.implicitHeight
+    implicitWidth: 680
+    implicitHeight: 68
+
+    readonly property var paletteItems: [
+        {
+            label: "Primary",
+            colorValue: ShellTheme.Theme.colors.primary
+        },
+        {
+            label: "Secondary",
+            colorValue: ShellTheme.Theme.colors.secondary
+        },
+        {
+            label: "Tertiary",
+            colorValue: ShellTheme.Theme.colors.tertiary
+        },
+        {
+            label: "Surface",
+            colorValue: ShellTheme.Theme.colors.surfaceContainerHigh
+        }
+    ]
 
     RowLayout {
-        id: paletteRow
-
         anchors.fill: parent
-        spacing: ShellTheme.Theme.spacing.medium
+
+        spacing:
+            ShellTheme.Theme.spacing.small
 
         Repeater {
-            model: [
-                {
-                    label: "Primary",
-                    colorValue: ShellTheme.Theme.colors.primary
-                },
-                {
-                    label: "Secondary",
-                    colorValue: ShellTheme.Theme.colors.secondary
-                },
-                {
-                    label: "Tertiary",
-                    colorValue: ShellTheme.Theme.colors.tertiary
-                },
-                {
-                    label: "Surface",
-                    colorValue: ShellTheme.Theme.colors.surfaceContainerHigh
-                }
-            ]
+            model:
+                root.paletteItems
 
-            delegate: ColumnLayout {
-                id: swatchItem
+            delegate: Rectangle {
+                id: swatch
 
                 required property var modelData
 
-                spacing: ShellTheme.Theme.spacing.xSmall
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-                Rectangle {
-                    Layout.preferredWidth: 92
-                    Layout.preferredHeight: 72
+                radius:
+                    ShellTheme.Theme.radius.control
 
-                    radius: ShellTheme.Theme.radius.large
-                    color: swatchItem.modelData.colorValue
+                color:
+                    ShellTheme.Theme.colors.surfaceContainerLow
 
-                    border.width: 1
-                    border.color: ShellTheme.Theme.colors.outlineVariant
-                }
+                border.width: 1
 
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
+                border.color:
+                    ShellTheme.Theme.colors.outlineVariant
 
-                    text: swatchItem.modelData.label
+                RowLayout {
+                    anchors {
+                        fill: parent
 
-                    color: ShellTheme.Theme.colors.on_surface_variant
+                        margins:
+                            ShellTheme.Theme.spacing.small
+                    }
 
-                    font.family:
-                        ShellTheme.Theme.typography.fontFamily
+                    spacing:
+                        ShellTheme.Theme.spacing.small
 
-                    font.pixelSize:
-                        ShellTheme.Theme.typography.labelMedium
+                    Rectangle {
+                        Layout.preferredWidth: 38
+                        Layout.preferredHeight: 38
+
+                        radius:
+                            ShellTheme.Theme.radius.small
+
+                        color:
+                            swatch.modelData.colorValue
+
+                        border.width: 1
+
+                        border.color:
+                            ShellTheme.Theme.colors.outlineVariant
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+
+                        text:
+                            swatch.modelData.label
+
+                        color:
+                            ShellTheme.Theme.colors.on_surface
+
+                        font.family:
+                            ShellTheme.Theme.typography.fontFamily
+
+                        font.pixelSize:
+                            ShellTheme.Theme.typography.labelMedium
+
+                        elide:
+                            Text.ElideRight
+                    }
                 }
             }
         }

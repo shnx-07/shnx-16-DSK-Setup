@@ -1,5 +1,6 @@
 import QtQuick
 import "../../../core" as Core
+import "../../../theme" as ShellTheme
 
 Item {
     id: root
@@ -16,8 +17,8 @@ Item {
 
         text: Core.ServiceRegistry.clock.compactTime
 
-        color: "#ffffff"
-        font.pixelSize: 14
+        color: ShellTheme.Theme.colors.on_surface
+        font.pixelSize: ShellTheme.Theme.typography.bodyMedium
         font.weight: Font.Medium
     }
 

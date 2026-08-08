@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -8,11 +9,11 @@ Rectangle {
     implicitWidth: 448
     implicitHeight: 340
 
-    radius: 20
-    color: "#a91b2027"
+    radius: ShellTheme.Theme.radius.panel
+    color: ShellTheme.Theme.colors.surfaceContainerLow
 
     border.width: 1
-    border.color: "#1e2934"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     readonly property var network:
         Core.ServiceRegistry.network
@@ -46,9 +47,9 @@ Rectangle {
             Text {
                 text: "QUICK SETTINGS"
 
-                color: "#7f8b9b"
+                color: ShellTheme.Theme.colors.on_surface_variant
 
-                font.pixelSize: 10
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 font.weight: Font.DemiBold
                 font.letterSpacing: 1.2
             }
@@ -60,8 +61,8 @@ Rectangle {
             Text {
                 text: "8 controls"
 
-                color: "#667281"
-                font.pixelSize: 9
+                color: ShellTheme.Theme.colors.on_surface_variant
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
             }
         }
 

@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import qs.core as Core
 import Quickshell.Wayland
+import qs.theme as ShellTheme
 
 PanelWindow {
     id: root
@@ -105,11 +106,11 @@ PanelWindow {
         width: 760
         height: 680
         anchors.centerIn: parent
-        radius: 24
-        color: "#f016191f"
+        radius: ShellTheme.Theme.radius.panel
+        color: ShellTheme.Theme.colors.background
 
         border.width: 1
-        border.color: "#26313d"
+        border.color: ShellTheme.Theme.colors.outlineVariant
 
         ColumnLayout {
             anchors.fill: parent
@@ -123,9 +124,9 @@ PanelWindow {
 
                 Text {
                     text: "Applications"
-                    color: "#f2f4f7"
+                    color: ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: 22
+                    font.pixelSize: ShellTheme.Theme.typography.headlineMedium
                     font.weight: Font.DemiBold
                 }
 
@@ -141,21 +142,21 @@ PanelWindow {
 
                     color:
                         closeMouseArea.pressed
-                            ? "#3b4654"
+                            ? ShellTheme.Theme.colors.pressedOverlay
                             : closeMouseArea.containsMouse
-                                ? "#303a46"
-                                : "#252d37"
+                                ? ShellTheme.Theme.colors.hoverOverlay
+                                : ShellTheme.Theme.colors.surfaceContainer
 
                     border.width: 1
-                    border.color: "#394552"
+                    border.color: ShellTheme.Theme.colors.outlineVariant
 
                     Text {
                         anchors.centerIn: parent
 
                         text: "󰅖"
-                        color: "#dce2e9"
+                        color: ShellTheme.Theme.colors.on_surface
 
-                        font.pixelSize: 15
+                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
                         font.family:
                             "JetBrainsMono Nerd Font"
                     }

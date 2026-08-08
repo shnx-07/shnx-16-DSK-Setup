@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Rectangle {
   id: root
@@ -15,18 +16,18 @@ Rectangle {
     implicitWidth: 560
     implicitHeight: 52
 
-    radius: 16
+    radius: ShellTheme.Theme.radius.card
 
     color:
         searchInput.activeFocus
-            ? "#29323d"
-            : "#222932"
+            ? ShellTheme.Theme.colors.surfaceContainerHigh
+            : ShellTheme.Theme.colors.surfaceContainer
 
     border.width: 1
     border.color:
         searchInput.activeFocus
-            ? "#59697b"
-            : "#303b48"
+            ? ShellTheme.Theme.colors.outline
+            : ShellTheme.Theme.colors.outlineVariant
 
     Behavior on color {
         ColorAnimation {
@@ -53,10 +54,10 @@ Rectangle {
             text: "󰍉"
             color:
                 searchInput.activeFocus
-                    ? "#dce4ec"
-                    : "#8793a3"
+                    ? ShellTheme.Theme.colors.on_surface
+                    : ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 17
+            font.pixelSize: ShellTheme.Theme.typography.titleSmall
             font.family: "JetBrainsMono Nerd Font"
         }
 
@@ -70,11 +71,11 @@ Rectangle {
 
             height: parent.height
 
-            color: "#edf1f5"
-            selectionColor: "#53667a"
-            selectedTextColor: "#ffffff"
+            color: ShellTheme.Theme.colors.on_surface
+            selectionColor: ShellTheme.Theme.colors.primary
+            selectedTextColor: ShellTheme.Theme.colors.on_primary
 
-            font.pixelSize: 13
+            font.pixelSize: ShellTheme.Theme.typography.bodySmall
 
             Keys.onPressed: function(event) {
                 if (event.key === Qt.Key_Left) {
@@ -105,9 +106,9 @@ Rectangle {
                     && !searchInput.activeFocus
 
                 text: searchInput.placeholderText
-                color: "#737f8e"
+                color: ShellTheme.Theme.colors.disabled
 
-                font.pixelSize: 13
+                font.pixelSize: ShellTheme.Theme.typography.bodySmall
                 verticalAlignment: Text.AlignVCenter
             }
 
@@ -145,9 +146,9 @@ Rectangle {
 
                 color:
                     clearMouseArea.pressed
-                        ? "#3d4856"
+                        ? ShellTheme.Theme.colors.pressedOverlay
                         : clearMouseArea.containsMouse
-                            ? "#343f4c"
+                            ? ShellTheme.Theme.colors.hoverOverlay
                             : "transparent"
             }
 
@@ -155,9 +156,9 @@ Rectangle {
                 anchors.centerIn: parent
 
                 text: "󰅖"
-                color: "#aeb8c5"
+                color: ShellTheme.Theme.colors.on_surface_variant
 
-                font.pixelSize: 13
+                font.pixelSize: ShellTheme.Theme.typography.bodySmall
                 font.family: "JetBrainsMono Nerd Font"
             }
 

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -16,22 +17,22 @@ Rectangle {
     implicitWidth: 132
     implicitHeight: 112
 
-    radius: 18
+    radius: ShellTheme.Theme.radius.card
 
     color: {
         if (mouseArea.pressed)
             return root.selected
-                ? "#465466"
-                : "#303946"
+                ? ShellTheme.Theme.colors.primaryHover
+                : ShellTheme.Theme.colors.pressedOverlay
 
         if (mouseArea.containsMouse)
             return root.selected
-                ? "#3f4c5d"
-                : "#29323d"
+                ? ShellTheme.Theme.colors.primaryHover
+                : ShellTheme.Theme.colors.hoverOverlay
 
         return root.selected
-            ? "#374454"
-            : "#20262e"
+            ? ShellTheme.Theme.colors.primary
+            : ShellTheme.Theme.colors.surfaceContainer
     }
 
     border.width:
@@ -42,8 +43,8 @@ Rectangle {
 
     border.color:
         root.selected
-            ? "#66798f"
-            : "#3c4857"
+            ? ShellTheme.Theme.colors.outline
+            : ShellTheme.Theme.colors.outlineVariant
 
     scale:
         mouseArea.pressed
@@ -73,8 +74,8 @@ Rectangle {
             Layout.preferredWidth: 54
             Layout.preferredHeight: 54
 
-            radius: 16
-            color: "#2d3641"
+            radius: ShellTheme.Theme.radius.button
+            color: ShellTheme.Theme.colors.surfaceContainerHigh
 
             Image {
                 id: iconImage
@@ -101,9 +102,9 @@ Rectangle {
                     || iconImage.status === Image.Error
 
                 text: "󰀻"
-                color: "#dce3eb"
+                color: ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 24
+                font.pixelSize: ShellTheme.Theme.typography.headlineMedium
                 font.family:
                     "JetBrainsMono Nerd Font"
             }
@@ -113,9 +114,9 @@ Rectangle {
             Layout.fillWidth: true
 
             text: root.appName
-            color: "#eef2f6"
+            color: ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: 11
+            font.pixelSize: ShellTheme.Theme.typography.labelSmall
             font.weight: Font.DemiBold
 
             horizontalAlignment: Text.AlignHCenter
@@ -129,9 +130,9 @@ Rectangle {
                 root.appComment.length > 0
 
             text: root.appComment
-            color: "#7f8b99"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 9
+            font.pixelSize: ShellTheme.Theme.typography.labelSmall
 
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight

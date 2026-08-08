@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -64,11 +65,11 @@ Item {
                 Math.PI * 2
             )
 
-            ctx.fillStyle = "#15161a"
+            ctx.fillStyle = ShellTheme.Theme.colors.surfaceContainerLowest.toString()
             ctx.fill()
 
             ctx.lineWidth = 1
-            ctx.strokeStyle = "#2b2d33"
+            ctx.strokeStyle = ShellTheme.Theme.colors.outlineVariant.toString()
             ctx.stroke()
 
             // -----------------------------------------------------
@@ -104,8 +105,8 @@ Item {
 
                 ctx.lineWidth = isHourMark ? 2 : 1
                 ctx.strokeStyle = isHourMark
-                    ? "#d7d8dc"
-                    : "#4a4c53"
+                    ? ShellTheme.Theme.colors.on_surface.toString()
+                    : ShellTheme.Theme.colors.outlineVariant.toString()
 
                 ctx.lineCap = "round"
                 ctx.stroke()
@@ -122,7 +123,7 @@ Item {
                 root.hourAngle,
                 radius * 0.48,
                 5,
-                "#f2f3f5"
+                ShellTheme.Theme.colors.on_surface.toString()
             )
 
             drawHand(
@@ -132,7 +133,7 @@ Item {
                 root.minuteAngle,
                 radius * 0.68,
                 3,
-                "#c9cacf"
+                ShellTheme.Theme.colors.on_surface_variant.toString()
             )
 
             drawHand(
@@ -142,7 +143,7 @@ Item {
                 root.secondAngle,
                 radius * 0.75,
                 1.5,
-                "#8f9198"
+                ShellTheme.Theme.colors.on_surface_variant.toString()
             )
 
             // -----------------------------------------------------
@@ -158,7 +159,7 @@ Item {
                 Math.PI * 2
             )
 
-            ctx.fillStyle = "#f2f3f5"
+            ctx.fillStyle = ShellTheme.Theme.colors.on_surface.toString()
             ctx.fill()
         }
 

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.core as Core
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -8,11 +9,11 @@ Rectangle {
     implicitWidth: 448
     implicitHeight: statusColumn.implicitHeight + 28
 
-    radius: 18
-    color: "#a91b2027"
+    radius: ShellTheme.Theme.radius.large
+    color: ShellTheme.Theme.colors.surfaceContainerLow
 
     border.width: 1
-    border.color: "#1e2934"
+    border.color: ShellTheme.Theme.colors.outlineVariant
 
     readonly property var audio:
         Core.ServiceRegistry.audio
@@ -45,9 +46,9 @@ Rectangle {
             Text {
                 text: "DEVICE STATUS"
 
-                color: "#7f8b9b"
+                color: ShellTheme.Theme.colors.on_surface_variant
 
-                font.pixelSize: 10
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 font.weight: Font.DemiBold
                 font.letterSpacing: 1.2
             }
@@ -72,8 +73,8 @@ Rectangle {
                     return count + " active"
                 }
 
-                color: "#667281"
-                font.pixelSize: 9
+                color: ShellTheme.Theme.colors.on_surface_variant
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
             }
         }
 
@@ -123,9 +124,9 @@ Rectangle {
                 && !root.network.connected
 
             text: "No active devices or connections"
-            color: "#778291"
+            color: ShellTheme.Theme.colors.on_surface_variant
 
-            font.pixelSize: 11
+            font.pixelSize: ShellTheme.Theme.typography.labelMedium
 
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
@@ -142,11 +143,11 @@ Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: 48
 
-        radius: 13
-        color: "#20262e"
+        radius: ShellTheme.Theme.radius.medium
+        color: ShellTheme.Theme.colors.surfaceContainer
 
         border.width: 1
-        border.color: "#29333e"
+        border.color: ShellTheme.Theme.colors.outlineVariant
 
         RowLayout {
             anchors.fill: parent
@@ -161,15 +162,15 @@ Rectangle {
                 Layout.alignment: Qt.AlignVCenter
 
                 radius: width / 2
-                color: "#2d3641"
+                color: ShellTheme.Theme.colors.surfaceContainerHigh
 
                 Text {
                     anchors.centerIn: parent
 
                     text: statusRow.iconText
-                    color: "#dce3eb"
+                    color: ShellTheme.Theme.colors.on_surface
 
-                    font.pixelSize: 15
+                    font.pixelSize: ShellTheme.Theme.typography.titleSmall
                     font.family: "JetBrainsMono Nerd Font"
                 }
             }
@@ -178,9 +179,9 @@ Rectangle {
                 Layout.fillWidth: true
 
                 text: statusRow.titleText
-                color: "#dfe4ea"
+                color: ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 12
+                font.pixelSize: ShellTheme.Theme.typography.labelMedium
                 font.weight: Font.Medium
 
                 elide: Text.ElideRight
@@ -190,9 +191,9 @@ Rectangle {
                 Layout.maximumWidth: 190
 
                 text: statusRow.valueText
-                color: "#8f9baa"
+                color: ShellTheme.Theme.colors.on_surface_variant
 
-                font.pixelSize: 10
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
 
                 elide: Text.ElideRight
                 horizontalAlignment: Text.AlignRight

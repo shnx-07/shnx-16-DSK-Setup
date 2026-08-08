@@ -6,95 +6,130 @@ import qs.theme as ShellTheme
 Item {
     id: root
 
-    implicitWidth: 520
-    implicitHeight: 190
+    implicitWidth: 680
+    implicitHeight: 126
 
     Rectangle {
-        id: previewCard
-
         anchors.fill: parent
 
-        radius: ShellTheme.Theme.radius.large
-        color: ShellTheme.Theme.colors.surfaceContainerLow
+        radius:
+            ShellTheme.Theme.radius.large
+
+        color:
+            ShellTheme.Theme.colors.surfaceContainerLow
 
         border.width: 1
-        border.color: ShellTheme.Theme.colors.outlineVariant
 
-        ColumnLayout {
+        border.color:
+            ShellTheme.Theme.colors.outlineVariant
+
+        RowLayout {
             anchors {
                 fill: parent
-                margins: ShellTheme.Theme.spacing.large
+
+                margins:
+                    ShellTheme.Theme.spacing.medium
             }
 
-            spacing: ShellTheme.Theme.spacing.medium
+            spacing:
+                ShellTheme.Theme.spacing.large
 
-            RowLayout {
+            /*
+             * INFORMATION
+             */
+            ColumnLayout {
                 Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                spacing:
+                    ShellTheme.Theme.spacing.small
+
+                RowLayout {
+                    Layout.fillWidth: true
+
+                    Text {
+                        text: "Theme Preview"
+
+                        color:
+                            ShellTheme.Theme.colors.on_surface
+
+                        font.family:
+                            ShellTheme.Theme.typography.fontFamily
+
+                        font.pixelSize:
+                            ShellTheme.Theme.typography.titleMedium
+
+                        font.weight:
+                            Font.DemiBold
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: 30
+                        Layout.preferredHeight: 30
+
+                        radius:
+                            ShellTheme.Theme.radius.circle
+
+                        color:
+                            ShellTheme.Theme.colors.primaryContainer
+
+                        Text {
+                            anchors.centerIn: parent
+
+                            text: "A"
+
+                            color:
+                                ShellTheme.Theme.colors.on_primary_container
+
+                            font.family:
+                                ShellTheme.Theme.typography.fontFamily
+
+                            font.pixelSize:
+                                ShellTheme.Theme.typography.labelMedium
+
+                            font.weight:
+                                Font.DemiBold
+                        }
+                    }
+                }
 
                 Text {
-                    text: "Theme Preview"
+                    Layout.fillWidth: true
 
-                    color: ShellTheme.Theme.colors.on_surface
+                    text:
+                        "Live preview of the active shell theme."
+
+                    color:
+                        ShellTheme.Theme.colors.on_surface_variant
 
                     font.family:
                         ShellTheme.Theme.typography.fontFamily
 
                     font.pixelSize:
-                        ShellTheme.Theme.typography.titleMedium
-
-                    font.weight: Font.DemiBold
+                        ShellTheme.Theme.typography.labelMedium
                 }
 
                 Item {
-                    Layout.fillWidth: true
-                }
-
-                Rectangle {
-                    Layout.preferredWidth: 34
-                    Layout.preferredHeight: 34
-
-                    radius: ShellTheme.Theme.radius.circle
-                    color: ShellTheme.Theme.colors.primaryContainer
-
-                    Text {
-                        anchors.centerIn: parent
-
-                        text: "A"
-
-                        color:
-                            ShellTheme.Theme.colors.on_primary_container
-
-                        font.family:
-                            ShellTheme.Theme.typography.fontFamily
-
-                        font.weight: Font.DemiBold
-                    }
+                    Layout.fillHeight: true
                 }
             }
 
-            Text {
-                text:
-                    "This preview follows the active appearance and color style."
-
-                color:
-                    ShellTheme.Theme.colors.on_surface_variant
-
-                font.family:
-                    ShellTheme.Theme.typography.fontFamily
-
-                font.pixelSize:
-                    ShellTheme.Theme.typography.bodyMedium
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
+            /*
+             * MINI UI PREVIEW
+             */
+            ColumnLayout {
+                Layout.preferredWidth: 280
 
                 spacing:
-                    ShellTheme.Theme.spacing.medium
+                    ShellTheme.Theme.spacing.small
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 52
+                    Layout.preferredHeight: 42
 
                     radius:
                         ShellTheme.Theme.radius.control
@@ -114,15 +149,16 @@ Item {
                             ShellTheme.Theme.typography.fontFamily
 
                         font.pixelSize:
-                            ShellTheme.Theme.typography.bodyMedium
+                            ShellTheme.Theme.typography.labelMedium
 
-                        font.weight: Font.Medium
+                        font.weight:
+                            Font.Medium
                     }
                 }
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 52
+                    Layout.preferredHeight: 42
 
                     radius:
                         ShellTheme.Theme.radius.control
@@ -142,9 +178,10 @@ Item {
                             ShellTheme.Theme.typography.fontFamily
 
                         font.pixelSize:
-                            ShellTheme.Theme.typography.bodyMedium
+                            ShellTheme.Theme.typography.labelMedium
 
-                        font.weight: Font.Medium
+                        font.weight:
+                            Font.Medium
                     }
                 }
             }

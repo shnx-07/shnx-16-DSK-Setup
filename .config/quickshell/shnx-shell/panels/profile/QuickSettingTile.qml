@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Rectangle {
     id: root
@@ -17,39 +18,39 @@ Rectangle {
     implicitWidth: 200
     implicitHeight: 74
 
-    radius: 16
+    radius: ShellTheme.Theme.radius.card
 
     color: {
         if (!available)
-            return "#171b21"
+            return ShellTheme.Theme.colors.surfaceContainerLowest
 
         if (mouseArea.pressed)
             return active
-                ? "#4b596b"
-                : "#303945"
+                ? ShellTheme.Theme.colors.primaryContainer
+                : ShellTheme.Theme.colors.surfaceContainerHigh
 
         if (mouseArea.containsMouse)
             return active
-                ? "#414e5f"
-                : "#2a323d"
+                ? ShellTheme.Theme.colors.primaryContainer
+                : ShellTheme.Theme.colors.surfaceContainer
 
         return active
-            ? "#374352"
-            : "#222932"
+            ? ShellTheme.Theme.colors.primaryContainer
+            : ShellTheme.Theme.colors.surfaceContainerLow
     }
 
     border.width: 1
 
     border.color: {
         if (!available)
-            return "#1c222a"
+            return ShellTheme.Theme.colors.outlineVariant
 
         if (active)
-            return "#607187"
+            return ShellTheme.Theme.colors.primary
 
         return mouseArea.containsMouse
-            ? "#465464"
-            : "#303a46"
+            ? ShellTheme.Theme.colors.outline
+            : ShellTheme.Theme.colors.outlineVariant
     }
 
     opacity:
@@ -96,8 +97,8 @@ Rectangle {
 
             color:
                 root.active
-                    ? "#dbe4ee"
-                    : "#303945"
+                    ? ShellTheme.Theme.colors.on_primary_container
+                    : ShellTheme.Theme.colors.surfaceContainerHighest
 
             Text {
                 anchors.centerIn: parent
@@ -106,8 +107,8 @@ Rectangle {
 
                 color:
                     root.active
-                        ? "#222a33"
-                        : "#d9e0e8"
+                        ? ShellTheme.Theme.colors.primaryContainer
+                        : ShellTheme.Theme.colors.on_surface
 
                 font.pixelSize: 19
                 font.family: "JetBrainsMono Nerd Font"
@@ -130,9 +131,9 @@ Rectangle {
                 width: parent.width
 
                 text: root.title
-                color: "#edf1f5"
+                color: ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: 13
+                font.pixelSize: ShellTheme.Theme.typography.bodySmall
                 font.weight: Font.DemiBold
 
                 elide: Text.ElideRight
@@ -142,9 +143,9 @@ Rectangle {
                 width: parent.width
 
                 text: root.subtitle
-                color: "#929eac"
+                color: ShellTheme.Theme.colors.on_surface_variant
 
-                font.pixelSize: 10
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
 
                 elide: Text.ElideRight
             }
@@ -169,7 +170,7 @@ Rectangle {
                 anchors.centerIn: parent
 
                 text: "›"
-                color: "#aeb8c5"
+                color: ShellTheme.Theme.colors.on_surface_variant
 
                 font.pixelSize: 19
                 font.weight: Font.Medium

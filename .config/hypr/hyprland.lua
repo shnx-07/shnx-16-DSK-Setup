@@ -301,18 +301,25 @@ local MOD = "SUPER"
 -- Applications
 local terminal = "kitty"
 local fileManager = "nemo"
-local launcher = "rofi -show drun -show-icons"
-local runner = "rofi -show run"
+--local launcher = "rofi -show drun -show-icons"
+--local runner = "rofi -show run"
 local browser = "xdg-open https:// || firefox || zen-browser"
 local music = "spotify"
 
 hl.bind(MOD .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(MOD .. " + SPACE", hl.dsp.exec_cmd(launcher))
+--hl.bind(MOD .. " + SPACE", hl.dsp.exec_cmd(launcher))
 hl.bind(MOD .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(MOD .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(MOD .. " + M", hl.dsp.exec_cmd(music))
-hl.bind(MOD .. " + SHIFT+ SPACE", hl.dsp.exec_cmd(runner))
+--hl.bind(MOD .. " + SHIFT+ SPACE", hl.dsp.exec_cmd(runner))
 
+--launcher and search
+hl.bind(MOD .. " + SPACE", hl.dsp.global("shnx-shell:island-search"))
+hl.bind(MOD .. " + SHIFT + SPACE", hl.dsp.global("shnx-shell:island-command"))
+
+-- Quick Shell Dock--
+-- Quick Shell Dock
+hl.bind(MOD .. " + SHIFT + D", hl.dsp.global("shnx-shell:utility-dock"))
 -- Screenshot & clipboard
 hl.bind(MOD .. " + SHIFT+ S", hl.dsp.exec_cmd('grim -g "$(slurp)" - | swappy -f -'))
 hl.bind(
@@ -457,6 +464,17 @@ hl.window_rule({
 	match = { class = "hyprland-run" },
 	move = "20 monitor_h-120",
 	float = true,
+})
+
+--power menu rule
+
+hl.layer_rule({
+	match = {
+		namespace = "shnx-power-menu",
+	},
+
+	blur = true,
+	ignore_alpha = 0.15,
 })
 
 -- ============================================================

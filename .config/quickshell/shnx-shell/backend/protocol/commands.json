@@ -40,6 +40,43 @@
         "cached": "boolean",
         "stale": "boolean"
       }
+    },
+
+    "search.files": {
+      "description": "Searches indexed user files and folders.",
+      "payload": {
+        "query": "string",
+        "limit": "integer"
+      },
+      "response": {
+        "query": "string",
+        "results": "array"
+      }
+    },
+
+    "search.open": {
+      "description": "Opens a file or folder with the system default application.",
+      "payload": {
+        "path": "string"
+      },
+      "response": {
+        "path": "string",
+        "pid": "integer"
+      }
+    },
+
+    "search.command": {
+      "description": "Executes a user-entered shell command.",
+      "payload": {
+        "command": "string"
+      },
+      "response": {
+        "command": "string",
+        "pid": "integer"
+      }
     }
+
+
+
   }
 }

@@ -1,64 +1,96 @@
 import QtQuick
+
 import qs.theme as ShellTheme
+import qs.motion as Motion
+import qs.components.visual as Visual
 
 Rectangle {
-  id: root
+    id: root
 
-  signal moveLeftRequested()
-  signal moveRightRequested()
+    signal moveLeftRequested()
+    signal moveRightRequested()
 
-    property alias text: searchInput.text
-    property alias placeholderText: searchInput.placeholderText
+    property alias text:
+        searchInput.text
+
+    property alias placeholderText:
+        searchInput.placeholderText
 
     signal submitted(string query)
     signal cleared()
 
-    implicitWidth: 560
-    implicitHeight: 52
+    implicitWidth:
+        560
 
-    radius: ShellTheme.Theme.radius.card
+    implicitHeight:
+        48
+
+    antialiasing:
+        false
+
+    radius:
+        ShellTheme.Theme.radius.card
 
     color:
         searchInput.activeFocus
             ? ShellTheme.Theme.colors.surfaceContainerHigh
             : ShellTheme.Theme.colors.surfaceContainer
 
-    border.width: 1
-    border.color:
+    border.width:
         searchInput.activeFocus
-            ? ShellTheme.Theme.colors.outline
-            : ShellTheme.Theme.colors.outlineVariant
+            ? 1
+            : 0
+
+    border.color:
+        ShellTheme.Theme.colors.primary
 
     Behavior on color {
         ColorAnimation {
-            duration: 120
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
     Behavior on border.color {
         ColorAnimation {
-            duration: 120
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
     Row {
-        anchors.fill: parent
-        anchors.leftMargin: 16
-        anchors.rightMargin: 12
+        anchors.fill:
+            parent
 
-        spacing: 11
+        anchors.leftMargin:
+            ShellTheme.Theme.spacing.medium
 
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
+        anchors.rightMargin:
+            ShellTheme.Theme.spacing.small
 
-            text: "󰍉"
+        spacing:
+            ShellTheme.Theme.spacing.small
+
+        Visual.Icon {
+            anchors.verticalCenter:
+                parent.verticalCenter
+
+            glyph:
+                "󰍉"
+
+            iconSize:
+                17
+
             color:
                 searchInput.activeFocus
                     ? ShellTheme.Theme.colors.on_surface
                     : ShellTheme.Theme.colors.on_surface_variant
-
-            font.pixelSize: ShellTheme.Theme.typography.titleSmall
-            font.family: "JetBrainsMono Nerd Font"
         }
 
         TextInput {
@@ -67,15 +99,61 @@ Rectangle {
             width:
                 parent.width
                 - clearButton.width
-                - 42
+                - 40
 
-            height: parent.height
+            height:
+                parent.height
 
-            color: ShellTheme.Theme.colors.on_surface
-            selectionColor: ShellTheme.Theme.colors.primary
-            selectedTextColor: ShellTheme.Theme.colors.on_primary
+            color:
+                ShellTheme.Theme.colors.on_surface
 
-            font.pixelSize: ShellTheme.Theme.typography.bodySmall
+            selectionColor:
+                ShellTheme.Theme.colors.primary
+
+            selectedTextColor:
+                ShellTheme.Theme.colors.on_primary
+
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.bodySmall
+
+            verticalAlignment:
+                TextInput.AlignVCenter
+
+            clip:
+                true
+
+            focus:
+                false
+
+            property string placeholderText:
+                "Search applications"
+
+            Text {
+                anchors.fill:
+                    parent
+
+                visible:
+                    searchInput.text.length === 0
+                    && !searchInput.activeFocus
+
+                text:
+                    searchInput.placeholderText
+
+                color:
+                    ShellTheme.Theme.colors.disabled
+
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.bodySmall
+
+                verticalAlignment:
+                    Text.AlignVCenter
+            }
 
             Keys.onPressed: function(event) {
                 if (event.key === Qt.Key_Left) {
@@ -88,28 +166,6 @@ Rectangle {
                     root.moveRightRequested()
                     event.accepted = true
                 }
-            }
-
-            verticalAlignment: TextInput.AlignVCenter
-
-            clip: true
-            focus: false
-
-            property string placeholderText:
-                "Search applications"
-
-            Text {
-                anchors.fill: parent
-
-                visible:
-                    searchInput.text.length === 0
-                    && !searchInput.activeFocus
-
-                text: searchInput.placeholderText
-                color: ShellTheme.Theme.colors.disabled
-
-                font.pixelSize: ShellTheme.Theme.typography.bodySmall
-                verticalAlignment: Text.AlignVCenter
             }
 
             Keys.onReturnPressed: {
@@ -131,18 +187,44 @@ Rectangle {
         Item {
             id: clearButton
 
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenter:
+                parent.verticalCenter
 
-            width: 30
-            height: 30
+            width:
+                30
+
+            height:
+                30
 
             visible:
                 searchInput.text.length > 0
 
-            Rectangle {
-                anchors.fill: parent
+            scale:
+                clearMouseArea.pressed
+                    ? Motion.MotionTokens.compactPressScale
+                    : clearMouseArea.containsMouse
+                        ? Motion.MotionTokens.hoverScale
+                        : 1.0
 
-                radius: width / 2
+            Behavior on scale {
+                NumberAnimation {
+                    duration:
+                        Motion.MotionTokens.quick
+
+                    easing.type:
+                        Motion.Easing.standard
+                }
+            }
+
+            Rectangle {
+                anchors.fill:
+                    parent
+
+                antialiasing:
+                    false
+
+                radius:
+                    ShellTheme.Theme.radius.button
 
                 color:
                     clearMouseArea.pressed
@@ -150,25 +232,43 @@ Rectangle {
                         : clearMouseArea.containsMouse
                             ? ShellTheme.Theme.colors.hoverOverlay
                             : "transparent"
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration:
+                            Motion.MotionTokens.quick
+
+                        easing.type:
+                            Motion.Easing.standard
+                    }
+                }
             }
 
-            Text {
-                anchors.centerIn: parent
+            Visual.Icon {
+                anchors.centerIn:
+                    parent
 
-                text: "󰅖"
-                color: ShellTheme.Theme.colors.on_surface_variant
+                glyph:
+                    "󰅖"
 
-                font.pixelSize: ShellTheme.Theme.typography.bodySmall
-                font.family: "JetBrainsMono Nerd Font"
+                iconSize:
+                    14
+
+                color:
+                    ShellTheme.Theme.colors.on_surface_variant
             }
 
             MouseArea {
                 id: clearMouseArea
 
-                anchors.fill: parent
+                anchors.fill:
+                    parent
 
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
+                hoverEnabled:
+                    true
+
+                cursorShape:
+                    Qt.PointingHandCursor
 
                 onClicked: {
                     searchInput.text = ""
@@ -180,12 +280,14 @@ Rectangle {
     }
 
     MouseArea {
-        anchors.fill: parent
-        z: -1
+        anchors.fill:
+            parent
 
-        onClicked: {
+        z:
+            -1
+
+        onClicked:
             searchInput.forceActiveFocus()
-        }
     }
 
     function activate() {

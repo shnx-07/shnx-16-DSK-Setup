@@ -1,24 +1,36 @@
 import QtQuick
 import QtQuick.Controls
 import Quickshell
+
 import qs.core as Core
 import qs.theme as ShellTheme
+import qs.motion as Motion
 
 Rectangle {
     id: root
 
     signal applicationLaunched()
 
-    implicitWidth: 540
-    implicitHeight: 520
+    implicitWidth:
+        560
 
-    radius: ShellTheme.Theme.radius.card
-    color: ShellTheme.Theme.colors.surfaceContainer
+    implicitHeight:
+        520
 
-    border.width: 1
-    border.color: ShellTheme.Theme.colors.outlineVariant
+    antialiasing:
+        false
 
-    property int selectedIndex: 0
+    radius:
+        ShellTheme.Theme.radius.card
+
+    color:
+        ShellTheme.Theme.colors.surfaceContainer
+
+    border.width:
+        0
+
+    property int selectedIndex:
+        0
 
     readonly property var search:
         Core.ServiceRegistry.search
@@ -32,23 +44,42 @@ Rectangle {
     ScriptModel {
         id: applicationsModel
 
-        values: root.applications
-        objectProp: "desktopId"
+        values:
+            root.applications
+
+        objectProp:
+            "desktopId"
     }
 
     GridView {
         id: gridView
 
-        anchors.fill: parent
-        anchors.margins: 12
+        anchors.fill:
+            parent
 
-        clip: true
-        boundsBehavior: Flickable.StopAtBounds
+        anchors.margins:
+            ShellTheme.Theme.spacing.small
 
-        cellWidth: 142
-        cellHeight: 122
+        clip:
+            true
 
-        model: applicationsModel
+        boundsBehavior:
+            Flickable.StopAtBounds
+
+        interactive:
+            true
+
+        readonly property int columnCount:
+            3
+
+        cellWidth:
+            width / columnCount
+
+        cellHeight:
+            120
+
+        model:
+            applicationsModel
 
         currentIndex:
             root.applicationCount > 0
@@ -62,8 +93,12 @@ Rectangle {
             required property int index
             required property var modelData
 
-            width: 132
-            height: 112
+            width:
+                gridView.cellWidth
+                - ShellTheme.Theme.spacing.small
+
+            height:
+                110
 
             appName:
                 modelData.name
@@ -87,13 +122,80 @@ Rectangle {
             }
         }
 
+        /*
+         * --------------------------------------------------------
+         * SMOOTH WHEEL SCROLLING
+         * --------------------------------------------------------
+         */
+
+         
+
+        NumberAnimation {
+            id: smoothScroll
+
+            target:
+                gridView
+
+            property:
+                "contentY"
+
+            duration:
+                Motion.MotionTokens.emphasized
+
+            easing.type:
+                Motion.Easing.standard
+        }
+
+        /*
+         * --------------------------------------------------------
+         * SCROLLBAR
+         * --------------------------------------------------------
+         */
+
         ScrollBar.vertical: ScrollBar {
-            policy: ScrollBar.AsNeeded
+            id: verticalScrollBar
+
+            policy:
+                ScrollBar.AsNeeded
+
+            width:
+                4
+
+            contentItem: Rectangle {
+                implicitWidth:
+                    4
+
+                radius:
+                    2
+
+                color:
+                    ShellTheme.Theme.colors.outline
+
+                opacity:
+                    verticalScrollBar.active
+                        ? 0.7
+                        : 0.35
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration:
+                            Motion.MotionTokens.quick
+
+                        easing.type:
+                            Motion.Easing.standard
+                    }
+                }
+            }
+
+            background:
+                Item {
+            }
         }
     }
 
     EmptyResults {
-        anchors.centerIn: parent
+        anchors.centerIn:
+            parent
 
         visible:
             root.applicationCount === 0
@@ -106,20 +208,23 @@ Rectangle {
     }
 
     function resetSelection() {
-        root.selectedIndex = 0
+        root.selectedIndex =
+            0
 
         gridView.currentIndex =
             root.applicationCount > 0
                 ? 0
                 : -1
 
-        if (root.applicationCount > 0)
+        if (root.applicationCount > 0) {
             gridView.positionViewAtBeginning()
+        }
     }
 
     function moveSelection(delta) {
-        if (root.applicationCount === 0)
+        if (root.applicationCount === 0) {
             return
+        }
 
         root.selectedIndex =
             Math.max(
@@ -140,17 +245,8 @@ Rectangle {
     }
 
     function moveSelectionByRow(delta) {
-        const columnCount =
-            Math.max(
-                1,
-                Math.floor(
-                    gridView.width
-                    / gridView.cellWidth
-                )
-            )
-
         root.moveSelection(
-            delta * columnCount
+            delta * gridView.columnCount
         )
     }
 
@@ -173,6 +269,7 @@ Rectangle {
         )
 
         Core.PanelController.close()
+
         root.applicationLaunched()
     }
 
@@ -183,7 +280,8 @@ Rectangle {
     }
 
     Connections {
-        target: root.search
+        target:
+            root.search
 
         function onQueryChanged() {
             root.resetSelection()

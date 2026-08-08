@@ -32,7 +32,10 @@ from .services.palette_source import (
     PaletteSourceError,
     PaletteSourceService,
 )
-
+from .services.search import (
+    SearchError,
+    SearchService,
+)
 class BackendApplication:
     def __init__(self) -> None:
         self._logger = logging.getLogger(__name__)
@@ -54,6 +57,7 @@ class BackendApplication:
         self._wallpaper = WallpaperService()
         self._thumbnails = ThumbnailService()
         self._palette_source = PaletteSourceService()
+        self._search = SearchService()
 
         self._server = IpcServer(
             socket_path=self._socket_path,
@@ -147,7 +151,18 @@ class BackendApplication:
             return await self._handle_wallpaper_previews(
                 message
             )
-        
+        if message.command == "search.files":
+            return await self._handle_search_files(
+                message
+            )
+        if message.command == "search.open":
+            return await self._handle_search_open(
+                message
+            )
+        if message.command == "search.command":
+            return await self._handle_search_command(
+                message
+            )
         if message.command == "theme.generate":
             return await self._handle_theme_generate(
                 message
@@ -215,7 +230,206 @@ class BackendApplication:
             command="weather.get",
             payload=weather,
         )
+    
+    # ------------------------------------------------------------------
+    # search Files
+    # ------------------------------------------------------------------
 
+    async def _handle_search_files(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        query = message.payload.get(
+            "query",
+            "",
+        )
+
+        limit = message.payload.get(
+            "limit",
+            SearchService.DEFAULT_LIMIT,
+        )
+
+        if not isinstance(query, str):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_search_query",
+                message=(
+                    "search.files query must be a string."
+                ),
+            )
+
+        if isinstance(limit, bool) or not isinstance(
+            limit,
+            int,
+        ):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_search_limit",
+                message=(
+                    "search.files limit must be an integer."
+                ),
+            )
+
+        if limit <= 0:
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_search_limit",
+                message=(
+                    "search.files limit must be greater than zero."
+                ),
+            )
+
+        try:
+            result = await self._search.search_files(
+                query=query,
+                limit=limit,
+            )
+
+        except SearchError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="search_failed",
+                message=str(error),
+            )
+
+        except Exception:
+            self._logger.exception(
+                "Unexpected filesystem search failure"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="search_failed",
+                message=(
+                    "Filesystem search failed unexpectedly."
+                ),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="search.files",
+            payload=result,
+        )
+
+
+
+
+    async def _handle_search_open(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        path = message.payload.get(
+            "path",
+            "",
+        )
+
+        if not isinstance(path, str):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_search_path",
+                message=(
+                    "search.open path must be a string."
+                ),
+            )
+
+        if not path.strip():
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_search_path",
+                message=(
+                    "search.open requires a path."
+                ),
+            )
+
+        try:
+            result = await self._search.open_path(
+                path=path,
+            )
+
+        except SearchError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="search_open_failed",
+                message=str(error),
+            )
+
+        except Exception:
+            self._logger.exception(
+                "Unexpected search open failure"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="search_open_failed",
+                message=(
+                    "Opening the search result failed unexpectedly."
+                ),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="search.open",
+            payload=result,
+        )
+
+
+    async def _handle_search_command(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        command = message.payload.get(
+            "command",
+            "",
+        )
+
+        if not isinstance(command, str):
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_search_command",
+                message=(
+                    "search.command command must be a string."
+                ),
+            )
+
+        if not command.strip():
+            return error_message(
+                request_id=message.request_id,
+                code="invalid_search_command",
+                message=(
+                    "search.command requires a command."
+                ),
+            )
+
+        try:
+            result = await self._search.run_command(
+                command=command,
+            )
+
+        except SearchError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="search_command_failed",
+                message=str(error),
+            )
+
+        except Exception:
+            self._logger.exception(
+                "Unexpected command execution failure"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="search_command_failed",
+                message=(
+                    "Command execution failed unexpectedly."
+                ),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="search.command",
+            payload=result,
+        )
     # ------------------------------------------------------------------
     # Wallpaper library
     # ------------------------------------------------------------------

@@ -51,7 +51,38 @@ Scope {
             )
         }
     }
+    /*
+ * ------------------------------------------------------------
+ * Dynamic Island Search global shortcut
+ * ------------------------------------------------------------
+ */
 
+  GlobalShortcut {
+      appid: "shnx-shell"
+      name: "island-search"
+      description: "Open SHNX Dynamic Island Search"
+
+      onPressed: {
+          Core.IslandController.openSearch()
+
+          console.log(
+              "[DynamicIsland] search shortcut received"
+          )
+      }
+    }
+
+    GlobalShortcut {
+        appid: "shnx-shell"
+        name: "island-command"
+        description: "Open SHNX Dynamic Island Command"
+
+        onPressed: {
+            Core.IslandController.openCommandSearch()
+            console.log(
+                "[DynamicIsland] command shortcut received"
+            )
+        }
+    }
 
     /*
      * ------------------------------------------------------------

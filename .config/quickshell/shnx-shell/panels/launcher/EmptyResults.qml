@@ -1,48 +1,80 @@
 import QtQuick
+
 import qs.theme as ShellTheme
+import qs.components.visual as Visual
 
 Column {
     id: root
 
-    property string query: ""
-    property string category: "All"
+    property string query:
+        ""
 
-    spacing: 10
+    property string category:
+        "All"
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
+    spacing:
+        ShellTheme.Theme.spacing.small
 
-        text: "󰅖"
-        color: ShellTheme.Theme.colors.on_surface_variant
+    Visual.Icon {
+        anchors.horizontalCenter:
+            parent.horizontalCenter
 
-        font.pixelSize: ShellTheme.Theme.typography.displayMedium
-        font.family: "JetBrainsMono Nerd Font"
+        glyph:
+            "󰅖"
+
+        iconSize:
+            32
+
+        color:
+            ShellTheme.Theme.colors.on_surface_variant
     }
 
     Text {
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.horizontalCenter:
+            parent.horizontalCenter
 
-        text: "No applications found"
-        color: ShellTheme.Theme.colors.on_surface
+        text:
+            "No applications found"
 
-        font.pixelSize: ShellTheme.Theme.typography.bodySmall
-        font.weight: Font.DemiBold
+        color:
+            ShellTheme.Theme.colors.on_surface
+
+        font.family:
+            ShellTheme.Theme.typography.fontFamily
+
+        font.pixelSize:
+            ShellTheme.Theme.typography.bodySmall
+
+        font.weight:
+            Font.DemiBold
     }
 
     Text {
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.horizontalCenter:
+            parent.horizontalCenter
 
         text: {
-            if (root.query.length > 0)
-                return "No results for “" + root.query + "”"
+            if (root.query.length > 0) {
+                return "No results for “"
+                    + root.query
+                    + "”"
+            }
 
-            if (root.category !== "All")
-                return "No applications in " + root.category
+            if (root.category !== "All") {
+                return "No applications in "
+                    + root.category
+            }
 
             return "No installed applications are available"
         }
 
-        color: ShellTheme.Theme.colors.on_surface_variant
-        font.pixelSize: ShellTheme.Theme.typography.labelSmall
+        color:
+            ShellTheme.Theme.colors.on_surface_variant
+
+        font.family:
+            ShellTheme.Theme.typography.fontFamily
+
+        font.pixelSize:
+            ShellTheme.Theme.typography.labelSmall
     }
 }

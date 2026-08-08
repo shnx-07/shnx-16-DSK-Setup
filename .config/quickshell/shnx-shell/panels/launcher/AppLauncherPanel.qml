@@ -1,19 +1,34 @@
 import QtQuick
 import QtQuick.Layouts
+
 import Quickshell
-import qs.core as Core
 import Quickshell.Wayland
+
+import qs.core as Core
 import qs.theme as ShellTheme
+import qs.motion as Motion
+import qs.components.visual as Visual
 
 PanelWindow {
     id: root
 
-    implicitWidth: 760
-    implicitHeight: 680
+    /*
+     * ------------------------------------------------------------
+     * WINDOW
+     * ------------------------------------------------------------
+     */
 
-    color: "transparent"
+    implicitWidth:
+        780
 
-    visible: Core.PanelController.appLauncherOpen
+    implicitHeight:
+        680
+
+    color:
+        "transparent"
+
+    visible:
+        Core.PanelController.appLauncherOpen
 
     anchors {
         top: true
@@ -22,9 +37,20 @@ PanelWindow {
         right: true
     }
 
-    exclusionMode: ExclusionMode.Ignore
-    aboveWindows: true
-    focusable: true
+    exclusionMode:
+        ExclusionMode.Ignore
+
+    aboveWindows:
+        true
+
+    focusable:
+        true
+
+    /*
+     * ------------------------------------------------------------
+     * OPEN / CLOSE STATE
+     * ------------------------------------------------------------
+     */
 
     onVisibleChanged: {
         if (visible) {
@@ -32,7 +58,10 @@ PanelWindow {
             Core.ServiceRegistry.search.setCategory("All")
 
             searchField.clear()
-            categorySidebar.selectedCategory = "All"
+
+            categorySidebar.selectedCategory =
+                "All"
+
             appGrid.resetSelection()
 
             Qt.callLater(function() {
@@ -41,183 +70,322 @@ PanelWindow {
         } else if (Core.PanelController.appLauncherOpen) {
             Core.PanelController.close()
         }
-      }
+    }
 
+    /*
+     * ------------------------------------------------------------
+     * KEYBOARD
+     * ------------------------------------------------------------
+     */
 
     Shortcut {
-        sequence: "Escape"
-        context: Qt.WindowShortcut
-        enabled: root.visible
+        sequence:
+            "Escape"
 
-        onActivated: {
+        context:
+            Qt.WindowShortcut
+
+        enabled:
+            root.visible
+
+        onActivated:
             Core.PanelController.close()
-        }
     }
 
     Shortcut {
-        sequence: "Left"
-        context: Qt.WindowShortcut
+        sequence:
+            "Left"
+
+        context:
+            Qt.WindowShortcut
+
         enabled:
             root.visible
             && appGrid.applicationCount > 0
 
-        onActivated: {
+        onActivated:
             appGrid.moveSelection(-1)
-        }
     }
 
     Shortcut {
-        sequence: "Right"
-        context: Qt.WindowShortcut
+        sequence:
+            "Right"
+
+        context:
+            Qt.WindowShortcut
+
         enabled:
             root.visible
             && appGrid.applicationCount > 0
 
-        onActivated: {
+        onActivated:
             appGrid.moveSelection(1)
-        }
     }
 
     Shortcut {
-        sequence: "Up"
-        context: Qt.WindowShortcut
+        sequence:
+            "Up"
+
+        context:
+            Qt.WindowShortcut
+
         enabled:
             root.visible
             && appGrid.applicationCount > 0
 
-        onActivated: {
+        onActivated:
             appGrid.moveSelectionByRow(-1)
-        }
     }
 
     Shortcut {
-        sequence: "Down"
-        context: Qt.WindowShortcut
+        sequence:
+            "Down"
+
+        context:
+            Qt.WindowShortcut
+
         enabled:
             root.visible
             && appGrid.applicationCount > 0
 
-        onActivated: {
+        onActivated:
             appGrid.moveSelectionByRow(1)
-        }
     }
+
+    /*
+     * ------------------------------------------------------------
+     * MAIN SURFACE
+     * ------------------------------------------------------------
+     */
 
     Rectangle {
-        width: 760
-        height: 680
-        anchors.centerIn: parent
-        radius: ShellTheme.Theme.radius.panel
-        color: ShellTheme.Theme.colors.background
+        id: panelSurface
 
-        border.width: 1
-        border.color: ShellTheme.Theme.colors.outlineVariant
+        width:
+            780
+
+        height:
+            680
+
+        anchors.centerIn:
+            parent
+
+        antialiasing:
+            false
+
+        radius:
+            ShellTheme.Theme.radius.panel
+
+        color:
+            ShellTheme.Theme.colors.background
+
+        border.width:
+            0
+
+        /*
+         * --------------------------------------------------------
+         * MAIN LAYOUT
+         * --------------------------------------------------------
+         */
 
         ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: 18
+            anchors {
+                fill: parent
 
-            spacing: 14
+                margins:
+                    ShellTheme.Theme.spacing.large
+            }
+
+            spacing:
+                ShellTheme.Theme.spacing.medium
+
+            /*
+             * ----------------------------------------------------
+             * HEADER
+             * ----------------------------------------------------
+             */
 
             RowLayout {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 42
+                Layout.fillWidth:
+                    true
+
+                Layout.preferredHeight:
+                    36
 
                 Text {
-                    text: "Applications"
-                    color: ShellTheme.Theme.colors.on_surface
+                    text:
+                        "Applications"
 
-                    font.pixelSize: ShellTheme.Theme.typography.headlineMedium
-                    font.weight: Font.DemiBold
+                    color:
+                        ShellTheme.Theme.colors.on_surface
+
+                    font.family:
+                        ShellTheme.Theme.typography.fontFamily
+
+                    font.pixelSize:
+                        ShellTheme.Theme.typography.headlineMedium
+
+                    font.weight:
+                        Font.DemiBold
                 }
 
                 Item {
-                    Layout.fillWidth: true
+                    Layout.fillWidth:
+                        true
                 }
 
-                Rectangle {
-                    Layout.preferredWidth: 34
-                    Layout.preferredHeight: 34
+                Item {
+                    id: closeButton
 
-                    radius: width / 2
+                    Layout.preferredWidth:
+                        34
 
-                    color:
+                    Layout.preferredHeight:
+                        34
+
+                    scale:
                         closeMouseArea.pressed
-                            ? ShellTheme.Theme.colors.pressedOverlay
+                            ? Motion.MotionTokens.compactPressScale
                             : closeMouseArea.containsMouse
-                                ? ShellTheme.Theme.colors.hoverOverlay
-                                : ShellTheme.Theme.colors.surfaceContainer
+                                ? Motion.MotionTokens.hoverScale
+                                : 1.0
 
-                    border.width: 1
-                    border.color: ShellTheme.Theme.colors.outlineVariant
+                    Behavior on scale {
+                        NumberAnimation {
+                            duration:
+                                Motion.MotionTokens.quick
 
-                    Text {
-                        anchors.centerIn: parent
+                            easing.type:
+                                Motion.Easing.standard
+                        }
+                    }
 
-                        text: "󰅖"
-                        color: ShellTheme.Theme.colors.on_surface
+                    Rectangle {
+                        anchors.fill:
+                            parent
 
-                        font.pixelSize: ShellTheme.Theme.typography.titleSmall
-                        font.family:
-                            "JetBrainsMono Nerd Font"
+                        antialiasing:
+                            false
+
+                        radius:
+                            ShellTheme.Theme.radius.button
+
+                        color:
+                            closeMouseArea.pressed
+                                ? ShellTheme.Theme.colors.pressedOverlay
+                                : closeMouseArea.containsMouse
+                                    ? ShellTheme.Theme.colors.hoverOverlay
+                                    : "transparent"
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration:
+                                    Motion.MotionTokens.quick
+
+                                easing.type:
+                                    Motion.Easing.standard
+                            }
+                        }
+                    }
+
+                    Visual.Icon {
+                        anchors.centerIn:
+                            parent
+
+                        glyph:
+                            "󰅖"
+
+                        iconSize:
+                            17
+
+                        color:
+                            ShellTheme.Theme.colors.on_surface_variant
                     }
 
                     MouseArea {
                         id: closeMouseArea
 
-                        anchors.fill: parent
+                        anchors.fill:
+                            parent
 
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
+                        hoverEnabled:
+                            true
 
-                        onClicked: {
+                        cursorShape:
+                            Qt.PointingHandCursor
+
+                        onClicked:
                             Core.PanelController.close()
-                        }
                     }
                 }
             }
+
+            /*
+             * ----------------------------------------------------
+             * SEARCH
+             * ----------------------------------------------------
+             */
 
             SearchField {
                 id: searchField
 
-                Layout.fillWidth: true
+                Layout.fillWidth:
+                    true
 
                 onTextChanged: {
                     if (text.trim().length > 0
-                            && Core.ServiceRegistry.search.selectedCategory !== "All") {
-                        Core.ServiceRegistry.search.setCategory("All")
-                        categorySidebar.selectedCategory = "All"
+                            && Core.ServiceRegistry.search.selectedCategory
+                                !== "All") {
+                        Core.ServiceRegistry.search.setCategory(
+                            "All"
+                        )
+
+                        categorySidebar.selectedCategory =
+                            "All"
                     }
 
-                    Core.ServiceRegistry.search.setQuery(text)
+                    Core.ServiceRegistry.search.setQuery(
+                        text
+                    )
                 }
 
-                onSubmitted: {
+                onSubmitted:
                     appGrid.launchSelected()
-                }
 
-                onCleared: {
+                onCleared:
                     Core.ServiceRegistry.search.setQuery("")
-                }
 
-                onMoveLeftRequested: {
+                onMoveLeftRequested:
                     appGrid.moveSelection(-1)
-                }
 
-                onMoveRightRequested: {
+                onMoveRightRequested:
                     appGrid.moveSelection(1)
-                }
             }
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
 
-                spacing: 12
+            /*
+             * ----------------------------------------------------
+             * CONTENT
+             * ----------------------------------------------------
+             */
+
+            RowLayout {
+                Layout.fillWidth:
+                    true
+
+                Layout.fillHeight:
+                    true
+
+                spacing:
+                    ShellTheme.Theme.spacing.medium
 
                 CategorySidebar {
                     id: categorySidebar
 
-                    Layout.preferredWidth: 154
-                    Layout.fillHeight: true
+                    Layout.preferredWidth:
+                        146
+
+                    Layout.fillHeight:
+                        true
 
                     onCategorySelected: function(category) {
                         Core.ServiceRegistry.search.setCategory(
@@ -231,8 +399,11 @@ PanelWindow {
                 AppGrid {
                     id: appGrid
 
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.fillWidth:
+                        true
+
+                    Layout.fillHeight:
+                        true
                 }
             }
         }

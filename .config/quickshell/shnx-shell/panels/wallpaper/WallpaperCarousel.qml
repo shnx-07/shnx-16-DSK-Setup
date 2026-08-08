@@ -22,12 +22,6 @@ Item {
         && wallpaperService.library.length > 0
 
 
-    /*
-     * Base card size.
-     *
-     * Side cards stay close to this size.
-     * The selected card becomes larger through PathView scale.
-     */
     readonly property real cardWidth:
         Math.max(
             240,
@@ -136,42 +130,18 @@ Item {
     }
 
 
-    /*
-     * ------------------------------------------------------------
-     * Smooth browsing
-     * ------------------------------------------------------------
-     */
-
     function moveSelection(direction) {
         if (!root.hasWallpapers)
             return
 
         if (direction < 0) {
-            if (coverFlow.currentIndex > 0)
-                coverFlow.decrementCurrentIndex()
-
-            return
-        }
-
-        if (
-            direction > 0
-            && coverFlow.currentIndex
-                < wallpaperService.library.length - 1
-        ) {
+            coverFlow.decrementCurrentIndex()
+        } else if (direction > 0) {
             coverFlow.incrementCurrentIndex()
         }
     }
 
 
-    /*
-     * Apply a wallpaper selected by index.
-     *
-     * Selection itself is handled by PathView's
-     * onCurrentIndexChanged handler.
-     *
-     * Keeping selection and application separate avoids
-     * duplicate selectionChanged traffic during a click.
-     */
     function activateIndex(index) {
         if (!wallpaperService)
             return
@@ -195,20 +165,11 @@ Item {
         if (!wallpaper)
             return
 
-        /*
-         * Move the clicked wallpaper into the center.
-         *
-         * onCurrentIndexChanged owns selectWallpaper().
-         */
         if (coverFlow.currentIndex !== index) {
             coverFlow.currentIndex =
                 index
         }
 
-        /*
-         * Apply only after the index/selection state has
-         * been established.
-         */
         wallpaperService.applyWallpaper(
             wallpaper
         )
@@ -236,12 +197,6 @@ Item {
     }
 
 
-    /*
-     * ------------------------------------------------------------
-     * Keyboard
-     * ------------------------------------------------------------
-     */
-
     focus: true
     activeFocusOnTab: true
 
@@ -266,12 +221,6 @@ Item {
     }
 
 
-    /*
-     * ------------------------------------------------------------
-     * Full-width cinematic cover flow
-     * ------------------------------------------------------------
-     */
-
     PathView {
         id: coverFlow
 
@@ -286,11 +235,6 @@ Item {
         currentIndex:
             -1
 
-
-        /*
-         * Keep enough wallpapers visible to create the continuous
-         * horizontal gallery from the reference.
-         */
         pathItemCount:
             Math.min(
                 count,
@@ -300,10 +244,6 @@ Item {
         cacheItemCount:
             6
 
-
-        /*
-         * Current wallpaper lives exactly in the middle of the path.
-         */
         preferredHighlightBegin:
             0.5
 
@@ -313,10 +253,6 @@ Item {
         highlightRangeMode:
             PathView.StrictlyEnforceRange
 
-
-        /*
-         * Important for the smooth selector feel.
-         */
         highlightMoveDuration:
             Motion.MotionTokens.spatial
 
@@ -348,13 +284,6 @@ Item {
             height:
                 root.cardHeight
 
-
-            /*
-             * PathView interpolates all four of these while the
-             * wallpaper travels toward / away from the center.
-             *
-             * No Behavior is added here intentionally.
-             */
             scale:
                 PathView.cardScale
 
@@ -365,22 +294,32 @@ Item {
                 PathView.cardDepth
 
 
-            transform: Rotation {
-                origin.x:
-                    delegateRoot.width / 2
-
-                origin.y:
-                    delegateRoot.height / 2
-
-                axis.x: 0
-                axis.y: 1
-                axis.z: 0
-
-                angle:
-                    PathView.cardAngle !== undefined
-                        ? PathView.cardAngle
-                        : 0
-            }
+            /*
+             * Shear (skew) transform — replaces the old 3D Rotation.
+             *
+             * Produces the flat parallelogram look from the
+             * reference image instead of a perspective tilt.
+             * Shear pivots around the card's own center, then the
+             * item is translated back into place.
+             */
+            transform: [
+                Translate {
+                    x: -delegateRoot.width / 2
+                    y: -delegateRoot.height / 2
+                },
+                Matrix4x4 {
+                    matrix: Qt.matrix4x4(
+                        1, (delegateRoot.PathView.cardShear !== undefined ? delegateRoot.PathView.cardShear : 0), 0, 0,
+                        0, 1,                                                                                     0, 0,
+                        0, 0,                                                                                     1, 0,
+                        0, 0,                                                                                     0, 1
+                    )
+                },
+                Translate {
+                    x: delegateRoot.width / 2
+                    y: delegateRoot.height / 2
+                }
+            ]
 
 
             WallpaperParts.WallpaperCarouselCard {
@@ -413,18 +352,6 @@ Item {
                     !root.wallpaperService
                     || !root.wallpaperService.applying
 
-
-                /*
-                 * IMPORTANT:
-                 *
-                 * Do not manipulate PathView/current wallpaper
-                 * synchronously from inside the delegate's click
-                 * release.
-                 *
-                 * PathView may be moving/recycling delegates at the
-                 * same time. Capture the plain integer index first,
-                 * then activate it on the next event-loop turn.
-                 */
                 onClicked: {
                     const clickedIndex =
                         delegateRoot.index
@@ -456,239 +383,156 @@ Item {
         }
 
 
-        /*
-         * --------------------------------------------------------
-         * Full-width invisible gallery path
-         * --------------------------------------------------------
-         *
-         * All cards share nearly the same vertical center.
-         * The selected card looks taller because it scales UP,
-         * rather than side cards shrinking dramatically.
-         */
-
         path: Path {
-            /*
-             * FAR LEFT
-             */
             startX:
-                -root.cardWidth * 0.18
-
+                -root.cardWidth * 0.10
             startY:
                 coverFlow.height * 0.50
-
-
             PathAttribute {
                 name: "cardScale"
-                value: 0.88
+                value: 0.90
             }
-
             PathAttribute {
                 name: "cardOpacity"
-                value: 0.72
+                value: 0.75
             }
-
             PathAttribute {
-                name: "cardAngle"
-                value: 32
+                name: "cardShear"
+                value: 0.55
             }
-
             PathAttribute {
                 name: "cardDepth"
                 value: 5
             }
-
-
-            /*
-             * OUTER LEFT
-             */
             PathLine {
                 x:
-                    coverFlow.width * 0.16
-
+                    coverFlow.width * 0.20
                 y:
                     coverFlow.height * 0.50
             }
-
             PathAttribute {
                 name: "cardScale"
-                value: 0.92
+                value: 0.90
             }
-
             PathAttribute {
                 name: "cardOpacity"
-                value: 0.88
+                value: 0.90
             }
-
             PathAttribute {
-                name: "cardAngle"
-                value: 23
+                name: "cardShear"
+                value: 0.42
             }
-
             PathAttribute {
                 name: "cardDepth"
                 value: 20
             }
-
-
-            /*
-             * INNER LEFT
-             */
             PathLine {
                 x:
-                    coverFlow.width * 0.325
-
+                    coverFlow.width * 0.35
                 y:
                     coverFlow.height * 0.50
             }
-
             PathAttribute {
                 name: "cardScale"
-                value: 0.98
+                value: 0.94
             }
-
             PathAttribute {
                 name: "cardOpacity"
                 value: 1.0
             }
-
             PathAttribute {
-                name: "cardAngle"
-                value: 14
+                name: "cardShear"
+                value: 0.26
             }
-
             PathAttribute {
                 name: "cardDepth"
                 value: 50
             }
-
-
-            /*
-             * CENTER
-             *
-             * This is intentionally the major visual difference:
-             * neighboring cards remain almost normal size while the
-             * current wallpaper grows noticeably forward.
-             */
             PathLine {
                 x:
                     coverFlow.width * 0.50
-
                 y:
                     coverFlow.height * 0.50
             }
-
             PathAttribute {
                 name: "cardScale"
-                value: 1.22
+                value: 1.15
             }
-
             PathAttribute {
                 name: "cardOpacity"
                 value: 1.0
             }
-
             PathAttribute {
-                name: "cardAngle"
+                name: "cardShear"
                 value: 0
             }
-
             PathAttribute {
                 name: "cardDepth"
                 value: 100
             }
-
-
-            /*
-             * INNER RIGHT
-             */
             PathLine {
                 x:
-                    coverFlow.width * 0.675
-
+                    coverFlow.width * 0.65
                 y:
                     coverFlow.height * 0.50
             }
-
             PathAttribute {
                 name: "cardScale"
-                value: 0.98
+                value: 0.94
             }
-
             PathAttribute {
                 name: "cardOpacity"
                 value: 1.0
             }
-
             PathAttribute {
-                name: "cardAngle"
-                value: -14
+                name: "cardShear"
+                value: -0.26
             }
-
             PathAttribute {
                 name: "cardDepth"
                 value: 50
             }
-
-
-            /*
-             * OUTER RIGHT
-             */
             PathLine {
                 x:
-                    coverFlow.width * 0.84
-
+                    coverFlow.width * 0.80
                 y:
                     coverFlow.height * 0.50
             }
-
             PathAttribute {
                 name: "cardScale"
-                value: 0.92
+                value: 0.90
             }
-
             PathAttribute {
                 name: "cardOpacity"
-                value: 0.88
+                value: 0.90
             }
-
             PathAttribute {
-                name: "cardAngle"
-                value: -23
+                name: "cardShear"
+                value: -0.42
             }
-
             PathAttribute {
                 name: "cardDepth"
                 value: 20
             }
-
-
-            /*
-             * FAR RIGHT
-             */
             PathLine {
                 x:
                     coverFlow.width
-                    + root.cardWidth * 0.18
-
+                    + root.cardWidth * 0.10
                 y:
                     coverFlow.height * 0.50
             }
-
             PathAttribute {
                 name: "cardScale"
-                value: 0.88
+                value: 0.90
             }
-
             PathAttribute {
                 name: "cardOpacity"
-                value: 0.72
+                value: 0.75
             }
-
             PathAttribute {
-                name: "cardAngle"
-                value: -32
+                name: "cardShear"
+                value: -0.55
             }
-
             PathAttribute {
                 name: "cardDepth"
                 value: 5
@@ -696,12 +540,6 @@ Item {
         }
 
 
-        /*
-         * Browsing changes selection only.
-         *
-         * This is the single owner of selectWallpaper()
-         * for carousel index changes.
-         */
         onCurrentIndexChanged: {
             if (root.syncingSelection)
                 return
@@ -788,12 +626,6 @@ Item {
         }
     }
 
-
-    /*
-     * ------------------------------------------------------------
-     * Service synchronization
-     * ------------------------------------------------------------
-     */
 
     Connections {
         target:

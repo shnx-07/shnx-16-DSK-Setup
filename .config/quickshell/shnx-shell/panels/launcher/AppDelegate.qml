@@ -1,154 +1,279 @@
 import QtQuick
 import QtQuick.Layouts
+
 import qs.theme as ShellTheme
+import qs.motion as Motion
 
 Rectangle {
     id: root
 
-    property string appName: ""
-    property string appIcon: ""
-    property string appComment: ""
-    property string desktopId: ""
+    property string appName:
+        ""
 
-    property bool selected: false
+    property string appIcon:
+        ""
+
+    property string appComment:
+        ""
+
+    property string desktopId:
+        ""
+
+    property bool selected:
+        false
 
     signal launched(string desktopId)
 
-    implicitWidth: 132
-    implicitHeight: 112
+    implicitWidth:
+        150
 
-    radius: ShellTheme.Theme.radius.card
+    implicitHeight:
+        102
+
+    antialiasing:
+        false
+
+    radius:
+        ShellTheme.Theme.radius.card
 
     color: {
-        if (mouseArea.pressed)
+        if (mouseArea.pressed) {
             return root.selected
                 ? ShellTheme.Theme.colors.primaryHover
                 : ShellTheme.Theme.colors.pressedOverlay
+        }
 
-        if (mouseArea.containsMouse)
+        if (mouseArea.containsMouse) {
             return root.selected
                 ? ShellTheme.Theme.colors.primaryHover
                 : ShellTheme.Theme.colors.hoverOverlay
+        }
 
         return root.selected
             ? ShellTheme.Theme.colors.primary
-            : ShellTheme.Theme.colors.surfaceContainer
+            : ShellTheme.Theme.colors.surfaceContainerHigh
     }
 
     border.width:
         root.selected
-        || mouseArea.containsMouse
             ? 1
             : 0
 
     border.color:
         root.selected
             ? ShellTheme.Theme.colors.outline
-            : ShellTheme.Theme.colors.outlineVariant
+            : "transparent"
 
     scale:
         mouseArea.pressed
-            ? 0.97
-            : 1.0
+            ? Motion.MotionTokens.compactPressScale
+            : mouseArea.containsMouse
+                ? Motion.MotionTokens.hoverScale
+                : 1.0
 
     Behavior on color {
         ColorAnimation {
-            duration: 120
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
     Behavior on scale {
         NumberAnimation {
-            duration: 90
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
+        }
+    }
+
+    Behavior on border.color {
+        ColorAnimation {
+            duration:
+                Motion.MotionTokens.quick
+
+            easing.type:
+                Motion.Easing.standard
         }
     }
 
     ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 12
+        anchors {
+            fill: parent
 
-        spacing: 8
+            margins:
+                ShellTheme.Theme.spacing.small
+        }
 
-        Rectangle {
-            Layout.alignment: Qt.AlignHCenter
-            Layout.preferredWidth: 54
-            Layout.preferredHeight: 54
+        spacing:
+            ShellTheme.Theme.spacing.xSmall
 
-            radius: ShellTheme.Theme.radius.button
-            color: ShellTheme.Theme.colors.surfaceContainerHigh
+        Item {
+            Layout.fillWidth:
+                true
+
+            Layout.preferredHeight:
+                48
 
             Image {
                 id: iconImage
 
-                anchors.fill: parent
-                anchors.margins: 8
+                anchors.centerIn:
+                    parent
+
+                width:
+                    42
+
+                height:
+                    42
 
                 visible:
                     root.appIcon.length > 0
                     && status !== Image.Error
 
-                source: root.appIcon
-                fillMode: Image.PreserveAspectFit
+                source:
+                    root.appIcon
 
-                asynchronous: true
-                smooth: true
+                fillMode:
+                    Image.PreserveAspectFit
+
+                asynchronous:
+                    true
+
+                smooth:
+                    true
             }
 
-            Text {
-                anchors.centerIn: parent
+            Rectangle {
+                anchors.centerIn:
+                    parent
+
+                width:
+                    42
+
+                height:
+                    42
 
                 visible:
                     root.appIcon.length === 0
                     || iconImage.status === Image.Error
 
-                text: "󰀻"
-                color: ShellTheme.Theme.colors.on_surface
+                antialiasing:
+                    false
 
-                font.pixelSize: ShellTheme.Theme.typography.headlineMedium
-                font.family:
-                    "JetBrainsMono Nerd Font"
+                radius:
+                    ShellTheme.Theme.radius.button
+
+                color:
+                    ShellTheme.Theme.colors.surfaceContainerHighest
+
+                Text {
+                    anchors.centerIn:
+                        parent
+
+                    text:
+                        "󰀻"
+
+                    color:
+                        root.selected
+                            ? ShellTheme.Theme.colors.primary
+                            : ShellTheme.Theme.colors.on_surface_variant
+
+                    font.family:
+                        ShellTheme.Theme.typography.iconFontFamily
+
+                    font.pixelSize:
+                        20
+                }
             }
         }
 
         Text {
-            Layout.fillWidth: true
+            Layout.fillWidth:
+                true
 
-            text: root.appName
-            color: ShellTheme.Theme.colors.on_surface
+            text:
+                root.appName
 
-            font.pixelSize: ShellTheme.Theme.typography.labelSmall
-            font.weight: Font.DemiBold
+            color:
+                root.selected
+                    ? ShellTheme.Theme.colors.on_primary
+                    : ShellTheme.Theme.colors.on_surface
 
-            horizontalAlignment: Text.AlignHCenter
-            elide: Text.ElideRight
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelSmall
+
+            font.weight:
+                Font.DemiBold
+
+            horizontalAlignment:
+                Text.AlignHCenter
+
+            elide:
+                Text.ElideRight
+
+            maximumLineCount:
+                1
         }
 
         Text {
-            Layout.fillWidth: true
+            Layout.fillWidth:
+                true
 
             visible:
                 root.appComment.length > 0
 
-            text: root.appComment
-            color: ShellTheme.Theme.colors.on_surface_variant
+            text:
+                root.appComment
 
-            font.pixelSize: ShellTheme.Theme.typography.labelSmall
+            color:
+                root.selected
+                    ? ShellTheme.Theme.colors.on_primary
+                    : ShellTheme.Theme.colors.on_surface_variant
 
-            horizontalAlignment: Text.AlignHCenter
-            elide: Text.ElideRight
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelSmall
+
+            horizontalAlignment:
+                Text.AlignHCenter
+
+            elide:
+                Text.ElideRight
+
+            maximumLineCount:
+                1
+
+            opacity:
+                0.78
         }
     }
 
     MouseArea {
         id: mouseArea
 
-        anchors.fill: parent
+        anchors.fill:
+            parent
 
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        hoverEnabled:
+            true
+
+        cursorShape:
+            Qt.PointingHandCursor
 
         onClicked: {
-            root.launched(root.desktopId)
+            root.launched(
+                root.desktopId
+            )
         }
     }
 }

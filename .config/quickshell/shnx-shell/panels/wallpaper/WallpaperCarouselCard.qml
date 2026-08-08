@@ -469,6 +469,12 @@ Item {
      * ------------------------------------------------------------
      * Pointer handling
      * ------------------------------------------------------------
+     *
+     * preventStealing stops PathView's press-vs-drag filter from
+     * swallowing the first click (which was forcing a second click
+     * to register). The onWheel handler explicitly declines the
+     * event so it bubbles up to WallpaperCarousel's WheelHandler
+     * instead of being silently absorbed by this MouseArea.
      */
 
     MouseArea {
@@ -482,6 +488,7 @@ Item {
             && !root.applying
 
         hoverEnabled: true
+        preventStealing: true
 
         cursorShape:
             enabled
@@ -490,6 +497,10 @@ Item {
 
         onClicked: {
             root.clicked()
+        }
+
+        onWheel: function(event) {
+            event.accepted = false
         }
     }
 }

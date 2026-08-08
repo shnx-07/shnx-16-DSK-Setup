@@ -9,7 +9,7 @@ Item {
     // =============================================================
     // Public state and geometry
     // =============================================================
-    
+
     readonly property bool expanded:
        Core.IslandController.expanded
 
@@ -18,6 +18,13 @@ Item {
 
     property int expandedWidth: 700
     property int expandedHeight: 380
+
+    /*
+     * New optional service reference. Leave null until ServiceRegistry
+     * wiring is known. Existing clock behavior does not depend on it.
+     */
+    property var searchService:
+        Core.ServiceRegistry.search
 
     /*
      * Bar.qml uses these values for the animated input mask.
@@ -40,6 +47,16 @@ Item {
             else
                 root.closed()
         }
+
+        function onActivePanelChanged() {
+            if (Core.IslandController.searchActive)
+                Qt.callLater(searchModule.activate)
+        }
+
+        function onSearchModeChanged() {
+            if (Core.IslandController.searchActive)
+                Qt.callLater(searchModule.activate)
+        }
     }
 
     width: expandedWidth
@@ -48,7 +65,7 @@ Item {
     focus: false
 
     // =============================================================
-    // Public actions
+    // Public actions — existing actions preserved
     // =============================================================
 
     function openIsland() {
@@ -64,7 +81,29 @@ Item {
     }
 
     function takeKeyboardFocus() {
-        root.forceActiveFocus()
+    if (Core.IslandController.searchActive) {
+        searchModule.activate()
+        return
+    }
+
+    root.forceActiveFocus()
+}
+
+    // New additive actions.
+    function openSearch() {
+        Core.IslandController.openUniversalSearch()
+    }
+
+    function openCommandSearch() {
+        Core.IslandController.openCommandSearch()
+    }
+
+    function toggleSearch() {
+        Core.IslandController.toggleSearch()
+    }
+
+    function toggleCommandSearch() {
+        Core.IslandController.toggleCommandSearch()
     }
 
     // =============================================================
@@ -75,6 +114,14 @@ Item {
         if (!root.expanded)
             return
 
+        /*
+         * SearchField owns Escape while it has input focus:
+         * first Escape clears text, second Escape requests close.
+         * This handler remains as the fallback for clock/other modules.
+         */
+        if (Core.IslandController.searchActive)
+            return
+
         root.closeIsland()
         event.accepted = true
     }
@@ -83,13 +130,12 @@ Item {
         if (!root.expanded)
             return
 
-        if (event.key === Qt.Key_Escape) {
+        if (event.key === Qt.Key_Escape
+                && !Core.IslandController.searchActive) {
             root.closeIsland()
             event.accepted = true
         }
     }
-
-   
 
     // =============================================================
     // Visible Dynamic Island surface
@@ -139,8 +185,6 @@ Item {
             }
         }
 
-        
-
         // =========================================================
         // Compact trigger content
         // =========================================================
@@ -149,10 +193,8 @@ Item {
             id: compactContent
 
             anchors.fill: parent
-
             visible: opacity > 0
             enabled: !root.expanded
-
             opacity: root.expanded ? 0 : 1
 
             Behavior on opacity {
@@ -167,19 +209,16 @@ Item {
             }
         }
 
-
         // =========================================================
-        // Expanded Clock | Calendar content
+        // Expanded content
         // =========================================================
 
         Item {
             id: expandedContent
 
             anchors.fill: parent
-
             visible: opacity > 0
             enabled: root.expanded
-
             opacity: root.expanded ? 1 : 0
             scale: root.expanded ? 1 : 0.985
 
@@ -199,9 +238,23 @@ Item {
 
             PanelModules.DynamicPanelClock {
                 anchors.fill: parent
-
                 visible: Core.IslandController.clockActive
+            }
+
+            PanelModules.DynamicPanelSearch {
+                id: searchModule
+                anchors.fill: parent
+
+                visible: Core.IslandController.searchActive
+                enabled: visible
+
+                searchService: root.searchService
+                mode: Core.IslandController.searchMode
+
+                onCloseRequested:
+                    Core.IslandController.closeIsland()
             }
         }
     }
 }
+

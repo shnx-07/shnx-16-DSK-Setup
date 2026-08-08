@@ -1,22 +1,36 @@
 import QtQuick
 import QtQuick.Layouts
+
 import qs.theme as ShellTheme
+import qs.motion as Motion
+import qs.components.visual as Visual
 
 Rectangle {
     id: root
 
-    property string selectedCategory: "All"
+    property string selectedCategory:
+        "All"
 
     signal categorySelected(string category)
 
-    implicitWidth: 154
-    implicitHeight: 520
+    implicitWidth:
+        146
 
-    radius: ShellTheme.Theme.radius.card
-    color: ShellTheme.Theme.colors.surfaceContainer
+    implicitHeight:
+        contentColumn.implicitHeight
+        + ShellTheme.Theme.spacing.small * 2
 
-    border.width: 1
-    border.color: ShellTheme.Theme.colors.outlineVariant
+    antialiasing:
+        false
+
+    radius:
+        ShellTheme.Theme.radius.card
+
+    color:
+        ShellTheme.Theme.colors.surfaceContainer
+
+    border.width:
+        0
 
     readonly property var categories: [
         {
@@ -54,175 +68,262 @@ Rectangle {
     ]
 
     ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 10
+        id: contentColumn
 
-        spacing: 8
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.top
+
+            margins:
+                ShellTheme.Theme.spacing.small
+        }
+
+        spacing:
+            ShellTheme.Theme.spacing.xSmall
 
         Text {
-            Layout.fillWidth: true
-            Layout.leftMargin: 6
-            Layout.preferredHeight: 22
+            Layout.fillWidth:
+                true
 
-            text: "CATEGORIES"
-            color: ShellTheme.Theme.colors.on_surface_variant
+            Layout.leftMargin:
+                ShellTheme.Theme.spacing.xSmall
 
-            font.pixelSize: ShellTheme.Theme.typography.labelSmall
-            font.weight: Font.DemiBold
-            font.letterSpacing: 1.2
+            Layout.preferredHeight:
+                24
 
-            verticalAlignment: Text.AlignVCenter
+            text:
+                "CATEGORIES"
+
+            color:
+                ShellTheme.Theme.colors.on_surface_variant
+
+            font.family:
+                ShellTheme.Theme.typography.fontFamily
+
+            font.pixelSize:
+                ShellTheme.Theme.typography.labelSmall
+
+            font.weight:
+                Font.DemiBold
+
+            font.letterSpacing:
+                1.0
+
+            verticalAlignment:
+                Text.AlignVCenter
         }
 
         Repeater {
-            model: root.categories
+            model:
+                root.categories
 
             CategoryButton {
                 required property var modelData
 
-                Layout.fillWidth: true
+                Layout.fillWidth:
+                    true
 
-                iconText: modelData.icon
-                labelText: modelData.name
+                iconText:
+                    modelData.icon
+
+                labelText:
+                    modelData.name
 
                 selected:
-                    root.selectedCategory === modelData.name
+                    root.selectedCategory
+                    === modelData.name
 
                 onClicked: {
-                    root.selectedCategory = modelData.name
-                    root.categorySelected(modelData.name)
+                    root.selectedCategory =
+                        modelData.name
+
+                    root.categorySelected(
+                        modelData.name
+                    )
+                }
+            }
+        }
+    }
+
+    component CategoryButton: Item {
+        id: buttonRoot
+
+        property string iconText:
+            ""
+
+        property string labelText:
+            ""
+
+        property bool selected:
+            false
+
+        signal clicked()
+
+        implicitHeight:
+            44
+
+        scale:
+            buttonMouseArea.pressed
+                ? Motion.MotionTokens.compactPressScale
+                : buttonMouseArea.containsMouse
+                    ? Motion.MotionTokens.hoverScale
+                    : 1.0
+
+        Behavior on scale {
+            NumberAnimation {
+                duration:
+                    Motion.MotionTokens.quick
+
+                easing.type:
+                    Motion.Easing.standard
+            }
+        }
+
+        Rectangle {
+            anchors.fill:
+                parent
+
+            antialiasing:
+                false
+
+            radius:
+                ShellTheme.Theme.radius.button
+
+            color: {
+                if (buttonMouseArea.pressed) {
+                    return buttonRoot.selected
+                        ? ShellTheme.Theme.colors.primaryHover
+                        : ShellTheme.Theme.colors.pressedOverlay
+                }
+
+                if (buttonMouseArea.containsMouse) {
+                    return buttonRoot.selected
+                        ? ShellTheme.Theme.colors.primaryHover
+                        : ShellTheme.Theme.colors.hoverOverlay
+                }
+
+                return buttonRoot.selected
+                    ? ShellTheme.Theme.colors.primary
+                    : "transparent"
+            }
+
+            border.width:
+                0
+
+            Behavior on color {
+                ColorAnimation {
+                    duration:
+                        Motion.MotionTokens.quick
+
+                    easing.type:
+                        Motion.Easing.standard
                 }
             }
         }
 
-        Item {
-            Layout.fillHeight: true
-        }
-    }
-
-    component CategoryButton: Rectangle {
-        id: buttonRoot
-
-        property string iconText: ""
-        property string labelText: ""
-        property bool selected: false
-
-        signal clicked()
-
-        implicitHeight: 48
-        radius: ShellTheme.Theme.radius.button
-
-        color: {
-            if (buttonMouseArea.pressed)
-                return selected
-                    ? ShellTheme.Theme.colors.primaryHover
-                    : ShellTheme.Theme.colors.pressedOverlay
-
-            if (buttonMouseArea.containsMouse)
-                return selected
-                    ? ShellTheme.Theme.colors.primaryHover
-                    : ShellTheme.Theme.colors.hoverOverlay
-
-            return selected
-                ? ShellTheme.Theme.colors.primary
-                : "transparent"
-        }
-
-        border.width:
-            selected
-                ? 1
-                : 0
-
-        border.color:
-            selected
-                ? ShellTheme.Theme.colors.outline
-                : "transparent"
-
-        scale:
-            buttonMouseArea.pressed
-                ? 0.98
-                : 1.0
-
-        Behavior on color {
-            ColorAnimation {
-                duration: 120
-            }
-        }
-
-        Behavior on scale {
-            NumberAnimation {
-                duration: 90
-            }
-        }
-
         Row {
-            anchors.fill: parent
-            anchors.leftMargin: 12
-            anchors.rightMargin: 10
+            anchors {
+                left: parent.left
+                right: parent.right
+                verticalCenter: parent.verticalCenter
 
-            spacing: 10
+                leftMargin:
+                    ShellTheme.Theme.spacing.small
+
+                rightMargin:
+                    ShellTheme.Theme.spacing.small
+            }
+
+            spacing:
+                ShellTheme.Theme.spacing.small
 
             Rectangle {
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenter:
+                    parent.verticalCenter
 
-                width: 30
-                height: 30
-                radius: width / 2
+                width:
+                    30
+
+                height:
+                    30
+
+                antialiasing:
+                    false
+
+                radius:
+                    ShellTheme.Theme.radius.button
 
                 color:
                     buttonRoot.selected
                         ? ShellTheme.Theme.colors.on_primary
                         : ShellTheme.Theme.colors.surfaceContainerHigh
 
-                Text {
-                    anchors.centerIn: parent
+                Visual.Icon {
+                    anchors.centerIn:
+                        parent
 
-                    text: buttonRoot.iconText
+                    glyph:
+                        buttonRoot.iconText
+
+                    iconSize:
+                        15
 
                     color:
                         buttonRoot.selected
                             ? ShellTheme.Theme.colors.primary
                             : ShellTheme.Theme.colors.on_surface_variant
-
-                    font.pixelSize: ShellTheme.Theme.typography.bodySmall
-                    font.family:
-                        "JetBrainsMono Nerd Font"
                 }
             }
 
             Text {
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenter:
+                    parent.verticalCenter
 
-                width: parent.width - 52
+                width:
+                    Math.max(
+                        0,
+                        parent.width - 48
+                    )
 
-                text: buttonRoot.labelText
+                text:
+                    buttonRoot.labelText
 
                 color:
                     buttonRoot.selected
                         ? ShellTheme.Theme.colors.on_primary
                         : ShellTheme.Theme.colors.on_surface
 
-                font.pixelSize: ShellTheme.Theme.typography.labelSmall
+                font.family:
+                    ShellTheme.Theme.typography.fontFamily
+
+                font.pixelSize:
+                    ShellTheme.Theme.typography.labelSmall
+
                 font.weight:
                     buttonRoot.selected
                         ? Font.DemiBold
                         : Font.Medium
 
-                elide: Text.ElideRight
+                elide:
+                    Text.ElideRight
             }
         }
 
         MouseArea {
             id: buttonMouseArea
 
-            anchors.fill: parent
+            anchors.fill:
+                parent
 
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
+            hoverEnabled:
+                true
 
-            onClicked: {
+            cursorShape:
+                Qt.PointingHandCursor
+
+            onClicked:
                 buttonRoot.clicked()
-            }
         }
     }
 }

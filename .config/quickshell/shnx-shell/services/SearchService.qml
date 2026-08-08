@@ -1,11 +1,26 @@
 import QtQuick
 import Quickshell
 
+import qs.core as Core
 QtObject {
     id: root
 
     property string query: ""
     property string selectedCategory: "All"
+    property var filesystemResults: []
+    property bool filesystemSearching: false
+    property string filesystemError: ""
+    property string filesystemRequestId: ""
+    property Timer filesystemSearchDebounce: Timer {
+        interval: 250
+        repeat: false
+
+        onTriggered: {
+            root.searchFilesystem(
+                root.query
+            )
+        }
+    }
 
     readonly property var applications:
         DesktopEntries.applications.values
@@ -77,6 +92,64 @@ QtObject {
 
         return results
     }
+    
+    function searchFilesystem(query) {
+        const trimmed = query.trim()
+
+        if (trimmed.length === 0) {
+            filesystemResults = []
+            filesystemSearching = false
+            filesystemError = ""
+            filesystemRequestId = ""
+            return
+        }
+
+        filesystemSearching = true
+        filesystemError = ""
+
+        filesystemRequestId =
+            Core.ServiceRegistry.backend.sendCommand(
+                "search.files",
+                {
+                    query: trimmed,
+                    limit: 20
+                }
+            )
+
+        if (filesystemRequestId.length === 0) {
+            filesystemSearching = false
+            filesystemError =
+                Core.ServiceRegistry.backend.lastError
+        }
+    }
+    
+    function openPath(path) {
+        if (!path || path.length === 0)
+            return ""
+
+        return Core.ServiceRegistry.backend.sendCommand(
+            "search.open",
+            {
+                path: path
+            }
+        )
+    }
+
+    function runCommand(command) {
+        const trimmed =
+            String(command || "").trim()
+
+        if (trimmed.length === 0)
+            return ""
+
+        return Core.ServiceRegistry.backend.sendCommand(
+            "search.command",
+            {
+                command: trimmed
+            }
+        )
+    }
+
 
     function matchesCategory(entry) {
         if (root.selectedCategory === "All")
@@ -285,6 +358,17 @@ QtObject {
 
     function setQuery(value) {
         root.query = value || ""
+
+        const trimmed =
+            root.query.trim()
+
+        if (trimmed.length === 0) {
+            root.filesystemSearchDebounce.stop()
+            root.searchFilesystem("")
+            return
+        }
+
+        root.filesystemSearchDebounce.restart()
     }
 
     function setCategory(value) {
@@ -298,4 +382,42 @@ QtObject {
         if (entry)
             entry.execute()
     }
+
+
+
+    property Connections backendConnections: Connections {
+        target:
+            Core.ServiceRegistry.backend
+
+        function onResponseReceived(
+            command,
+            requestId,
+            payload
+        ) {
+            if (command !== "search.files")
+                return
+
+            if (
+                requestId
+                !== root.filesystemRequestId
+            ) {
+                return
+            }
+
+            root.filesystemSearching = false
+            root.filesystemError = ""
+
+            root.filesystemResults =
+            payload.results || []
+
+            console.log(
+                "[SearchService] filesystem results:",
+                root.filesystemResults.length
+            )
+        }
+    }
+
+
+
+
 }

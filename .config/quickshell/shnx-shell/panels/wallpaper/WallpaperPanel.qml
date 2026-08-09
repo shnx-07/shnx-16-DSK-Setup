@@ -182,24 +182,39 @@ PanelWindow {
         if (!visible)
             return
 
-        // Let the PanelWindow finish becoming visible before kicking off
-        // the asynchronous library scan. This avoids the first-open race
-        // where PathView was being populated while the window was still
-        // completing its initial Wayland scene setup.
         Qt.callLater(function() {
-            const service = root.wallpaperService
+            if (!root || !root.visible)
+                return
 
-            if (
-                service
-                && service.backendAvailable
-                && service.wallpaperCount === 0
-                && !service.loading
-            ) {
-                service.scanLibrary()
-            }
-
-            if (root.visible)
+            if (root.visible && wallpaperCarousel)
                 wallpaperCarousel.forceActiveFocus()
+
+            /*
+             * Second callLater: push the scan one more tick out.
+             *
+             * WHY: the first tick lets the Wayland surface commit and
+             * the Repeater instantiate its initial delegates. The second
+             * tick lets those delegates finish their Component.onCompleted
+             * handlers and Image asynchronous loads queue up. Only THEN
+             * do we ask the backend to scan, so when it responds and
+             * replaces `library`, none of the old delegates have live
+             * async image loads in-flight that could fire on freed memory.
+             */
+            Qt.callLater(function() {
+                if (!root || !root.visible)
+                    return
+
+                const service = root.wallpaperService
+
+                if (
+                    service
+                    && service.backendAvailable
+                    && service.wallpaperCount === 0
+                    && !service.loading
+                ) {
+                    service.scanLibrary()
+                }
+            })
         })
     }
 
@@ -225,4 +240,5 @@ PanelWindow {
         }
     }
 }
+
 

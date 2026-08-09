@@ -274,13 +274,32 @@ FocusScope {
             if (!wallpaper || !wallpaper.path)
                 return
 
-            const index =
-                root.indexForPath(
-                    wallpaper.path
-                )
+            /*
+             * Defer the selectedIndex write to the next event-loop tick.
+             *
+             * WHY: selectionChanged can be emitted inside handleScanResponse
+             * at the same moment the Repeater is processing the new library
+             * array. If we update selectedIndex synchronously here, the
+             * relativeIndex / opacity / size bindings fire on delegates
+             * that are in mid-destruction -> QQuickItem::window() on a
+             * freed pointer -> SIGSEGV.
+             *
+             * Qt.callLater guarantees we run AFTER the Repeater has
+             * finished tearing down old delegates and creating new ones,
+             * so every delegate QQuickItem we touch is fully alive.
+             */
+            Qt.callLater(function() {
+                if (!root || !root.hasItems)
+                    return
 
-            if (index >= 0)
-                root.selectedIndex = index
+                const index =
+                    root.indexForPath(
+                        wallpaper.path
+                    )
+
+                if (index >= 0)
+                    root.selectedIndex = index
+            })
         }
     }
 
@@ -405,16 +424,24 @@ FocusScope {
 
 
               readonly property bool isCurrent:
-                  root.wallpaperService.currentWallpaper
+                  root.wallpaperService
+                  && root.wallpaperService.currentWallpaper
                   && root.wallpaperService.currentWallpaper.path
-                      === modelData.path
+                  && modelData
+                  && modelData.path
+                      ? root.wallpaperService.currentWallpaper.path === modelData.path
+                      : false
 
 
               readonly property bool isApplying:
-                  root.wallpaperService.applying
+                  root.wallpaperService
+                  && root.wallpaperService.applying
                   && root.wallpaperService.selectedWallpaper
                   && root.wallpaperService.selectedWallpaper.path
-                      === modelData.path
+                  && modelData
+                  && modelData.path
+                      ? root.wallpaperService.selectedWallpaper.path === modelData.path
+                      : false
 
 
               /*
@@ -814,3 +841,4 @@ FocusScope {
         }
     }
 }
+

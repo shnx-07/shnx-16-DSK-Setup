@@ -7,15 +7,28 @@ QtObject {
     readonly property var sink:
         Pipewire.defaultAudioSink
 
+    readonly property var source:
+        Pipewire.defaultAudioSource
+
     property PwObjectTracker sinkTracker: PwObjectTracker {
         objects: [
-            root.sink
+            root.sink,
+            root.source
         ]
     }
 
     readonly property bool available:
         sink !== null
         && sink.audio !== null
+
+    readonly property bool sourceAvailable:
+        source !== null
+        && source.audio !== null
+
+    readonly property bool microphoneMuted:
+        sourceAvailable
+            ? source.audio.muted
+            : false
 
     readonly property real volume:
         available
@@ -93,4 +106,20 @@ QtObject {
 
         setVolume(volume - amount)
     }
+
+    function toggleMicrophoneMute() {
+        if (!sourceAvailable)
+            return
+
+        source.audio.muted =
+            !source.audio.muted
+    }
+
+    function setMicrophoneMuted(value) {
+        if (!sourceAvailable)
+            return
+
+        source.audio.muted = value
+    }
 }
+

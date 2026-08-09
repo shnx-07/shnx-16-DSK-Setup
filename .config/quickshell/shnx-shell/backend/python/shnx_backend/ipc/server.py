@@ -165,3 +165,42 @@ class IpcServer:
                 self._socket_path,
             )
             raise
+
+    async def broadcast(
+        self,
+        message: dict,
+    ) -> None:
+        """
+        Send one backend event/message to every connected client.
+        """
+
+        dead_clients: list[
+            asyncio.StreamWriter
+        ] = []
+
+        for writer in list(self._clients):
+            try:
+                await self.send(
+                    writer,
+                    message,
+                )
+
+            except (
+                BrokenPipeError,
+                ConnectionError,
+                ConnectionResetError,
+            ):
+                dead_clients.append(
+                    writer
+                )
+
+        for writer in dead_clients:
+            self._clients.discard(
+                writer
+            )
+
+            try:
+                writer.close()
+                await writer.wait_closed()
+            except Exception:
+                pass

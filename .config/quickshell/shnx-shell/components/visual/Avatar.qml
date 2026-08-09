@@ -12,7 +12,7 @@ Item {
         ShellTheme.Theme.colors.surfaceContainerHigh
 
     property color fallbackTextColor:
-        ShellTheme.Theme.colors.onSurface
+        ShellTheme.Theme.colors.on_surface
 
     property string fallbackText: ""
 

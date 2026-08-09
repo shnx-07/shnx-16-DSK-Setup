@@ -21,7 +21,7 @@ Item {
     property string tooltipText: ""
 
     property color iconColor:
-        ShellTheme.Theme.colors.onSurface
+        ShellTheme.Theme.colors.on_surface
 
     property color hoverColor:
         ShellTheme.Theme.colors.surfaceContainerHigh

@@ -27,7 +27,7 @@ Item {
         ShellTheme.Theme.colors.primary
 
     property color handleColor:
-        ShellTheme.Theme.colors.onPrimary
+        ShellTheme.Theme.colors.on_primary
 
     readonly property bool pressed:
         dragArea.pressed

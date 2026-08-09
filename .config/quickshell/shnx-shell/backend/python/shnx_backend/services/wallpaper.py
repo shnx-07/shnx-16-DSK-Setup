@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import os
 import random
@@ -35,6 +36,30 @@ class WallpaperItem:
             "modified": int(stat.st_mtime),
         }
 
+@dataclass(frozen=True)
+class MonitorInfo:
+    name: str
+    description: str
+    make: str
+    model: str
+    serial: str
+    width: int
+    height: int
+    scale: float
+    focused: bool
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "description": self.description,
+            "make": self.make,
+            "model": self.model,
+            "serial": self.serial,
+            "width": self.width,
+            "height": self.height,
+            "scale": self.scale,
+            "focused": self.focused,
+        }
 
 class WallpaperService:
     """
@@ -607,4 +632,205 @@ class WallpaperService:
 
         raise WallpaperError(
             "Previous wallpaper type is unknown."
+
         )
+
+
+    async def monitors(
+        self,
+    ) -> dict[str, Any]:
+        """
+        Return all currently connected Hyprland monitors.
+
+        No wallpaper state is changed here.
+        This is discovery only.
+        """
+
+        detected = await self._detect_monitors()
+
+        focused = next(
+            (
+                monitor.name
+                for monitor in detected
+                if monitor.focused
+            ),
+            None,
+        )
+
+        return {
+            "monitors": [
+                monitor.to_dict()
+                for monitor in detected
+            ],
+            "focused": focused,
+        }
+
+
+    async def _detect_monitors(
+        self,
+    ) -> list[MonitorInfo]:
+        if shutil.which("hyprctl") is None:
+            raise WallpaperError(
+                "hyprctl is not installed."
+            )
+
+        process = await asyncio.create_subprocess_exec(
+            "hyprctl",
+            "monitors",
+            "-j",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = (
+            await process.communicate()
+        )
+
+        if process.returncode != 0:
+            message = (
+                stderr.decode(
+                    errors="replace"
+                ).strip()
+                or stdout.decode(
+                    errors="replace"
+                ).strip()
+                or "Could not query Hyprland monitors."
+            )
+
+            raise WallpaperError(
+                message
+            )
+
+        try:
+            payload = json.loads(
+                stdout.decode(
+                    errors="replace"
+                )
+            )
+        except json.JSONDecodeError as error:
+            raise WallpaperError(
+                "Hyprland returned invalid monitor data."
+            ) from error
+
+        if not isinstance(payload, list):
+            raise WallpaperError(
+                "Hyprland monitor response is invalid."
+            )
+
+        monitors: list[MonitorInfo] = []
+
+        for raw in payload:
+            if not isinstance(raw, dict):
+                continue
+
+            name = str(
+                raw.get("name") or ""
+            ).strip()
+
+            if not name:
+                continue
+
+            width = raw.get("width")
+            height = raw.get("height")
+
+            if not isinstance(width, int):
+                width = 0
+
+            if not isinstance(height, int):
+                height = 0
+
+            scale_raw = raw.get(
+                "scale",
+                1.0,
+            )
+
+            try:
+                scale = float(scale_raw)
+            except (TypeError, ValueError):
+                scale = 1.0
+
+            monitors.append(
+                MonitorInfo(
+                    name=name,
+
+                    description=str(
+                        raw.get("description")
+                        or ""
+                    ).strip(),
+
+                    make=str(
+                        raw.get("make")
+                        or ""
+                    ).strip(),
+
+                    model=str(
+                        raw.get("model")
+                        or ""
+                    ).strip(),
+
+                    serial=str(
+                        raw.get("serial")
+                        or ""
+                    ).strip(),
+
+                    width=width,
+                    height=height,
+                    scale=scale,
+
+                    focused=bool(
+                        raw.get("focused")
+                    ),
+                )
+            )
+
+        if not monitors:
+            raise WallpaperError(
+                "No active Hyprland monitors were found."
+            )
+
+        return monitors
+    
+    
+    async def _monitor_names(
+        self,
+    ) -> set[str]:
+        monitors = await self._detect_monitors()
+
+        return {
+            monitor.name
+            for monitor in monitors
+        }
+
+
+    async def _validate_output(
+        self,
+        output: str,
+        *,
+        allow_all: bool = True,
+    ) -> str:
+        if not isinstance(output, str):
+            raise WallpaperError(
+                "Monitor output must be a string."
+            )
+
+        output = output.strip()
+
+        if not output:
+            raise WallpaperError(
+                "Monitor output is empty."
+            )
+
+        if (
+            allow_all
+            and output.upper() == "ALL"
+        ):
+            return "ALL"
+
+        names = await self._monitor_names()
+
+        if output not in names:
+            raise WallpaperError(
+                f"Monitor is not connected: {output}"
+            )
+
+        return output

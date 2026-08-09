@@ -1,4 +1,5 @@
 import QtQuick
+import qs.theme as ShellTheme
 
 Item {
     id: root
@@ -8,12 +9,12 @@ Item {
 
     Column {
         anchors.centerIn: parent
-        spacing: 8
+        spacing: ShellTheme.Theme.spacing.small
 
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
             text: root.mode === "command" ? "󰆍" : "󰍉"
-            color: "#777777"
+            color: ShellTheme.Theme.colors.on_surface_variant
             font.pixelSize: 24
         }
 
@@ -27,8 +28,9 @@ Item {
                         ? "Start typing a command"
                         : "Start typing to search"
 
-            color: "#a0a0a0"
-            font.pixelSize: 12
+            color: ShellTheme.Theme.colors.on_surface_variant
+            font.pixelSize: ShellTheme.Theme.typography.bodySmall
         }
     }
 }
+

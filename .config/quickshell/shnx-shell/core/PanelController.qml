@@ -125,6 +125,25 @@ QtObject {
                 : "overview"
 
         openPanel = "quickSettings"
+      
+    }
+
+    readonly property bool systemPanelOpen:
+        openPanel === "system"
+
+    function openSystem() {
+        anchorItem = null
+        selectedSection = ""
+        openPanel = "system"
+    }
+
+    function toggleSystem() {
+        if (systemPanelOpen) {
+            close()
+            return
+        }
+
+        openSystem()
     }
 
     function toggleBattery(item) {

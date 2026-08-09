@@ -19,14 +19,10 @@ Item {
     property string closeGlyph: "󰅖"
 
     property real horizontalPadding:
-        ShellTheme.Theme.spacing.medium
+        ShellTheme.Theme.spacing.large
 
     property real verticalPadding:
-        ShellTheme.Theme.spacing.small
-
-    implicitWidth:
-        headerRow.implicitWidth
-        + root.horizontalPadding * 2
+        ShellTheme.Theme.spacing.medium
 
     implicitHeight:
         Math.max(
@@ -42,10 +38,16 @@ Item {
             left: parent.left
             right: parent.right
             verticalCenter: parent.verticalCenter
+
+            leftMargin:
+                root.horizontalPadding
+
+            rightMargin:
+                root.horizontalPadding
         }
 
         spacing:
-            ShellTheme.Theme.spacing.small
+            ShellTheme.Theme.spacing.medium
 
         Buttons.IconButton {
             visible:
@@ -69,13 +71,19 @@ Item {
                     0,
                     parent.width
                     - actionsRow.width
-                    - (root.showBackButton
-                        ? ShellTheme.Theme.spacing.large + 36
-                        : 0)
+                    - (
+                        root.showBackButton
+                            ? 36
+                                + parent.spacing
+                            : 0
+                    )
+                    - parent.spacing
                 )
 
-            spacing:
-                ShellTheme.Theme.spacing.xSmall
+            anchors.verticalCenter:
+                parent.verticalCenter
+
+            spacing: 3
 
             Text {
                 width:
@@ -85,16 +93,16 @@ Item {
                     root.title
 
                 color:
-                    ShellTheme.Theme.colors.onSurface
+                    ShellTheme.Theme.colors.on_surface
 
                 font.family:
                     ShellTheme.Theme.typography.fontFamily
 
                 font.pixelSize:
-                    ShellTheme.Theme.typography.titleLarge
+                    ShellTheme.Theme.typography.titleMedium
 
                 font.weight:
-                    Font.DemiBold
+                    ShellTheme.Theme.typography.weightSemiBold
 
                 elide:
                     Text.ElideRight
@@ -111,35 +119,26 @@ Item {
                     root.subtitle
 
                 color:
-                    ShellTheme.Theme.colors.onSurfaceVariant
+                    ShellTheme.Theme.colors.on_surface_variant
 
                 font.family:
                     ShellTheme.Theme.typography.fontFamily
 
                 font.pixelSize:
-                    ShellTheme.Theme.typography.bodyMedium
+                    ShellTheme.Theme.typography.bodySmall
+
+                opacity: 0.72
 
                 elide:
                     Text.ElideRight
             }
         }
 
-        Item {
-            width:
-                Math.max(
-                    0,
-                    root.width
-                    - titleColumn.width
-                    - actionsRow.width
-                    - (root.showBackButton ? 36 : 0)
-                )
-
-            height:
-                1
-        }
-
         Row {
             id: actionsRow
+
+            anchors.verticalCenter:
+                parent.verticalCenter
 
             spacing:
                 ShellTheme.Theme.spacing.xSmall

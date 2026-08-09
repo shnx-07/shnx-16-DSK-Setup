@@ -53,6 +53,19 @@ Item {
             cache: true
             smooth: true
             mipmap: true
+
+            Component.onDestruction: {
+                /*
+                 * Cancel any in-progress async image decode before
+                 * the item is freed. Setting asynchronous = false
+                 * first tells Qt to abandon the background thread
+                 * load synchronously, so no statusChanged notification
+                 * is queued after destruction that could dereference
+                 * the freed QQuickItem.
+                 */
+                asynchronous = false
+                source = ""
+            }
         }
 
         Rectangle {
@@ -120,3 +133,4 @@ Item {
         }
     }
 }
+

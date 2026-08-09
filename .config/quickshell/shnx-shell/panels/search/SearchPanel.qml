@@ -1,5 +1,6 @@
 import QtQuick
 
+import qs.theme as ShellTheme
 import "../../components/controls" as Controls
 
 Item {
@@ -162,7 +163,7 @@ Item {
         Rectangle {
             width: parent.width
             height: 1
-            color: "#2a2a2a"
+            color: ShellTheme.Theme.colors.outlineVariant
         }
 
         Row {
@@ -177,8 +178,8 @@ Item {
                             ? "Applications"
                             : "Applications"
 
-                color: "#777777"
-                font.pixelSize: 10
+                color: ShellTheme.Theme.colors.on_surface_variant
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 font.weight: Font.DemiBold
             }
 
@@ -193,8 +194,8 @@ Item {
                     root.visibleResults.length > 0
                         ? String(root.visibleResults.length)
                         : ""
-                color: "#666666"
-                font.pixelSize: 10
+                color: ShellTheme.Theme.colors.on_surface_variant
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
             }
         }
 

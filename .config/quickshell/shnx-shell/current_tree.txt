@@ -1,0 +1,382 @@
+.
+├── assets
+│   ├── fonts
+│   │   └── README.md
+│   ├── icons
+│   ├── images
+│   └── sounds
+├── backend
+│   ├── protocol
+│   │   ├── commands.json
+│   │   └── events.json
+│   └── python
+│       ├── main.py
+│       ├── pyproject.toml
+│       ├── shnx_backend
+│       │   ├── application.py
+│       │   ├── __init__.py
+│       │   ├── ipc
+│       │   │   ├── messages.py
+│       │   │   ├── protocol.py
+│       │   │   ├── __pycache__
+│       │   │   │   ├── messages.cpython-314.pyc
+│       │   │   │   ├── protocol.cpython-314.pyc
+│       │   │   │   └── server.cpython-314.pyc
+│       │   │   └── server.py
+│       │   ├── models
+│       │   ├── __pycache__
+│       │   │   ├── application.cpython-314.pyc
+│       │   │   └── __init__.cpython-314.pyc
+│       │   ├── services
+│       │   │   ├── clipboard.py
+│       │   │   ├── display.py
+│       │   │   ├── input.py
+│       │   │   ├── lockscreen.py
+│       │   │   ├── palette_source.py
+│       │   │   ├── persistence.py
+│       │   │   ├── __pycache__
+│       │   │   │   ├── display.cpython-314.pyc
+│       │   │   │   ├── input.cpython-314.pyc
+│       │   │   │   ├── palette_source.cpython-314.pyc
+│       │   │   │   ├── persistence.cpython-314.pyc
+│       │   │   │   ├── search.cpython-314.pyc
+│       │   │   │   ├── system_settings.cpython-314.pyc
+│       │   │   │   ├── thumbnails.cpython-314.pyc
+│       │   │   │   ├── wallpaper.cpython-314.pyc
+│       │   │   │   └── weather.cpython-314.pyc
+│       │   │   ├── recorder.py
+│       │   │   ├── search.py
+│       │   │   ├── slideshow.py
+│       │   │   ├── snippets.py
+│       │   │   ├── system_settings.py
+│       │   │   ├── thumbnails.py
+│       │   │   ├── wallpaper.py
+│       │   │   └── weather.py
+│       │   ├── storage
+│       │   │   └── system_settings.json
+│       │   └── system
+│       │       ├── hyprland.py
+│       │       ├── __init__.py
+│       │       └── __pycache__
+│       │           ├── hyprland.cpython-314.pyc
+│       │           └── __init__.cpython-314.pyc
+│       └── tests
+├── bar
+│   ├── Bar.qml
+│   ├── dynamic
+│   │   ├── DynamicIsland.qml
+│   │   ├── expanded
+│   │   │   ├── media
+│   │   │   │   ├── AlbumArt.qml
+│   │   │   │   ├── MediaControls.qml
+│   │   │   │   ├── MediaExpandedView.qml
+│   │   │   │   ├── MediaProgress.qml
+│   │   │   │   └── Waveform.qml
+│   │   │   └── MicrophoneFeedbackView.qml
+│   │   ├── glances
+│   │   │   ├── GlanceContainer.qml
+│   │   │   ├── MediaGlance.qml
+│   │   │   ├── MicrophoneFeedbackView.qml
+│   │   │   └── NotificationGlance.qml
+│   │   ├── IslandSurface.qml
+│   │   ├── IslandTriggerRow.qml
+│   │   ├── panelModules
+│   │   │   ├── DynamicPanelClock.qml
+│   │   │   ├── DynamicPanelMedia.qml
+│   │   │   ├── DynamicPanelMicrophoneFeedback.qml
+│   │   │   ├── DynamicPanelNotifications.qml
+│   │   │   └── DynamicPanelSearch.qml
+│   │   └── triggers
+│   │       ├── ClockTrigger.qml
+│   │       ├── MediaTrigger.qml
+│   │       ├── MicrophoneTrigger.qml
+│   │       ├── ScreenRecorderTrigger.qml
+│   │       ├── VoiceRecorderTrigger.qml
+│   │       └── WallpaperTrigger.qml
+│   └── modules
+│       ├── ActiveWindowIndicator.qml
+│       ├── ArchButton.qml
+│       ├── BatteryIndicator.qml
+│       ├── BluetoothIndicator.qml
+│       ├── CenterSection.qml
+│       ├── LeftSection.qml
+│       ├── NotificationButton.qml
+│       ├── PowerButton.qml
+│       ├── ProfileButton.qml
+│       ├── QuickSettingsButton.qml
+│       ├── RightSection.qml
+│       ├── WifiIndicator.qml
+│       └── WorkspaceIndicator.qml
+├── components
+│   ├── buttons
+│   │   ├── IconButton.qml
+│   │   ├── PillButton.qml
+│   │   └── ToggleButton.qml
+│   ├── cards
+│   │   ├── BaseCard.qml
+│   │   ├── NotificationCard.qml
+│   │   ├── ProfileInfoCard.qml
+│   │   ├── RecordingCard.qml
+│   │   └── WeatherCard.qml
+│   ├── controls
+│   │   ├── ProgressBar.qml
+│   │   ├── SearchField.qml
+│   │   ├── SegmentedControl.qml
+│   │   ├── SelectField.qml
+│   │   ├── Slider.qml
+│   │   └── SwipeContainer.qml
+│   ├── layout
+│   │   ├── Divider.qml
+│   │   ├── PanelHeader.qml
+│   │   ├── Spacer.qml
+│   │   └── Surface.qml
+│   ├── lists
+│   │   └── RecordingList.qml
+│   ├── media
+│   │   ├── AnimatedImagePreview.qml
+│   │   ├── MediaPreview.qml
+│   │   └── VideoPreview.qml
+│   └── visual
+│       ├── Avatar.qml
+│       ├── Badge.qml
+│       ├── Icon.qml
+│       └── Shadow.qml
+├── config
+│   ├── defaults.json
+│   ├── layout.json
+│   ├── lockscreen.json
+│   ├── modules.json
+│   ├── settings.json
+│   ├── shortcuts.json
+│   └── wallpaper.json
+├── core
+│   ├── IslandController.qml
+│   ├── Logger.qml
+│   ├── PanelController.qml
+│   ├── qmldir
+│   ├── ServiceRegistry.qml
+│   ├── ShellRoot.qml
+│   ├── ShellState.qml
+│   └── UtilityDockController.qml
+├── current_tree.txt
+├── dock
+│   ├── qmldir
+│   ├── UtilityDockItem.qml
+│   ├── UtilityDock.qml
+│   ├── UtilityDockShortcutLabel.qml
+│   └── UtilityDockSurface.qml
+├── json_file.txt
+├── motion
+│   ├── Easing.qml
+│   ├── FadeTransition.qml
+│   ├── IslandTransition.qml
+│   ├── MotionTokens.qml
+│   ├── qmldir
+│   ├── ScaleTransition.qml
+│   ├── SlideTransition.qml
+│   └── wallpaper
+│       ├── qmldir
+│       └── WallpaperTransitionController.qml
+├── new_code_.txt
+├── output_backend.txt
+├── panels
+│   ├── appearance
+│   │   ├── AppearancePanel.qml
+│   │   ├── AppearanceSelector.qml
+│   │   ├── ColorStyleSelector.qml
+│   │   ├── PalettePreview.qml
+│   │   └── ThemePreview.qml
+│   ├── clipboard
+│   │   ├── ClipboardItem.qml
+│   │   ├── ClipboardList.qml
+│   │   ├── ClipboardPanel.qml
+│   │   ├── ClipboardPreview.qml
+│   │   ├── ClipboardSearchField.qml
+│   │   └── EmptyClipboard.qml
+│   ├── clock
+│   │   ├── AnalogClockView.qml
+│   │   ├── CalendarSection.qml
+│   │   ├── ClockCalendarPanel.qml
+│   │   ├── ClockSection.qml
+│   │   ├── DigitalClockView.qml
+│   │   ├── MonthCalendarView.qml
+│   │   └── YearCalendarView.qml
+│   ├── launcher
+│   │   ├── AppDelegate.qml
+│   │   ├── AppGrid.qml
+│   │   ├── AppLauncherPanel.qml
+│   │   ├── CategorySidebar.qml
+│   │   ├── EmptyResults.qml
+│   │   └── SearchField.qml
+│   ├── lockscreen
+│   │   ├── LockScreenApplyFeedback.qml
+│   │   ├── LockScreenBackgroundSection.qml
+│   │   ├── LockScreenCarousel.qml
+│   │   ├── LockScreenEffectsSection.qml
+│   │   ├── LockScreenFallbackSection.qml
+│   │   ├── LockScreenPanel.qml
+│   │   ├── LockScreenPreview.qml
+│   │   └── LockScreenSlideshowSection.qml
+│   ├── media
+│   │   ├── AlbumArt.qml
+│   │   ├── MediaControls.qml
+│   │   ├── MediaPanel.qml
+│   │   ├── MediaProgress.qml
+│   │   └── Waveform.qml
+│   ├── microphone
+│   │   └── MicrophoneFeedbackView.qml
+│   ├── notifications
+│   │   ├── EmptyNotifications.qml
+│   │   ├── NotificationPanel.qml
+│   │   ├── NotificationsSection.qml
+│   │   └── WeatherSection.qml
+│   ├── power
+│   │   └── PowerMenuPanel.qml
+│   ├── profile
+│   │   ├── AudioSlider.qml
+│   │   ├── BrightnessSlider.qml
+│   │   ├── DeviceStatusSection.qml
+│   │   ├── ProfileActions.qml
+│   │   ├── ProfileCard.qml
+│   │   ├── ProfileHubPanel.qml
+│   │   ├── ProfilePanel.qml
+│   │   ├── ProfilePicture.qml
+│   │   ├── QuickSettingsSection.qml
+│   │   ├── QuickSettingTile.qml
+│   │   ├── SystemMetricsSection.qml
+│   │   └── UserInfoSection.qml
+│   ├── quicksettings
+│   │   ├── AudioSlider.qml
+│   │   ├── BatterySection.qml
+│   │   ├── BluetoothSection.qml
+│   │   ├── BrightnessSlider.qml
+│   │   ├── DeviceStatusSection.qml
+│   │   ├── NightLightSection.qml
+│   │   ├── QuickSettingsDetailPanel.qml
+│   │   ├── QuickSettingsSection.qml
+│   │   ├── QuickSettingTile.qml
+│   │   ├── SystemMetricsSection.qml
+│   │   ├── VpnSection.qml
+│   │   └── WifiSection.qml
+│   ├── recorder
+│   │   ├── ScreenRecorderPanel.qml
+│   │   └── VoiceRecorderPanel.qml
+│   ├── search
+│   │   ├── EmptySearchResults.qml
+│   │   ├── SearchPanel.qml
+│   │   ├── SearchResultDelegate.qml
+│   │   └── SearchResults.qml
+│   ├── snippets
+│   │   ├── CodeSnippetPanel.qml
+│   │   ├── EmptySnippets.qml
+│   │   ├── LanguageSelector.qml
+│   │   ├── SnippetCard.qml
+│   │   ├── SnippetEditor.qml
+│   │   ├── SnippetList.qml
+│   │   └── SnippetSearchField.qml
+│   ├── system
+│   │   ├── display
+│   │   │   ├── DisplaySection.qml
+│   │   │   ├── MonitorCard.qml
+│   │   │   ├── MonitorSelector.qml
+│   │   │   ├── PositionControl.qml
+│   │   │   ├── RefreshRateSelector.qml
+│   │   │   ├── ResolutionSelector.qml
+│   │   │   └── ScaleSelector.qml
+│   │   ├── DisplayInputPanel.qml
+│   │   └── input
+│   │       ├── AccelerationSelector.qml
+│   │       ├── InputSection.qml
+│   │       └── PointerSensitivity.qml
+│   └── wallpaper
+│       ├── GifWallpaperPreview.qml
+│       ├── StaticWallpaperPreview.qml
+│       ├── VideoWallpaperPreview.qml
+│       ├── WallpaperCarouselCard.qml
+│       ├── WallpaperCarousel.qml
+│       ├── WallpaperMediaPreview.qml
+│       ├── WallpaperPanel.qml
+│       └── WallpaperTypeBadge.qml
+├── qmldir
+├── README.md
+├── scripts
+│   ├── debug.sh
+│   ├── generate-theme.sh
+│   ├── restart.sh
+│   ├── start.sh
+│   └── stop.sh
+├── services
+│   ├── AudioService.qml
+│   ├── BackendService.qml
+│   ├── BatteryService.qml
+│   ├── BluetoothService.qml
+│   ├── BrightnessService.qml
+│   ├── ClipboardService.qml
+│   ├── ClockService.qml
+│   ├── DisplayService.qml
+│   ├── HyprlandService.qml
+│   ├── InputService.qml
+│   ├── LockScreenService.qml
+│   ├── MediaService.qml
+│   ├── NetworkService.qml
+│   ├── NightLightService.qml
+│   ├── NotificationService.qml
+│   ├── ProfileService.qml
+│   ├── RecorderService.qml
+│   ├── ScreenRecorderService.qml
+│   ├── SearchService.qml
+│   ├── SlideshowService.qml
+│   ├── SnippetService.qml
+│   ├── SystemService.qml
+│   ├── ThemeService.qml
+│   ├── VoiceRecorderService.qml
+│   ├── VpnService.qml
+│   ├── WallpaperService.qml
+│   └── WeatherService.qml
+├── shell.qml
+├── shnx-bar-full.txt
+├── shnx-components-full.txt
+├── shnx-launcher-full.txt
+├── tests
+│   ├── integration
+│   └── qml
+└── theme
+    ├── Colors.qml
+    ├── generated
+    │   ├── MatugenPalette.last-valid.qml
+    │   ├── MatugenPalette.qml
+    │   └── qmldir
+    ├── presets
+    │   ├── AMOLED.qml
+    │   ├── CatppuccinMacchiato.qml
+    │   ├── CatppuccinMocha.qml
+    │   ├── Dark.qml
+    │   ├── Dracula.qml
+    │   ├── EverforestDark.qml
+    │   ├── EverforestLight.qml
+    │   ├── Forest.qml
+    │   ├── Gray.qml
+    │   ├── GruvboxDark.qml
+    │   ├── GruvboxLight.qml
+    │   ├── Kanagawa.qml
+    │   ├── Light.qml
+    │   ├── MaterialDark.qml
+    │   ├── MaterialLight.qml
+    │   ├── Monokai.qml
+    │   ├── Nord.qml
+    │   ├── Ocean.qml
+    │   ├── OneDark.qml
+    │   ├── RosePineMoon.qml
+    │   ├── RosePine.qml
+    │   ├── SolarizedDark.qml
+    │   ├── SolarizedLight.qml
+    │   ├── Sunset.qml
+    │   └── TokyoNight.qml
+    ├── qmldir
+    ├── Radius.qml
+    ├── Shadows.qml
+    ├── Spacing.qml
+    ├── Theme.qml
+    └── Typography.qml
+
+68 directories, 312 files

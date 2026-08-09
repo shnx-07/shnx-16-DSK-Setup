@@ -14,11 +14,8 @@ Item {
 
     property string text: ""
 
-    property real horizontalPadding:
-        ShellTheme.Theme.spacing.medium
-
-    property real verticalPadding:
-        ShellTheme.Theme.spacing.small
+    property real horizontalPadding: 14
+    property real verticalPadding: 7
 
     readonly property bool hovered:
         mouseArea.containsMouse
@@ -28,37 +25,43 @@ Item {
 
     readonly property color backgroundColor: {
         if (!root.enabled)
-            return ShellTheme.Theme.colors.surfaceContainer
+            return ShellTheme.Theme.colors.surfaceContainerLow
 
         if (root.checked)
             return ShellTheme.Theme.colors.primary
 
         if (root.pressed)
-            return ShellTheme.Theme.colors.surfaceContainerHighest
+            return ShellTheme.Theme.colors.selectedOverlay
 
         if (root.hovered)
-            return ShellTheme.Theme.colors.surfaceContainerHigh
+            return ShellTheme.Theme.colors.hoverOverlay
 
-        return ShellTheme.Theme.colors.surfaceContainer
+        return ShellTheme.Theme.colors.surfaceContainerHigh
     }
 
     readonly property color foregroundColor: {
         if (!root.enabled)
-            return ShellTheme.Theme.colors.onSurfaceVariant
+            return ShellTheme.Theme.colors.on_surface_variant
 
         if (root.checked)
-            return ShellTheme.Theme.colors.onPrimary
+            return ShellTheme.Theme.colors.on_primary
 
-        return ShellTheme.Theme.colors.onSurface
+        return ShellTheme.Theme.colors.on_surface
     }
 
     implicitWidth:
-        label.implicitWidth
-        + root.horizontalPadding * 2
+        Math.max(
+            48,
+            label.implicitWidth
+                + root.horizontalPadding * 2
+        )
 
     implicitHeight:
-        label.implicitHeight
-        + root.verticalPadding * 2
+        Math.max(
+            32,
+            label.implicitHeight
+                + root.verticalPadding * 2
+        )
 
     scale:
         root.pressed
@@ -66,33 +69,16 @@ Item {
             : 1.0
 
     opacity:
-        root.enabled ? 1.0 : 0.45
-
-    Behavior on scale {
-        NumberAnimation {
-            duration:
-                Motion.MotionTokens.quick
-
-            easing.type:
-                Motion.Easing.standard
-        }
-    }
-
-    Behavior on opacity {
-        NumberAnimation {
-            duration:
-                Motion.MotionTokens.quick
-
-            easing.type:
-                Motion.Easing.standard
-        }
-    }
+        root.enabled
+            ? 1.0
+            : 0.45
 
     Rectangle {
-        anchors.fill: parent
+        anchors.fill:
+            parent
 
         radius:
-            ShellTheme.Theme.radius.control
+            ShellTheme.Theme.radius.pill
 
         color:
             root.backgroundColor
@@ -111,7 +97,8 @@ Item {
     Text {
         id: label
 
-        anchors.centerIn: parent
+        anchors.centerIn:
+            parent
 
         text:
             root.text
@@ -123,12 +110,12 @@ Item {
             ShellTheme.Theme.typography.fontFamily
 
         font.pixelSize:
-            ShellTheme.Theme.typography.labelLarge
+            ShellTheme.Theme.typography.bodySmall
 
         font.weight:
             root.checked
-                ? Font.DemiBold
-                : Font.Medium
+                ? ShellTheme.Theme.typography.weightSemiBold
+                : ShellTheme.Theme.typography.weightMedium
 
         verticalAlignment:
             Text.AlignVCenter
@@ -137,7 +124,8 @@ Item {
     MouseArea {
         id: mouseArea
 
-        anchors.fill: parent
+        anchors.fill:
+            parent
 
         enabled:
             root.enabled
@@ -151,7 +139,8 @@ Item {
                 : Qt.ArrowCursor
 
         onClicked: {
-            root.checked = !root.checked
+            root.checked =
+                !root.checked
 
             root.clicked()
             root.toggled(root.checked)

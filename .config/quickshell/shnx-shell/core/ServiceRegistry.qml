@@ -42,6 +42,9 @@ QtObject {
     readonly property Services.SystemService system:
         Services.SystemService {}
 
+    readonly property Services.NightLightService nightLight:
+        Services.NightLightService {}
+
     readonly property Services.ThemeService theme:
         Services.ThemeService {}
 
@@ -51,5 +54,18 @@ QtObject {
     readonly property Services.BackendService backend:
         Services.BackendService {
             id: backendService
+
         }
+          
+        readonly property Services.DisplayService display:
+            Services.DisplayService {
+                backend: backendService
+            }
+
+        readonly property Services.InputService input:
+            Services.InputService {
+                backend: backendService
+            }
+
 }
+

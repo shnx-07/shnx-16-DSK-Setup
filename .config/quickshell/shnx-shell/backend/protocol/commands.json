@@ -74,6 +74,43 @@
         "command": "string",
         "pid": "integer"
       }
+    },
+
+    "system.settings.get": {
+      "description": "Returns the current display and input state.",
+      "payload": {},
+      "response": {
+        "display": "object",
+        "input": "object"
+      }
+    },
+
+    "display.set": {
+      "description": "Applies runtime configuration to a Hyprland monitor.",
+      "payload": {
+        "name": "string",
+        "resolution": "string|null",
+        "refresh_rate": "number|null",
+        "scale": "number",
+        "enabled": "boolean",
+        "position": "string|null"
+      },
+      "response": {
+        "result": "object",
+        "display": "object"
+      }
+    },
+
+    "input.set": {
+      "description": "Applies runtime mouse settings through Hyprland.",
+      "payload": {
+        "sensitivity": "number|null",
+        "accel_profile": "string|null"
+      },
+      "response": {
+        "result": "object",
+        "input": "object"
+      }
     }
 
 

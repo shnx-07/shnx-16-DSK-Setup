@@ -117,7 +117,7 @@ Item {
 
                 color:
                     root.active
-                        ? ShellTheme.Theme.colors.onPrimaryContainer
+                        ? ShellTheme.Theme.colors.on_primary_container
                         : ShellTheme.Theme.colors.on_surface
             }
 
@@ -146,7 +146,7 @@ Item {
 
                     color:
                         root.active
-                            ? ShellTheme.Theme.colors.onPrimaryContainer
+                            ? ShellTheme.Theme.colors.on_primary_container
                             : ShellTheme.Theme.colors.on_surface
 
                     font.family:
@@ -174,7 +174,7 @@ Item {
 
                     color:
                         root.active
-                            ? ShellTheme.Theme.colors.onPrimaryContainer
+                            ? ShellTheme.Theme.colors.on_primary_container
                             : ShellTheme.Theme.colors.on_surface_variant
 
                     font.family:
@@ -205,7 +205,7 @@ Item {
 
                 iconColor:
                     root.active
-                        ? ShellTheme.Theme.colors.onPrimaryContainer
+                        ? ShellTheme.Theme.colors.on_primary_container
                         : ShellTheme.Theme.colors.on_surface_variant
 
                 tooltipText:

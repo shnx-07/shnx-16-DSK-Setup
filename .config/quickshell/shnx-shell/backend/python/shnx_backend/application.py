@@ -9,6 +9,7 @@ from .ipc.messages import (
     IncomingMessage,
     PROTOCOL_VERSION,
     error_message,
+    event_message,
     response_message,
 )
 from .ipc.server import IpcServer
@@ -36,6 +37,20 @@ from .services.search import (
     SearchError,
     SearchService,
 )
+
+
+from .services.display import set_monitor
+from .services.input import set_mouse
+
+from .services.system_settings import (
+    get_state,
+    restore_monitor_preferences,
+    save_monitor_preferences,
+    save_mouse_preferences,
+)
+
+from .system import hyprland
+from .system.hyprland import HyprlandError
 class BackendApplication:
     def __init__(self) -> None:
         self._logger = logging.getLogger(__name__)
@@ -72,6 +87,11 @@ class BackendApplication:
             PROTOCOL_VERSION,
         )
 
+        hyprland_task = asyncio.create_task(
+            self._watch_hyprland_events(),
+            name="hyprland-event-watcher",
+        )
+
         try:
             await self._server.serve_forever()
 
@@ -79,6 +99,13 @@ class BackendApplication:
             raise
 
         finally:
+            hyprland_task.cancel()
+
+            try:
+                await hyprland_task
+            except asyncio.CancelledError:
+                pass
+
             await self._server.stop()
 
             self._logger.info(
@@ -165,6 +192,20 @@ class BackendApplication:
             )
         if message.command == "theme.generate":
             return await self._handle_theme_generate(
+                message
+            )
+        if message.command == "system.settings.get":
+            return await self._handle_system_settings_get(
+                message
+            )
+
+        if message.command == "display.set":
+            return await self._handle_display_set(
+                message
+            )
+
+        if message.command == "input.set":
+            return await self._handle_input_set(
                 message
             )
 
@@ -965,8 +1006,333 @@ class BackendApplication:
             payload=result,
         )
 
+    
+
+    # ------------------------------------------------------------------
+    # System settings
+    # ------------------------------------------------------------------
+
+    async def _handle_system_settings_get(
+        self,
+        message: IncomingMessage,
+    ) -> dict:
+        try:
+            state = await asyncio.to_thread(
+                get_state
+            )
+
+        except HyprlandError as error:
+            return error_message(
+                request_id=message.request_id,
+                code="hyprland_unavailable",
+                message=str(error),
+            )
+
+        except Exception as error:
+            self._logger.exception(
+                "Failed to read system settings"
+            )
+
+            return error_message(
+                request_id=message.request_id,
+                code="system_settings_unavailable",
+                message=str(error),
+            )
+
+        return response_message(
+            request_id=message.request_id,
+            command="system.settings.get",
+            payload=state,
+        )
 
 
+    # ------------------------------------------------------------------
+    # Display
+    # ------------------------------------------------------------------
+
+    async def _handle_display_set(self, message):
+        payload = message.payload
+
+        name = payload.get("name")
+
+        if not isinstance(name, str) or not name.strip():
+            return error_message(
+                request_id=message.request_id,
+                code="display_invalid_name",
+                message="A monitor name is required",
+            )
+
+        resolution = payload.get("resolution")
+        refresh_rate = payload.get("refresh_rate")
+        scale = payload.get("scale", 1.0)
+        enabled = payload.get("enabled", True)
+        position = payload.get("position")
+
+        try:
+            result = await asyncio.to_thread(
+                set_monitor,
+                name,
+                resolution=resolution,
+                refresh_rate=refresh_rate,
+                scale=scale,
+                enabled=enabled,
+                position=position,
+            )
+
+            state = await asyncio.to_thread(get_state)
+
+            actual_monitor = next(
+                (
+                    monitor
+                    for monitor in state["display"]["monitors"]
+                    if monitor.get("name") == name
+                ),
+                None,
+            )
+
+            if actual_monitor is not None:
+                await asyncio.to_thread(
+                    save_monitor_preferences,
+                    actual_monitor,
+                )
+
+            state = await asyncio.to_thread(get_state)
+
+            await self._emit_event(
+                "display.changed",
+                state["display"],
+            )
+
+            return response_message(
+                request_id=message.request_id,
+                command=message.command,
+                payload={
+                    "result": result,
+                    "display": state["display"],
+                    "saved": state.get("saved", {}),
+                },
+            )
+
+        except ValueError as exc:
+            return error_message(
+                request_id=message.request_id,
+                code="display_invalid_request",
+                message=str(exc),
+            )
+
+        except HyprlandError as exc:
+            return error_message(
+                request_id=message.request_id,
+                code="display_hyprland_error",
+                message=str(exc),
+            )
+
+        except Exception as exc:
+            return error_message(
+                request_id=message.request_id,
+                code="display_internal_error",
+                message=str(exc),
+            )
+
+
+    # ------------------------------------------------------------------
+    # Input
+    # ------------------------------------------------------------------
+
+    async def _handle_input_set(self, message):
+        payload = message.payload
+
+        sensitivity = payload.get("sensitivity")
+        accel_profile = payload.get("accel_profile")
+
+        try:
+            result = await asyncio.to_thread(
+                set_mouse,
+                sensitivity=sensitivity,
+                accel_profile=accel_profile,
+            )
+
+            state = await asyncio.to_thread(get_state)
+
+            actual_mouse = state["input"]["mouse"]
+
+            await asyncio.to_thread(
+                save_mouse_preferences,
+                actual_mouse,
+            )
+
+            state = await asyncio.to_thread(get_state)
+
+            return response_message(
+                request_id=message.request_id,
+                command=message.command,
+                payload={
+                    "result": result,
+                    "input": state["input"],
+                    "saved": state.get("saved", {}),
+                },
+            )
+
+        except ValueError as exc:
+            return error_message(
+                request_id=message.request_id,
+                code="input_invalid_request",
+                message=str(exc),
+            )
+
+        except HyprlandError as exc:
+            return error_message(
+                request_id=message.request_id,
+                code="input_hyprland_error",
+                message=str(exc),
+            )
+
+        except Exception as exc:
+            return error_message(
+                request_id=message.request_id,
+                code="input_internal_error",
+                message=str(exc),
+            )
+
+    async def _watch_hyprland_events(
+        self,
+    ) -> None:
+        while True:
+            try:
+                async for (
+                    event_name,
+                    event_data,
+                ) in hyprland.events():
+
+                    if event_name == "monitoradded":
+                        await self._handle_monitor_added(
+                            event_data
+                        )
+
+                    elif event_name == "monitorremoved":
+                        await self._handle_monitor_removed(
+                            event_data
+                        )
+
+            except asyncio.CancelledError:
+                raise
+
+            except Exception:
+                self._logger.exception(
+                    "Hyprland event watcher failed"
+                )
+
+                await asyncio.sleep(1.0)
+
+
+
+
+    async def _handle_monitor_added(
+        self,
+        name: str,
+    ) -> None:
+        name = name.strip()
+
+        if not name:
+            return
+
+        self._logger.info(
+            "Monitor connected: %s",
+            name,
+        )
+
+        await asyncio.sleep(0.15)
+
+        restored = False
+
+        try:
+            result = await asyncio.to_thread(
+                restore_monitor_preferences,
+                name,
+            )
+
+            restored = (
+                result is not None
+            )
+
+            if restored:
+                self._logger.info(
+                    "Restored settings for monitor %s",
+                    name,
+                )
+            else:
+                self._logger.info(
+                    "No saved settings for monitor %s",
+                    name,
+                )
+
+        except Exception:
+            self._logger.exception(
+                "Failed restoring monitor %s",
+                name,
+            )
+
+        state = await asyncio.to_thread(
+            get_state
+        )
+
+        monitor = next(
+            (
+                item
+                for item
+                in state["display"]["monitors"]
+                if item.get("name") == name
+            ),
+            None,
+        )
+
+        await self._emit_event(
+            "display.monitorAdded",
+            {
+                "name": name,
+                "restored": restored,
+                "monitor": monitor,
+            },
+        )
+
+        await self._emit_event(
+            "display.changed",
+            state["display"],
+        )
+
+
+    async def _handle_monitor_removed(
+        self,
+        name: str,
+    ) -> None:
+        name = name.strip()
+
+        if not name:
+            return
+
+        self._logger.info(
+            "Monitor disconnected: %s",
+            name,
+        )
+
+        # Give Hyprland a moment to update monitor state.
+        await asyncio.sleep(0.1)
+
+        state = await asyncio.to_thread(
+            get_state
+        )
+
+        await self._emit_event(
+            "display.monitorRemoved",
+            {
+                "name": name,
+            },
+        )
+
+        await self._emit_event(
+            "display.changed",
+            state["display"],
+        )
 
     # ------------------------------------------------------------------
     # Validation helpers
@@ -1016,3 +1382,19 @@ class BackendApplication:
             return False
 
         return value > 0
+    
+    
+    async def _emit_event(
+        self,
+        event: str,
+        payload: dict | None = None,
+    ) -> None:
+        await self._server.broadcast(
+            event_message(
+                event=event,
+                payload=payload or {},
+            )
+        ) 
+    
+    
+    

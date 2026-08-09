@@ -14,7 +14,7 @@ import "../panels/power" as Power
 import "../panels/launcher" as Launcher
 import "../panels/appearance" as Appearance
 import "../panels/wallpaper" as Wallpaper
-
+import "../panels/system" as System
 
 Scope {
     id: root
@@ -84,6 +84,21 @@ Scope {
         }
     }
 
+    GlobalShortcut {
+      appid: "shnx-shell"
+      name: "system-panel"
+      description: "Toggle Display & Input settings"
+
+      onPressed: {
+          Core.PanelController.toggleSystem()
+
+          console.log(
+              "[SystemPanel] shortcut received, open:",
+              Core.PanelController.systemPanelOpen
+          )
+      }
+    }
+
     /*
      * ------------------------------------------------------------
      * Floating panels
@@ -121,6 +136,10 @@ Scope {
 
     Launcher.AppLauncherPanel {
         id: appLauncherPanel
+      }
+
+    System.DisplayInputPanel {
+        id: displayInputPanel
     }
 
 

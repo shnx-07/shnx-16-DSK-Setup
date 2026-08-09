@@ -29,8 +29,7 @@ Item {
     property real horizontalPadding:
         ShellTheme.Theme.spacing.medium
 
-    property real verticalPadding:
-        ShellTheme.Theme.spacing.small
+    property real verticalPadding: 8
 
     property real spacing:
         ShellTheme.Theme.spacing.small
@@ -43,28 +42,35 @@ Item {
 
     readonly property color backgroundColor: {
         if (!root.enabled)
-            return ShellTheme.Theme.colors.surfaceContainer
+            return ShellTheme.Theme.colors.surfaceContainerLow
 
         if (root.variant === PillButton.Destructive)
             return ShellTheme.Theme.colors.error
 
-        if (root.variant === PillButton.Secondary)
+        if (root.variant === PillButton.Secondary) {
+            if (root.pressed)
+                return ShellTheme.Theme.colors.selectedOverlay
+
+            if (root.hovered)
+                return ShellTheme.Theme.colors.hoverOverlay
+
             return ShellTheme.Theme.colors.surfaceContainerHigh
+        }
 
         return ShellTheme.Theme.colors.primary
     }
 
     readonly property color foregroundColor: {
         if (!root.enabled)
-            return ShellTheme.Theme.colors.onSurfaceVariant
+            return ShellTheme.Theme.colors.on_surface_variant
 
         if (root.variant === PillButton.Destructive)
-            return ShellTheme.Theme.colors.onError
+            return ShellTheme.Theme.colors.on_error
 
         if (root.variant === PillButton.Secondary)
-            return ShellTheme.Theme.colors.onSurface
+            return ShellTheme.Theme.colors.on_surface
 
-        return ShellTheme.Theme.colors.onPrimary
+        return ShellTheme.Theme.colors.on_primary
     }
 
     implicitWidth:
@@ -72,8 +78,11 @@ Item {
         + root.horizontalPadding * 2
 
     implicitHeight:
-        contentRow.implicitHeight
-        + root.verticalPadding * 2
+        Math.max(
+            34,
+            contentRow.implicitHeight
+                + root.verticalPadding * 2
+        )
 
     scale:
         root.pressed
@@ -83,7 +92,9 @@ Item {
                 : 1.0
 
     opacity:
-        root.enabled ? 1.0 : 0.45
+        root.enabled
+            ? 1.0
+            : 0.45
 
     Behavior on scale {
         NumberAnimation {
@@ -95,47 +106,22 @@ Item {
         }
     }
 
-    Behavior on opacity {
-        NumberAnimation {
-            duration:
-                Motion.MotionTokens.quick
-
-            easing.type:
-                Motion.Easing.standard
-        }
-    }
-
     Rectangle {
-        anchors.fill: parent
+        anchors.fill:
+            parent
 
         radius:
             ShellTheme.Theme.radius.pill
 
         color:
             root.backgroundColor
-
-        opacity:
-            root.pressed
-                ? 0.82
-                : root.hovered
-                    ? 0.92
-                    : 1.0
-
-        Behavior on opacity {
-            NumberAnimation {
-                duration:
-                    Motion.MotionTokens.quick
-
-                easing.type:
-                    Motion.Easing.standard
-            }
-        }
     }
 
     Row {
         id: contentRow
 
-        anchors.centerIn: parent
+        anchors.centerIn:
+            parent
 
         spacing:
             root.spacing
@@ -175,10 +161,10 @@ Item {
                 ShellTheme.Theme.typography.fontFamily
 
             font.pixelSize:
-                ShellTheme.Theme.typography.labelLarge
+                ShellTheme.Theme.typography.bodySmall
 
             font.weight:
-                Font.DemiBold
+                ShellTheme.Theme.typography.weightMedium
 
             verticalAlignment:
                 Text.AlignVCenter
@@ -188,7 +174,8 @@ Item {
     MouseArea {
         id: mouseArea
 
-        anchors.fill: parent
+        anchors.fill:
+            parent
 
         enabled:
             root.enabled

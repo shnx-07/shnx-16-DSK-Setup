@@ -132,7 +132,7 @@ Item {
 
     function requestForget(networkObject) {
         if (!networkObject
-                || !networkObject.known
+                || (!networkObject.known && !networkObject.connected)
                 || networkObject.stateChanging) {
             return
         }
@@ -149,6 +149,10 @@ Item {
     function confirmForget() {
         if (!forgetNetwork)
             return
+
+        if (forgetNetwork.connected) {
+            forgetNetwork.disconnect()
+        }
 
         forgetNetwork.forget()
         cancelForget()
@@ -669,6 +673,39 @@ Item {
                             radius: 4
                             color: ShellTheme.Theme.colors.success
                         }
+
+                        Rectangle {
+                            Layout.preferredWidth: 28
+                            Layout.preferredHeight: 28
+
+                            radius: ShellTheme.Theme.radius.button
+
+                            color: connectedMenuMouse.containsMouse
+                                ? ShellTheme.Theme.colors.hoverOverlay
+                                : "transparent"
+
+                            Text {
+                                anchors.centerIn: parent
+
+                                text: "•••"
+                                color: ShellTheme.Theme.colors.on_surface_variant
+                                font.pixelSize: ShellTheme.Theme.typography.labelMedium
+                                font.weight: Font.DemiBold
+                            }
+
+                            MouseArea {
+                                id: connectedMenuMouse
+
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+
+                                onClicked: function(mouse) {
+                                    mouse.accepted = true
+                                    root.requestForget(network.connectedNetwork)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -988,8 +1025,7 @@ Item {
                               Layout.preferredHeight: 28
 
                               visible:
-                                  networkDelegate.isKnown
-                                  && !networkDelegate.isConnected
+                                  (networkDelegate.isKnown || networkDelegate.isConnected)
                                   && !networkDelegate.isChanging
 
                               z: 5
@@ -1296,11 +1332,13 @@ Item {
 
                                 color: ShellTheme.Theme.colors.surfaceContainerLowest
 
-                                border.width: passwordField.activeFocus
+                                border.width: passwordField.activeFocus || root.connectionError.length > 0
                                     ? 1
                                     : 0
 
-                                border.color: ShellTheme.Theme.colors.primary
+                                border.color: root.connectionError.length > 0
+                                    ? ShellTheme.Theme.colors.error
+                                    : ShellTheme.Theme.colors.primary
 
                                 TextInput {
                                     id: passwordField
@@ -1708,6 +1746,16 @@ Item {
                     root.connectingWithPassword = false
 
                     if (!root.selectedNetwork.connected
+                            && root.passwordPromptVisible
+                            && root.connectionError.length === 0) {
+                        root.connectionError = "Incorrect password or authentication failed. Please try again."
+                        Qt.callLater(function() {
+                            passwordField.selectAll()
+                            passwordField.forceActiveFocus()
+                        })
+                    }
+
+                    if (!root.selectedNetwork.connected
                             && !root.passwordPromptVisible
                             && root.connectionError.length === 0) {
                         root.selectedNetwork = null
@@ -1715,3 +1763,4 @@ Item {
                 }
             }
 }
+

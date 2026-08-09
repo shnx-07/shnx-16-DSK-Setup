@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.theme as ShellTheme
 import qs.components.visual as Visual
 
 Item {
@@ -16,12 +17,12 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        radius: 12
+        radius: ShellTheme.Theme.radius.control
         color:
             root.selected
-                ? "#292929"
+                ? ShellTheme.Theme.colors.selectedOverlay
                 : mouseArea.containsMouse
-                    ? "#202020"
+                    ? ShellTheme.Theme.colors.hoverOverlay
                     : "transparent"
     }
 
@@ -29,7 +30,7 @@ Item {
         anchors.fill: parent
         anchors.leftMargin: 12
         anchors.rightMargin: 12
-        spacing: 12
+        spacing: ShellTheme.Theme.spacing.medium
 
         Item {
             width: 34
@@ -38,8 +39,8 @@ Item {
 
             Rectangle {
                 anchors.fill: parent
-                radius: 9
-                color: "#242424"
+                radius: ShellTheme.Theme.radius.small
+                color: ShellTheme.Theme.colors.surfaceContainerHighest
             }
 
             Visual.Icon {
@@ -55,7 +56,7 @@ Item {
                         ? ""
                         : root.fallbackGlyph()
 
-                color: "#f2f2f2"
+                color: ShellTheme.Theme.colors.on_surface
             }
         }
 
@@ -79,8 +80,8 @@ Item {
                             ? String(root.result.title)
                             : ""
 
-                color: "#f5f5f5"
-                font.pixelSize: 14
+                color: ShellTheme.Theme.colors.on_surface
+                font.pixelSize: ShellTheme.Theme.typography.bodyMedium
                 font.weight: root.selected ? Font.DemiBold : Font.Medium
                 elide: Text.ElideRight
             }
@@ -96,8 +97,8 @@ Item {
                             ? String(root.result.subtitle)
                             : ""
 
-                color: "#969696"
-                font.pixelSize: 11
+                color: ShellTheme.Theme.colors.on_surface_variant
+                font.pixelSize: ShellTheme.Theme.typography.labelSmall
                 elide: Text.ElideRight
             }
         }
@@ -107,8 +108,8 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             text: root.typeText()
-            color: root.selected ? "#d4d4d4" : "#777777"
-            font.pixelSize: 10
+            color: root.selected ? ShellTheme.Theme.colors.on_surface : ShellTheme.Theme.colors.on_surface_variant
+            font.pixelSize: ShellTheme.Theme.typography.labelSmall
             font.weight: Font.DemiBold
         }
     }

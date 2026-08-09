@@ -28,23 +28,28 @@ Item {
     readonly property var notifications:
     Core.ServiceRegistry.notifications
 
+    readonly property var audio:
+        Core.ServiceRegistry.audio
+
     readonly property var nightLight:
         Core.ServiceRegistry.nightLight
 
     readonly property var vpn:
         Core.ServiceRegistry.vpn
 
-    /*
-     * ------------------------------------------------------------
-     * TEMPORARY STATES
-     * ------------------------------------------------------------
-     *
-     * Keep these exactly as local prototype states for now.
-     * We will wire real services in a separate pass.
-     */
+    readonly property bool airplaneModeActive:
+        root.network && root.bluetooth
+            ? (!root.network.wifiEnabled && !root.bluetooth.enabled)
+            : false
 
-    property bool airplaneModeEnabled: false
-    property bool microphoneMuted: false
+    function toggleAirplaneMode() {
+        if (!root.network || !root.bluetooth)
+            return
+
+        const enableRadios = airplaneModeActive
+        root.network.setWifiEnabled(enableRadios)
+        root.bluetooth.setEnabled(enableRadios)
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -146,17 +151,16 @@ Item {
                 }
 
                 active:
-                    root.network.available
-                    && root.network.wifiEnabled
+                    Boolean(root.network && root.network.available && root.network.wifiEnabled)
 
                 available:
-                    root.network.available
-                    && root.network.wifiHardwareEnabled
+                    Boolean(root.network && root.network.available && root.network.wifiHardwareEnabled)
 
                 showDetailButton: true
 
                 onToggled: {
-                    root.network.toggleWifi()
+                    if (root.network)
+                        root.network.toggleWifi()
                 }
 
                 onDetailRequested: {
@@ -175,13 +179,13 @@ Item {
                 Layout.fillHeight: true
 
                 iconText:
-                    root.bluetooth.icon
+                    root.bluetooth ? root.bluetooth.icon : ""
 
                 title:
                     "Bluetooth"
 
                 subtitle: {
-                    if (!root.bluetooth.available)
+                    if (!root.bluetooth || !root.bluetooth.available)
                         return "Unavailable"
 
                     if (!root.bluetooth.enabled)
@@ -199,16 +203,16 @@ Item {
                 }
 
                 active:
-                    root.bluetooth.available
-                    && root.bluetooth.enabled
+                    Boolean(root.bluetooth && root.bluetooth.available && root.bluetooth.enabled)
 
                 available:
-                    root.bluetooth.available
+                    Boolean(root.bluetooth && root.bluetooth.available)
 
                 showDetailButton: true
 
                 onToggled: {
-                    root.bluetooth.toggleEnabled()
+                    if (root.bluetooth)
+                        root.bluetooth.toggleEnabled()
                 }
 
                 onDetailRequested: {
@@ -227,7 +231,7 @@ Item {
                 Layout.fillHeight: true
 
                 iconText:
-                    root.notifications.doNotDisturb
+                    root.notifications && root.notifications.doNotDisturb
                         ? "󰂛"
                         : "󰂚"
 
@@ -235,15 +239,16 @@ Item {
                     "Do Not Disturb"
 
                 subtitle:
-                    root.notifications.doNotDisturb
+                    root.notifications && root.notifications.doNotDisturb
                         ? "Enabled"
                         : "Off"
 
                 active:
-                    root.notifications.doNotDisturb
+                    Boolean(root.notifications && root.notifications.doNotDisturb)
 
                 onToggled: {
-                    root.notifications.toggleDoNotDisturb()
+                    if (root.notifications)
+                        root.notifications.toggleDoNotDisturb()
                 }
             }
 
@@ -261,15 +266,16 @@ Item {
                       "Night Light"
 
                   subtitle:
-                      root.nightLight.enabled
+                      root.nightLight && root.nightLight.enabled
                           ? "Enabled"
                           : "Off"
 
                   active:
-                      root.nightLight.enabled
+                      Boolean(root.nightLight && root.nightLight.enabled)
 
                   onToggled: {
-                      root.nightLight.toggle()
+                      if (root.nightLight)
+                          root.nightLight.toggle()
                   }
               }
 
@@ -287,11 +293,11 @@ Item {
                       "VPN"
 
                   subtitle: {
-                      if (!root.vpn.hasProfile)
+                      if (!root.vpn || !root.vpn.hasProfile)
                           return "No profile"
 
                       if (root.vpn.isConnected)
-                          return root.vpn.connectionName.length > 0
+                          return root.vpn.connectionName && root.vpn.connectionName.length > 0
                               ? root.vpn.connectionName
                               : "Connected"
 
@@ -299,13 +305,14 @@ Item {
                   }
 
                   active:
-                      root.vpn.isConnected
+                      Boolean(root.vpn && root.vpn.isConnected)
 
                   available:
-                      root.vpn.hasProfile
+                      Boolean(root.vpn && root.vpn.hasProfile)
 
                   onToggled: {
-                      root.vpn.toggle()
+                      if (root.vpn)
+                          root.vpn.toggle()
                   }
               }
 
@@ -323,16 +330,15 @@ Item {
                     "Airplane Mode"
 
                 subtitle:
-                    root.airplaneModeEnabled
+                    root.airplaneModeActive
                         ? "Enabled"
                         : "Off"
 
                 active:
-                    root.airplaneModeEnabled
+                    Boolean(root.airplaneModeActive)
 
                 onToggled: {
-                    root.airplaneModeEnabled =
-                        !root.airplaneModeEnabled
+                    root.toggleAirplaneMode()
                 }
             }
 
@@ -344,7 +350,7 @@ Item {
                 Layout.fillHeight: true
 
                 iconText:
-                    root.microphoneMuted
+                    root.audio && root.audio.microphoneMuted
                         ? "󰍭"
                         : "󰍬"
 
@@ -352,16 +358,19 @@ Item {
                     "Microphone"
 
                 subtitle:
-                    root.microphoneMuted
+                    root.audio && root.audio.microphoneMuted
                         ? "Muted"
                         : "Active"
 
                 active:
-                    root.microphoneMuted
+                    Boolean(root.audio && root.audio.microphoneMuted)
+
+                available:
+                    Boolean(root.audio && root.audio.sourceAvailable)
 
                 onToggled: {
-                    root.microphoneMuted =
-                        !root.microphoneMuted
+                    if (root.audio)
+                        root.audio.toggleMicrophoneMute()
                 }
             }
 
@@ -398,3 +407,4 @@ Item {
         }
     }
 }
+

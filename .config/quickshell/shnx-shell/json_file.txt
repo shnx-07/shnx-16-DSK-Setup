@@ -1,0 +1,10 @@
+
+----- config/settings.json -----
+{
+    "appearanceMode": "oneDark",
+    "colorStyle": "wallpaperAccents"
+}
+
+----- config/wallpaper.json -----
+
+----- config/defaults.json -----

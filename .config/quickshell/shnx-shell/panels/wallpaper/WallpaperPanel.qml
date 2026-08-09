@@ -179,42 +179,33 @@ PanelWindow {
      */
 
     onVisibleChanged: {
-        if (!visible)
-            return
+        const service = root.wallpaperService
 
+        if (!visible) {
+            if (service)
+                service.endSession()
+
+            return
+        }
+
+        /*
+         * Wallpaper is session-driven.
+         *
+         * Every CLOSED -> OPEN transition performs one fresh scan so newly
+         * added files are discovered without restarting Quickshell.
+         *
+         * The service publishes one stable library snapshot; preview results
+         * update separately and never replace the carousel model.
+         */
         Qt.callLater(function() {
             if (!root || !root.visible)
                 return
 
+            if (service)
+                service.beginSession()
+
             if (root.visible && wallpaperCarousel)
                 wallpaperCarousel.forceActiveFocus()
-
-            /*
-             * Second callLater: push the scan one more tick out.
-             *
-             * WHY: the first tick lets the Wayland surface commit and
-             * the Repeater instantiate its initial delegates. The second
-             * tick lets those delegates finish their Component.onCompleted
-             * handlers and Image asynchronous loads queue up. Only THEN
-             * do we ask the backend to scan, so when it responds and
-             * replaces `library`, none of the old delegates have live
-             * async image loads in-flight that could fire on freed memory.
-             */
-            Qt.callLater(function() {
-                if (!root || !root.visible)
-                    return
-
-                const service = root.wallpaperService
-
-                if (
-                    service
-                    && service.backendAvailable
-                    && service.wallpaperCount === 0
-                    && !service.loading
-                ) {
-                    service.scanLibrary()
-                }
-            })
         })
     }
 

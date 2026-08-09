@@ -52,6 +52,21 @@ QtObject {
     property bool previewsLoading: false
 
     /*
+     * Wallpaper panel session state.
+     *
+     * The service remains alive for the shell lifetime. A fresh library
+     * snapshot is requested only when the Wallpaper panel opens.
+     */
+    property bool sessionActive: false
+
+    /*
+     * Preview paths intentionally live outside `library`.
+     *
+     * Preview completion must not replace the carousel Repeater model.
+     */
+    property var previewByPath: ({})
+
+    /*
      * Each apply request remembers the wallpaper it belongs to.
      *
      * This keeps the apply result correct even when the user continues
@@ -127,6 +142,34 @@ QtObject {
     )
 
     signal backendUnavailable()
+
+
+    /*
+     * ------------------------------------------------------------
+     * Wallpaper panel session
+     * ------------------------------------------------------------
+     */
+
+    function beginSession() {
+        if (sessionActive)
+            return true
+
+        sessionActive = true
+
+        if (!scanLibrary()) {
+            if (!loading)
+                sessionActive = false
+
+            return loading
+        }
+
+        return true
+    }
+
+
+    function endSession() {
+        sessionActive = false
+    }
 
 
     /*
@@ -392,10 +435,8 @@ QtObject {
              *
              * Backend cache validation still protects us after rescans.
              */
-            if (wallpaper.preview
-                    && wallpaper.preview.length > 0) {
+            if (previewPathFor(wallpaper).length > 0)
                 continue
-            }
 
             requests.push({
                 path: wallpaper.path,
@@ -443,6 +484,32 @@ QtObject {
      * ------------------------------------------------------------
      */
 
+    function previewPathFor(wallpaper) {
+        if (!wallpaper)
+            return ""
+
+        if (wallpaper.preview
+                && wallpaper.preview.length > 0) {
+            return wallpaper.preview
+        }
+
+        const path =
+            wallpaper.path !== undefined
+                ? wallpaper.path
+                : ""
+
+        if (!path || !previewByPath)
+            return ""
+
+        const preview =
+            previewByPath[path]
+
+        return preview !== undefined
+            ? preview
+            : ""
+    }
+
+
     function wallpaperByPath(path) {
         if (!path || !library)
             return null
@@ -488,17 +555,20 @@ QtObject {
 
 
     /*
-     * Merge backend preview results into library entries.
+     * Merge backend preview results into the preview cache.
      *
-     * We create new JS objects instead of mutating the original object
-     * in place. This ensures QML observers reliably see the change.
+     * IMPORTANT:
+     * This never replaces `library`, so the carousel Repeater keeps its
+     * existing delegates alive while preview Image.source bindings update.
      */
     function mergePreviewResults(results) {
         if (!results || results.length === 0)
             return
 
-        const updatedLibrary =
-            library.slice()
+        const updatedPreviews = {}
+
+        for (const key in previewByPath)
+            updatedPreviews[key] = previewByPath[key]
 
         let changed = false
 
@@ -509,42 +579,20 @@ QtObject {
             const result =
                 results[resultIndex]
 
-            if (!result)
-                continue
-
-            if (result.success !== true)
-                continue
-
-            if (!result.path
+            if (!result
+                    || result.success !== true
+                    || !result.path
                     || !result.preview) {
                 continue
             }
 
-            const libraryIndex =
-                libraryIndexByPath(
-                    result.path
-                )
-
-            if (libraryIndex < 0)
+            if (updatedPreviews[result.path]
+                    === result.preview) {
                 continue
+            }
 
-            const oldWallpaper =
-                updatedLibrary[libraryIndex]
-
-            const updatedWallpaper = {}
-
-            for (const key in oldWallpaper)
-                updatedWallpaper[key] =
-                    oldWallpaper[key]
-
-            updatedWallpaper.preview =
+            updatedPreviews[result.path] =
                 result.preview
-
-            updatedWallpaper.previewCached =
-                result.cached === true
-
-            updatedLibrary[libraryIndex] =
-                updatedWallpaper
 
             changed = true
         }
@@ -552,41 +600,10 @@ QtObject {
         if (!changed)
             return
 
-        library =
-            updatedLibrary
-
-        /*
-         * Reconnect selected/current references to the newly-created
-         * library objects.
-         */
-        if (selectedWallpaper
-                && selectedWallpaper.path) {
-
-            const selected =
-                wallpaperByPath(
-                    selectedWallpaper.path
-                )
-
-            if (selected)
-                selectedWallpaper =
-                    selected
-        }
-
-        if (currentWallpaper
-                && currentWallpaper.path) {
-
-            const current =
-                wallpaperByPath(
-                    currentWallpaper.path
-                )
-
-            if (current)
-                currentWallpaper =
-                    current
-        }
+        previewByPath =
+            updatedPreviews
 
         previewsChanged()
-        libraryChangedByBackend()
     }
 
 
@@ -600,18 +617,12 @@ QtObject {
         target: Core.ServiceRegistry.backend
 
         function onOnlineChanged() {
-            if (
-                Core.ServiceRegistry.backend.online
-                && root.library.length === 0
-                && !root.loading
-                && !root.refreshing
-            ) {
-                console.log(
-                    "[WallpaperService] Backend online, scanning wallpaper library"
-                )
-
-                root.scanLibrary()
-            }
+            /*
+             * No automatic wallpaper scan here.
+             * Opening Wallpaper is the single session entry point.
+             */
+            if (!Core.ServiceRegistry.backend.online)
+                root.sessionActive = false
         }
 
 
@@ -683,52 +694,81 @@ QtObject {
             return
         }
 
-        if (payload.wallpapers !== undefined)
-            library = payload.wallpapers
+        const selectedPath =
+            selectedWallpaper
+                && selectedWallpaper.path
+                ? selectedWallpaper.path
+                : ""
+
+        const currentPath =
+            currentWallpaper
+                && currentWallpaper.path
+                ? currentWallpaper.path
+                : ""
+
+        const freshLibrary =
+            payload.wallpapers !== undefined
+                ? payload.wallpapers
+                : []
+
+        /*
+         * One publish point for the carousel model.
+         */
+        library =
+            freshLibrary
 
         if (payload.folders !== undefined)
             sourceFolders = payload.folders
 
-        if (payload.current !== undefined
+        if (currentPath.length > 0) {
+            const current =
+                wallpaperByPath(
+                    currentPath
+                )
+
+            if (current)
+                currentWallpaper = current
+        } else if (payload.current !== undefined
                 && payload.current) {
 
-            const currentPath =
+            const payloadCurrentPath =
                 payload.current.path !== undefined
                     ? payload.current.path
                     : payload.current
 
             const current =
                 wallpaperByPath(
-                    currentPath
+                    payloadCurrentPath
                 )
 
             currentWallpaper =
                 current
                     ? current
                     : payload.current
-
-            if (!selectedWallpaper)
-                selectedWallpaper =
-                    currentWallpaper
         }
 
-        /*
-         * First wallpaper becomes initial carousel selection when there
-         * is no currently-applied wallpaper known to this service.
-         */
-        if (!selectedWallpaper
-                && library.length > 0) {
+        if (selectedPath.length > 0) {
+            selectedWallpaper =
+                wallpaperByPath(
+                    selectedPath
+                )
+        } else if (currentWallpaper
+                && currentWallpaper.path) {
 
             selectedWallpaper =
-                library[0]
+                wallpaperByPath(
+                    currentWallpaper.path
+                )
+        }
 
-            selectionChanged(
-                selectedWallpaper
-            )
+        if (!selectedWallpaper
+                && library.length > 0) {
+            selectedWallpaper =
+                library[0]
         }
 
         console.log(
-            "[WallpaperService] Loaded",
+            "[WallpaperService] Session loaded",
             root.library.length,
             "wallpapers"
         )
@@ -736,8 +776,7 @@ QtObject {
         libraryChangedByBackend()
 
         /*
-         * Scan stays lightweight. Preview generation begins only after
-         * metadata is available.
+         * Preview results update previewByPath only.
          */
         requestLibraryPreviews()
     }
@@ -781,23 +820,21 @@ QtObject {
                 ? currentWallpaper.path
                 : ""
 
-        if (payload.wallpapers !== undefined)
-            library = payload.wallpapers
+        const freshLibrary =
+            payload.wallpapers !== undefined
+                ? payload.wallpapers
+                : []
+
+        library =
+            freshLibrary
 
         if (payload.folders !== undefined)
             sourceFolders = payload.folders
 
-        if (selectedPath.length > 0) {
-            const selected =
-                wallpaperByPath(
-                    selectedPath
-                )
-
-            selectedWallpaper =
-                selected
-                    ? selected
-                    : null
-        }
+        selectedWallpaper =
+            selectedPath.length > 0
+                ? wallpaperByPath(selectedPath)
+                : null
 
         if (currentPath.length > 0) {
             const current =
@@ -806,23 +843,16 @@ QtObject {
                 )
 
             if (current)
-                currentWallpaper =
-                    current
+                currentWallpaper = current
         }
 
         if (!selectedWallpaper
                 && library.length > 0) {
-
             selectedWallpaper =
                 library[0]
-
-            selectionChanged(
-                selectedWallpaper
-            )
         }
 
         libraryChangedByBackend()
-
         requestLibraryPreviews()
     }
 
@@ -991,5 +1021,6 @@ QtObject {
         )
     }
 }
+
 
 

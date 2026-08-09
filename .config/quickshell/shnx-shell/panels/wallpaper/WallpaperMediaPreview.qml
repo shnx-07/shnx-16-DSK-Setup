@@ -1,5 +1,6 @@
 import QtQuick
 
+import qs.core as Core
 import qs.theme as ShellTheme
 
 Item {
@@ -7,10 +8,17 @@ Item {
 
     property var wallpaper: null
 
+    readonly property var wallpaperService:
+        Core.ServiceRegistry.wallpaper
+
+    readonly property string previewPath:
+        wallpaperService
+            ? wallpaperService.previewPathFor(wallpaper)
+            : ""
+
     readonly property string previewSource:
-        wallpaper
-        && wallpaper.preview
-            ? "file://" + wallpaper.preview
+        previewPath.length > 0
+            ? "file://" + previewPath
             : ""
 
     readonly property bool hasPreview:
@@ -52,20 +60,6 @@ Item {
             asynchronous: true
             cache: true
             smooth: true
-            mipmap: true
-
-            Component.onDestruction: {
-                /*
-                 * Cancel any in-progress async image decode before
-                 * the item is freed. Setting asynchronous = false
-                 * first tells Qt to abandon the background thread
-                 * load synchronously, so no statusChanged notification
-                 * is queued after destruction that could dereference
-                 * the freed QQuickItem.
-                 */
-                asynchronous = false
-                source = ""
-            }
         }
 
         Rectangle {
@@ -133,4 +127,5 @@ Item {
         }
     }
 }
+
 

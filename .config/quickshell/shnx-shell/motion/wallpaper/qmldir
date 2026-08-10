@@ -1,0 +1,3 @@
+module motion.wallpaper
+
+singleton WallpaperTransitionController 1.0 WallpaperTransitionController.qml

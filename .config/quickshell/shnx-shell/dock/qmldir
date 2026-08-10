@@ -1,6 +1,0 @@
-module ShnxShell.Dock
-
-UtilityDock 1.0 UtilityDock.qml
-UtilityDockSurface 1.0 UtilityDockSurface.qml
-UtilityDockItem 1.0 UtilityDockItem.qml
-UtilityDockShortcutLabel 1.0 UtilityDockShortcutLabel.qml

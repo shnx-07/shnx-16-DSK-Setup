@@ -1,3 +1,0 @@
-module ShnxShell.Theme.Generated
-
-singleton MatugenPalette 1.0 MatugenPalette.qml

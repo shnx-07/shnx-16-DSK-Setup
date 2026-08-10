@@ -1,0 +1,108 @@
+{
+  "protocol_version": 1,
+  "commands": {
+    "hello": {
+      "description": "Validates QML/backend protocol compatibility.",
+      "payload": {},
+      "response": {
+        "backend": "string",
+        "backend_version": "string",
+        "protocol_version": "integer"
+      }
+    },
+
+    "ping": {
+      "description": "Checks whether the backend is responsive.",
+      "payload": {},
+      "response": {
+        "reply": "pong"
+      }
+    },
+
+    "weather.get": {
+      "description": "Returns fresh or cached weather for a location.",
+      "payload": {
+        "location": "string",
+        "force_refresh": "boolean"
+      },
+      "response": {
+        "provider": "string",
+        "query": "string",
+        "location": "string",
+        "condition": "string",
+        "condition_icon": "string",
+        "temperature": "number",
+        "apparent_temperature": "number",
+        "high": "number",
+        "low": "number",
+        "precipitation_probability": "integer",
+        "humidity": "integer",
+        "wind_speed": "number",
+        "updated_at": "integer",
+        "cached": "boolean",
+        "stale": "boolean"
+      }
+    },
+
+    "search.files": {
+      "description": "Searches indexed user files and folders.",
+      "payload": {
+        "query": "string",
+        "limit": "integer"
+      },
+      "response": {
+        "query": "string",
+        "results": "array"
+      }
+    },
+
+    "search.open": {
+      "description": "Opens a file or folder with the system default application.",
+      "payload": {
+        "path": "string"
+      },
+      "response": {
+        "path": "string",
+        "pid": "integer"
+      }
+    },
+
+    "search.command": {
+      "description": "Executes a user-entered shell command.",
+      "payload": {
+        "command": "string"
+      },
+      "response": {
+        "command": "string",
+        "pid": "integer"
+      }
+    },
+
+
+    "screenshot.full": {
+      "description": "Captures a complete monitor screenshot, saves it, and copies it to the image clipboard.",
+      "payload": {
+        "output": "string|null"
+      },
+      "response": {
+        "success": "boolean",
+        "type": "string",
+        "path": "string",
+        "output": "string|null"
+      }
+    },
+
+    "screenshot.region": {
+      "description": "Captures a selected screen region, saves it, and copies it to the image clipboard.",
+      "payload": {
+        "geometry": "string"
+      },
+      "response": {
+        "success": "boolean",
+        "type": "string",
+        "path": "string",
+        "geometry": "string"
+      }
+    }
+  }
+}
